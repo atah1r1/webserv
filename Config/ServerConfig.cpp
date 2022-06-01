@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 16:08:24 by atahiri           #+#    #+#             */
-/*   Updated: 2022/05/31 17:58:19 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/06/01 16:01:04 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,16 @@
 
 ServerConfig::ServerConfig(/* args */)
 {
+    setPort(80);
+    setServerName("www");
+    setRoot("./www/");
+    std::list<std::string> error_pages;
+    error_pages.push_back("500");
+    error_pages.push_back("502");
+    error_pages.push_back("503");
+    error_pages.push_back("504");
+    error_pages.push_back("/custom_50x.html");
+    setErrorPages(error_pages);
 }
 
 ServerConfig::~ServerConfig()
@@ -38,4 +48,73 @@ std::string ServerConfig::getServerIp(void) const
 void ServerConfig::setServerIp(std::string _ip)
 {
     this->_ip = _ip;
+}
+
+int ServerConfig::getPort(void) const
+{
+    return this->_port;
+}
+
+void ServerConfig::setPort(int _port)
+{
+    this->_port = _port;
+}
+
+std::string ServerConfig::getRoot(void) const
+{
+    return this->_root;
+}
+
+void ServerConfig::setRoot(std::string _root)
+{
+    this->_root = _root;
+}
+
+std::list<std::string> ServerConfig::getErrorPages() const
+{
+    return this->_error_pages;
+}
+
+void ServerConfig::setErrorPages(std::list<std::string> _error_pages)
+{
+    // for (std::list<std::string>::iterator t = _error_pages.begin(); t != _error_pages.end(); ++t)
+    // {
+    //     std::cout << "Inside setter: " << *t << std::endl;
+    // }
+    this->_error_pages = _error_pages;
+}
+
+std::list<std::string> ServerConfig::getAllowMethods() const
+{
+    return this->_allow_methods;
+}
+
+void ServerConfig::setAllowMethods(std::list<std::string> _allow_methods)
+{
+    this->_allow_methods = _allow_methods;
+}
+
+std::string ServerConfig::getClientBufferSize() const
+{
+    return this->_ip;
+}
+
+void ServerConfig::setClientBufferSize(std::string _client_buffer_size)
+{
+    this->_client_buffer_size = _client_buffer_size;
+}
+
+bool ServerConfig::getAutoIndex() const
+{
+    return this->_autoindex;
+}
+
+void ServerConfig::setAutoIndex(bool _autoindex)
+{
+    this->_autoindex = _autoindex;
+}
+
+std::vector<Location *> ServerConfig::getLocations()
+{
+    return this->_locations;
 }
