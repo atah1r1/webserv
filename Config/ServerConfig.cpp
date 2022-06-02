@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 16:08:24 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/01 16:01:04 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/06/02 14:06:08 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@ ServerConfig::ServerConfig(/* args */)
     setPort(80);
     setServerName("www");
     setRoot("./www/");
+    
     std::list<std::string> error_pages;
     error_pages.push_back("500");
     error_pages.push_back("502");
@@ -24,6 +25,15 @@ ServerConfig::ServerConfig(/* args */)
     error_pages.push_back("504");
     error_pages.push_back("/custom_50x.html");
     setErrorPages(error_pages);
+
+    std::list<std::string> allow_methods;
+    allow_methods.push_back("GET");
+    allow_methods.push_back("POST");
+    allow_methods.push_back("DELETE");
+    setAllowMethods(allow_methods);
+
+    setClientBufferSize(100);
+    setAutoIndex(true);
 }
 
 ServerConfig::~ServerConfig()
@@ -94,12 +104,12 @@ void ServerConfig::setAllowMethods(std::list<std::string> _allow_methods)
     this->_allow_methods = _allow_methods;
 }
 
-std::string ServerConfig::getClientBufferSize() const
+int ServerConfig::getClientBufferSize() const
 {
-    return this->_ip;
+    return this->_client_buffer_size;
 }
 
-void ServerConfig::setClientBufferSize(std::string _client_buffer_size)
+void ServerConfig::setClientBufferSize(int _client_buffer_size)
 {
     this->_client_buffer_size = _client_buffer_size;
 }
