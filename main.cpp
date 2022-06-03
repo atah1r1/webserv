@@ -6,13 +6,13 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 17:17:03 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/02 14:05:51 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/06/03 15:22:18 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "./Config/Config.hpp"
 
-int main()
+void    printData()
 {
     Config *config = new Config();
     std::cout << "Root " << config->getRoot() << std::endl;
@@ -30,5 +30,30 @@ int main()
     }
     std::cout << "Client body buffer size: " << config->getClientBufferSize() << std::endl;
     std::cout << "Auto index: " << (config->getAutoIndex() ? "true" : "false") << std::endl;
+
+    std::vector<Location *> locations = config->getLocations();
+    for (std::vector<Location *>::iterator t = locations.begin(); t != locations.end(); ++t)
+    {
+        std::cout << "----------------------------------------" << std::endl;
+        std::cout << "Location: " << (*t)->_location << std::endl;
+        std::cout << "Auto index: " << (*t)->_autoindex << std::endl;
+        std::cout << "Allow methods front: " << (*t)->_allow_methods.front() << std::endl;
+        std::cout << "Client buffer size: " << (*t)->_client_buffer_size << std::endl;
+        std::cout << "Index file: " << (*t)->_index_file << std::endl;
+        std::cout << "----------------------------------------" << std::endl;
+    }
+}
+
+int main(int argc, char *argv[])
+{
+    (void)argv;
+    if (argc < 2)
+    {
+        std::cout << "Usage: ./webserv <config_file>" << std::endl;
+        return (0);
+    }
+    Config *config = new Config(argv[1]);
+    (void)config;
+    // printData();
     return 0;
 }

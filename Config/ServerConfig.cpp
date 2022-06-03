@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 16:08:24 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/02 14:06:08 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/06/03 14:54:00 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,18 @@ ServerConfig::ServerConfig(/* args */)
 
     setClientBufferSize(100);
     setAutoIndex(true);
+
+    std::vector<Location *> locations;
+    Location *location = new Location();
+    location->_location = "/dir";
+    location->_autoindex = false;
+    location->_index_file = "index.html";
+    location->_client_buffer_size = "100";
+    location->_allow_methods.push_back("GET");
+    location->_allow_methods.push_back("POST");
+    locations.push_back(location);
+
+    setLocations(locations);
 }
 
 ServerConfig::~ServerConfig()
@@ -127,4 +139,9 @@ void ServerConfig::setAutoIndex(bool _autoindex)
 std::vector<Location *> ServerConfig::getLocations()
 {
     return this->_locations;
+}
+
+void ServerConfig::setLocations(std::vector<Location *> _locations)
+{
+    this->_locations = _locations;
 }

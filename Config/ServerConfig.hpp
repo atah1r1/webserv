@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 16:08:26 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/02 14:02:48 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/06/03 14:49:06 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,5 +56,5 @@ public:
     bool getAutoIndex() const;
     void setAutoIndex(bool _autoindex);
     std::vector<Location *> getLocations();
-    
+    void setLocations(std::vector<Location *> _locations);
 };
