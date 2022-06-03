@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 16:04:34 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/03 16:49:43 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/06/03 20:14:30 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,7 @@ Config::Config(std::string file_name)
     // std::cout << file_name << std::endl;
     std::ifstream input;
     input.open(file_name);
+    // bool server_opened = false;
     if (input.is_open())
     {
         char str[2048];
@@ -50,12 +51,18 @@ Config::Config(std::string file_name)
             line += "\n";
             line = trim(line);
             std::string key = "server";
-            std::size_t found = line.find(key);
-            if (line[found] == 's' && line[5] == 'r' && line[6] != '_')
+            std::string token;
+            for(size_t i = 0; i < line.length(); i++)
             {
-                std::cout << "Server found!" << '\n';
+                if (line[i] != ' ')
+                {
+                    token += line[i];
+                }
+                if (token == "server")
+                {
+                    std::cout << "i found server";
+                }
             }
-            // std::cout << line;
         }
     }
     input.close();
