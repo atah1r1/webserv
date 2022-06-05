@@ -1,28 +1,41 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Config.cpp                                         :+:      :+:    :+:   */
+/*   Token.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/05/31 16:04:34 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/05 12:29:48 by atahiri          ###   ########.fr       */
+/*   Created: 2022/06/05 12:32:42 by atahiri           #+#    #+#             */
+/*   Updated: 2022/06/05 12:40:38 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Config.hpp"
-#include <fstream>
+#include "Token.hpp"
 
-
-Config::Config(/* args */)
+Token::Token(/* args */)
 {
+    this->type = TOKEN_EOF;
+    this->value = "\0";
 }
 
-Config::Config(std::string file_name)
+Token::Token(TokenType type, std::string value)
 {
-    
+    this->type = type;
+    this->value = value;
 }
 
-Config::~Config()
+Token::Token(const Token &rhs)
+{
+    *this = rhs;
+}
+
+Token &Token::operator=(Token const &rhs)
+{
+    this->type = rhs.type;
+    this->value = rhs.value;
+    return *this;
+}
+
+Token::~Token()
 {
 }
