@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 09:38:10 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/06 09:43:29 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/06/06 09:57:14 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,8 @@ public:
     Parser(const Parser &parser);
     Parser &operator=(const Parser &parser);
     ~Parser();
+
+    void grab(TokenType token);
 };
 
 
