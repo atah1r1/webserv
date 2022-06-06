@@ -6,7 +6,7 @@
 #    By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/05/31 17:16:31 by atahiri           #+#    #+#              #
-#    Updated: 2022/06/01 15:33:49 by atahiri          ###   ########.fr        #
+#    Updated: 2022/06/06 12:38:40 by atahiri          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,6 +16,9 @@ FLAGS	= 	-Wall -Wextra -Werror -std=c++98
 SRCS	= 	main.cpp\
 			Config/Config.cpp\
 			Config/ServerConfig.cpp\
+			Config/Token.cpp\
+			Config/Lexer.cpp\
+			Config/Parser.cpp\
 
 
 $(NAME) : 	$(SRCS)

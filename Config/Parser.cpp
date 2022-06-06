@@ -6,11 +6,12 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 09:38:49 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/06 09:57:40 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/06/06 12:33:47 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Parser.hpp"
+#include <iostream>
 
 Parser::Parser(Lexer lexer) : lexer(lexer)
 {
@@ -35,7 +36,7 @@ Parser::~Parser()
 {
 }
 
-Parser::grab(TokenType token)
+void Parser::grab(TokenType token)
 {
     if (this->current_token.type == token)
     {
@@ -47,4 +48,16 @@ Parser::grab(TokenType token)
         std::cout << "Error: expected " << token << " but got " << this->current_token.type << std::endl;
         exit(1);
     }
+}
+
+
+int Parser::grabServer()
+{
+    if (current_token.value.compare("server"))
+    {
+        std::cout << "Invalid Context" << std::endl;
+        exit(1);
+    }
+    this->grab(WORD); // server
+    return (0);
 }
