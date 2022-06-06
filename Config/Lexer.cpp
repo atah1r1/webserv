@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/05 12:30:13 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/05 13:39:04 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/06/06 09:45:55 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,7 +75,7 @@ Token Lexer::get_next_token()
     return (Token(TOKEN_EOF, "\0"));
 }
 
-Token Lexer::advance_with_token(Token token)
+Token Lexer::advance_with_token(Token const & token)
 {
     this->advance();
     return (token);
@@ -104,4 +104,9 @@ Token Lexer::collect_word()
 
 Lexer::~Lexer()
 {
+}
+
+int main()
+{
+    return 0;
 }
