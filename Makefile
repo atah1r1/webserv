@@ -6,13 +6,13 @@
 #    By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/05/31 17:16:31 by atahiri           #+#    #+#              #
-#    Updated: 2022/06/06 12:38:40 by atahiri          ###   ########.fr        #
+#    Updated: 2022/06/06 18:20:32 by atahiri          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME 	= 	webserv
 CC		= 	c++
-FLAGS	= 	-Wall -Wextra -Werror -std=c++98
+FLAGS	= 	-Wall -Wextra -Werror -std=c++98 -g
 SRCS	= 	main.cpp\
 			Config/Config.cpp\
 			Config/ServerConfig.cpp\

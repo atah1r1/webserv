@@ -6,9 +6,12 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 16:08:26 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/03 14:49:06 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/06/06 17:29:58 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
+#ifndef SERVERCONFIG_HPP
+#define SERVERCONFIG_HPP
 
 #include <iostream>
 #include <list>
@@ -58,3 +61,6 @@ public:
     std::vector<Location *> getLocations();
     void setLocations(std::vector<Location *> _locations);
 };
+
+
+#endif

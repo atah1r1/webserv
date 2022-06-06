@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/05 12:30:13 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/06 09:45:55 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/06/06 17:07:56 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,9 +104,4 @@ Token Lexer::collect_word()
 
 Lexer::~Lexer()
 {
-}
-
-int main()
-{
-    return 0;
 }

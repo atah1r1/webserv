@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 09:38:10 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/06 11:42:08 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/06/06 18:13:26 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #define PARSER_HPP
 
 #include "Lexer.hpp"
+#include "ServerConfig.hpp"
 
 class Parser
 {
@@ -32,6 +33,9 @@ public:
 
     void grab(TokenType token);
     int grabServer();
+    std::vector<ServerConfig> parse();
+    ServerConfig parseServer();
+    std::string parseIp();
 };
 
 
