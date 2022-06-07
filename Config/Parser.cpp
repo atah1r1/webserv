@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 09:38:49 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/07 16:29:33 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/06/07 20:10:04 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -200,6 +200,37 @@ bool Parser::parseAutoIndex()
     return (auto_index == "on" ? true : false);
 }
 
+
+t_location Parser::parseLocations()
+{
+    Location *location = new Location();
+    
+    this->grab(WORD); // path
+    location->_location = current_token.value;
+    this->grab(OPEN_BRACKET);
+    // while (curr_token.type != CLOSE_BRACKET && curr_token.type != TOKEN_EOF
+    //         && curr_token.type != TOKEN_ERR)
+    // {
+    //     if (!curr_token.value.compare("root") && !location.root.length())
+    //         location.root = parseWord();
+    //     else if (!curr_token.value.compare("index") && location.index.empty())
+    //         location.index = parseWords();
+    //     else if (!curr_token.value.compare("error_pages") && location.error_pages.empty())
+    //         location.error_pages = parseErrorPages();
+    //     else if (!curr_token.value.compare("client_max_body_size") && location.client_max_body_size == -1)
+    //         location.client_max_body_size = stringToInt(parseWord());
+    //     else if (!curr_token.value.compare("request_method") && location.request_method.empty())
+    //         location.request_method = parseWords();
+    //     else if (!curr_token.value.compare("autoindex") && !location.autoindex.length())
+    //         location.autoindex = parseWord();
+    //     else
+    //         errorDisplay("Invalid Token");
+    //     this->grab(SEMICOLON);
+    // }
+    this->grab(CLOSE_BRACKET);
+    return (location);
+}
+
 ServerConfig Parser::parseServer()
 {
     ServerConfig server_setup;
@@ -223,11 +254,11 @@ ServerConfig Parser::parseServer()
             server_setup.setAllowMethods(parseAllowMethods());
         else if (!current_token.value.compare("autoindex"))
             server_setup.setAutoIndex(parseAutoIndex());
-        // else if (!current_token.value.compare("location"))
-        // {
-        //     server_setup.locations.push_back(parseLocation());
-        //     continue;
-        // }
+        else if (!current_token.value.compare("location"))
+        {
+            server_setup.setLocations(parseLocations());
+            continue;
+        }
         // else
         // {
         //     std::cout << "Invalid Token" << std::endl;

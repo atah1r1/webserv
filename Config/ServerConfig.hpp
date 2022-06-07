@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 16:08:26 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/07 15:54:17 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/06/07 20:12:13 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,13 +17,13 @@
 #include <list>
 #include <vector>
 
-struct Location {
+typedef struct Location {
     std::string _location;
     std::vector<std::string> _allow_methods;   
     bool _autoindex;
     std::vector<std::string> _index_file;
     std::string _client_buffer_size;
-};
+} t_location;
 
 class ServerConfig
 {
@@ -37,7 +37,7 @@ private:
     std::vector<std::string> _index_file;
     int _client_buffer_size;
     bool _autoindex;
-    std::vector<Location *> _locations;
+    std::vector<t_location *> _locations;
     
     
 public:
