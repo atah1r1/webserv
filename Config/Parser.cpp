@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 09:38:49 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/07 16:25:52 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/06/07 16:29:33 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -223,16 +223,6 @@ ServerConfig Parser::parseServer()
             server_setup.setAllowMethods(parseAllowMethods());
         else if (!current_token.value.compare("autoindex"))
             server_setup.setAutoIndex(parseAutoIndex());
-        // else if (!current_token.value.compare("index") && server_setup.index.empty())
-        //     server_setup.index = parseWords();
-        // else if (!current_token.value.compare("error_pages") && server_setup.error_pages.empty())
-        //     server_setup.error_pages = parseErrorPages();
-        // else if (!current_token.value.compare("client_max_body_size") && server_setup.client_max_body_size == -1)
-        //     server_setup.client_max_body_size = stringToInt(parseWord());
-        // else if (!current_token.value.compare("request_method") && server_setup.request_method.empty())
-        //     server_setup.request_method = parseWords();
-        // else if (!current_token.value.compare("autoindex") && !server_setup.autoindex.length())
-        //     server_setup.autoindex = parseWord();
         // else if (!current_token.value.compare("location"))
         // {
         //     server_setup.locations.push_back(parseLocation());

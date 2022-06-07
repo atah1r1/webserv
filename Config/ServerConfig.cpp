@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 16:08:24 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/07 16:26:16 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/06/07 16:28:38 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -133,7 +133,6 @@ bool ServerConfig::getAutoIndex() const
 void ServerConfig::setAutoIndex(bool _autoindex)
 {
     this->_autoindex = _autoindex;
-    std::cout << "autoindex: " << _autoindex << std::endl;
 }
 
 std::vector<Location *> ServerConfig::getLocations()
