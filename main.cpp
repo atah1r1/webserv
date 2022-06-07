@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 17:17:03 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/03 15:22:18 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/06/07 15:10:05 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,13 +18,13 @@ void    printData()
     std::cout << "Root " << config->getRoot() << std::endl;
     std::cout << "Port " << config->getPort() << std::endl;
     std::cout << "ServerName: " << config->getServerName() << std::endl;
-    std::list<std::string> err_pages = config->getErrorPages();
-    for (std::list<std::string>::iterator t = err_pages.begin(); t != err_pages.end(); ++t)
+    std::vector<std::string> err_pages = config->getErrorPages();
+    for (std::vector<std::string>::iterator t = err_pages.begin(); t != err_pages.end(); ++t)
     {
         std::cout << "Error pages: " << *t << std::endl;
     }
-    std::list<std::string> allow_methods = config->getAllowMethods();
-    for (std::list<std::string>::iterator t = allow_methods.begin(); t != allow_methods.end(); ++t)
+    std::vector<std::string> allow_methods = config->getAllowMethods();
+    for (std::vector<std::string>::iterator t = allow_methods.begin(); t != allow_methods.end(); ++t)
     {
         std::cout << "Allow methods: " << *t << std::endl;
     }
@@ -39,7 +39,7 @@ void    printData()
         std::cout << "Auto index: " << (*t)->_autoindex << std::endl;
         std::cout << "Allow methods front: " << (*t)->_allow_methods.front() << std::endl;
         std::cout << "Client buffer size: " << (*t)->_client_buffer_size << std::endl;
-        std::cout << "Index file: " << (*t)->_index_file << std::endl;
+        // std::cout << "Index file: " << (*t)->_index_file << std::endl;
         std::cout << "----------------------------------------" << std::endl;
     }
 }

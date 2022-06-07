@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 09:38:49 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/06 18:18:29 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/06/07 16:25:52 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,6 +93,112 @@ std::string Parser::parseIp()
     }
     return (ip);
 }
+std::string Parser::parseServerName()
+{
+    this->grab(WORD); // server_name
+    std::string server_name;
+    if (current_token.type == WORD)
+    {
+        server_name = current_token.value;
+        this->grab(WORD);
+    }
+    else
+    {
+        std::cout << "Error: expected ip but got " << this->current_token.type << std::endl;
+        exit(1);
+    }
+    return (server_name);
+}
+
+std::string Parser::parseRoot()
+{
+    this->grab(WORD); // root
+    std::string root;
+    if (current_token.type == WORD)
+    {
+        root = current_token.value;
+        this->grab(WORD);
+    }
+    else
+    {
+        std::cout << "Error: expected ip but got " << this->current_token.type << std::endl;
+        exit(1);
+    }
+    return (root);
+}
+
+std::vector<std::string> Parser::parseIndex()
+{
+    std::vector<std::string> index;
+    this->grab(WORD); // index
+    while (current_token.type == WORD)
+    {
+        // std::cout << "---> " << current_token.value << std::endl;
+        index.push_back(current_token.value);
+        this->grab(WORD);
+    }
+    return (index);
+}
+
+std::vector<std::string> Parser::parseErrorPages()
+{
+    std::vector<std::string> index;
+    this->grab(WORD); // index
+    while (current_token.type == WORD)
+    {
+        // std::cout << "---> " << current_token.value << std::endl;
+        index.push_back(current_token.value);
+        this->grab(WORD);
+    }
+    return (index);
+}
+
+int Parser::parseClientBufferSize()
+{
+    this->grab(WORD); // client max size body
+    int client_max_size_body;
+    if (current_token.type == WORD)
+    {
+        client_max_size_body = stoi(current_token.value);
+        this->grab(WORD);
+    }
+    else
+    {
+        std::cout << "Error: expected ip but got " << this->current_token.type << std::endl;
+        exit(1);
+    }
+    return (client_max_size_body);
+}
+
+std::vector<std::string> Parser::parseAllowMethods()
+{
+    std::vector<std::string> allow_methods;
+    this->grab(WORD); // allow_methods
+    while (current_token.type == WORD)
+    {
+        // std::cout << "---> " << current_token.value << std::endl;
+        allow_methods.push_back(current_token.value);
+        this->grab(WORD);
+    }
+    return (allow_methods);
+}
+
+bool Parser::parseAutoIndex()
+{
+    this->grab(WORD); // client max size body
+    std::string auto_index;
+    if (current_token.type == WORD)
+    {
+        auto_index = current_token.value;
+        this->grab(WORD);
+    }
+    else
+    {
+        std::cout << "Error: expected ip but got " << this->current_token.type << std::endl;
+        exit(1);
+    }
+    return (auto_index == "on" ? true : false);
+}
 
 ServerConfig Parser::parseServer()
 {
@@ -102,15 +208,21 @@ ServerConfig Parser::parseServer()
     while (current_token.type != CLOSE_BRACKET && current_token.type != TOKEN_EOF && current_token.type != TOKEN_ERR)
     {
         if (!current_token.value.compare("listen"))
-        {
-            // server_setup.setServerIp(parseIp());
-            // this->grab(WORD);
-            std::cout << parseIp() << std::endl;
-        }
-        // else if (!current_token.value.compare("server_name") && server_setup.server_name.empty())
-        //     server_setup.server_name = parseWords();
-        // else if (!current_token.value.compare("root") && !server_setup.root.length())
-        //     server_setup.root = parseWord();
+            server_setup.setServerIp(parseIp());
+        else if (!current_token.value.compare("server_name"))
+            server_setup.setServerName(parseServerName());
+        else if (!current_token.value.compare("root"))
+            server_setup.setRoot(parseRoot());
+        else if (!current_token.value.compare("index"))
+            server_setup.setIndexFile(parseIndex());
+        else if (!current_token.value.compare("error_pages"))
+            server_setup.setErrorPages(parseErrorPages());
+        else if (!current_token.value.compare("client_max_body_size"))
+            server_setup.setClientBufferSize(parseClientBufferSize());
+        else if (!current_token.value.compare("allow_methods"))
+            server_setup.setAllowMethods(parseAllowMethods());
+        else if (!current_token.value.compare("autoindex"))
+            server_setup.setAutoIndex(parseAutoIndex());
         // else if (!current_token.value.compare("index") && server_setup.index.empty())
         //     server_setup.index = parseWords();
         // else if (!current_token.value.compare("error_pages") && server_setup.error_pages.empty())

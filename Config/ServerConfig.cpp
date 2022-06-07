@@ -6,46 +6,47 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 16:08:24 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/03 14:54:00 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/06/07 16:26:16 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ServerConfig.hpp"
+#include "Utils.hpp"
 
 ServerConfig::ServerConfig(/* args */)
 {
-    setPort(80);
-    setServerName("www");
-    setRoot("./www/");
-    
-    std::list<std::string> error_pages;
-    error_pages.push_back("500");
-    error_pages.push_back("502");
-    error_pages.push_back("503");
-    error_pages.push_back("504");
-    error_pages.push_back("/custom_50x.html");
-    setErrorPages(error_pages);
+    // setPort(80);
+    // setServerName("www");
+    // setRoot("./www/");
 
-    std::list<std::string> allow_methods;
-    allow_methods.push_back("GET");
-    allow_methods.push_back("POST");
-    allow_methods.push_back("DELETE");
-    setAllowMethods(allow_methods);
+    // std::vector<std::string> error_pages;
+    // error_pages.push_back("500");
+    // error_pages.push_back("502");
+    // error_pages.push_back("503");
+    // error_pages.push_back("504");
+    // error_pages.push_back("/custom_50x.html");
+    // setErrorPages(error_pages);
 
-    setClientBufferSize(100);
-    setAutoIndex(true);
+    // std::vector<std::string> allow_methods;
+    // allow_methods.push_back("GET");
+    // allow_methods.push_back("POST");
+    // allow_methods.push_back("DELETE");
+    // setAllowMethods(allow_methods);
 
-    std::vector<Location *> locations;
-    Location *location = new Location();
-    location->_location = "/dir";
-    location->_autoindex = false;
-    location->_index_file = "index.html";
-    location->_client_buffer_size = "100";
-    location->_allow_methods.push_back("GET");
-    location->_allow_methods.push_back("POST");
-    locations.push_back(location);
+    // setClientBufferSize(100);
+    // setAutoIndex(true);
 
-    setLocations(locations);
+    // std::vector<Location *> locations;
+    // Location *location = new Location();
+    // location->_location = "/dir";
+    // location->_autoindex = false;
+    // location->_index_file = "index.html";
+    // location->_client_buffer_size = "100";
+    // location->_allow_methods.push_back("GET");
+    // location->_allow_methods.push_back("POST");
+    // locations.push_back(location);
+
+    // setLocations(locations);
 }
 
 ServerConfig::~ServerConfig()
@@ -69,7 +70,9 @@ std::string ServerConfig::getServerIp(void) const
 
 void ServerConfig::setServerIp(std::string _ip)
 {
-    this->_ip = _ip;
+    std::vector<std::string> ip_port = split(_ip, ":");
+    _ip = ip_port[0];
+    setPort(std::stoi(ip_port[1]));
 }
 
 int ServerConfig::getPort(void) const
@@ -92,26 +95,22 @@ void ServerConfig::setRoot(std::string _root)
     this->_root = _root;
 }
 
-std::list<std::string> ServerConfig::getErrorPages() const
+std::vector<std::string> ServerConfig::getErrorPages() const
 {
     return this->_error_pages;
 }
 
-void ServerConfig::setErrorPages(std::list<std::string> _error_pages)
+void ServerConfig::setErrorPages(std::vector<std::string> _error_pages)
 {
-    // for (std::list<std::string>::iterator t = _error_pages.begin(); t != _error_pages.end(); ++t)
-    // {
-    //     std::cout << "Inside setter: " << *t << std::endl;
-    // }
     this->_error_pages = _error_pages;
 }
 
-std::list<std::string> ServerConfig::getAllowMethods() const
+std::vector<std::string> ServerConfig::getAllowMethods() const
 {
     return this->_allow_methods;
 }
 
-void ServerConfig::setAllowMethods(std::list<std::string> _allow_methods)
+void ServerConfig::setAllowMethods(std::vector<std::string> _allow_methods)
 {
     this->_allow_methods = _allow_methods;
 }
@@ -134,6 +133,7 @@ bool ServerConfig::getAutoIndex() const
 void ServerConfig::setAutoIndex(bool _autoindex)
 {
     this->_autoindex = _autoindex;
+    std::cout << "autoindex: " << _autoindex << std::endl;
 }
 
 std::vector<Location *> ServerConfig::getLocations()
@@ -144,4 +144,9 @@ std::vector<Location *> ServerConfig::getLocations()
 void ServerConfig::setLocations(std::vector<Location *> _locations)
 {
     this->_locations = _locations;
+}
+
+void ServerConfig::setIndexFile(std::vector<std::string> _index_file)
+{
+    this->_index_file = _index_file;
 }

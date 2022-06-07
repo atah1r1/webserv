@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 09:38:10 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/06 18:13:26 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/06/07 16:24:45 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,13 @@ public:
     std::vector<ServerConfig> parse();
     ServerConfig parseServer();
     std::string parseIp();
+    std::string parseServerName();
+    std::string parseRoot();
+    std::vector<std::string> parseIndex();
+    std::vector<std::string> parseErrorPages();
+    int parseClientBufferSize();
+    std::vector<std::string> parseAllowMethods();
+    bool parseAutoIndex();
 };
 
 
