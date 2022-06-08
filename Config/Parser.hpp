@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 09:38:10 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/07 20:10:07 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/06/08 09:43:53 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@ public:
     int parseClientBufferSize();
     std::vector<std::string> parseAllowMethods();
     bool parseAutoIndex();
-    t_location parseLocations();
+    std::vector<Location *> parseLocations();
 };
 
 

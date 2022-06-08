@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 16:08:24 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/07 20:16:17 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/06/08 09:42:35 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -140,9 +140,9 @@ std::vector<Location *> ServerConfig::getLocations()
     return this->_locations;
 }
 
-void ServerConfig::setLocations(t_location _locations)
+void ServerConfig::setLocations(std::vector<Location *> _locations)
 {
-    // this->_locations.push_back(_locations);
+    this->_locations = _locations;
 }
 
 void ServerConfig::setIndexFile(std::vector<std::string> _index_file)

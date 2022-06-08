@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 09:38:49 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/07 20:10:04 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/06/08 11:27:26 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,7 @@ void Parser::grab(TokenType token)
     }
     else
     {
+        // std::cout << "dghsfhdsfsghfsf" <<  this->current_token.value << std::endl;
         std::cout << "Error: expected " << token << " but got " << this->current_token.type << std::endl;
         exit(1);
     }
@@ -201,12 +202,14 @@ bool Parser::parseAutoIndex()
 }
 
 
-t_location Parser::parseLocations()
+std::vector<Location *> Parser::parseLocations()
 {
+    std::vector<Location *> _locations;
     Location *location = new Location();
     
     this->grab(WORD); // path
     location->_location = current_token.value;
+    std::cout << "---> " << location->_location << std::endl;
     this->grab(OPEN_BRACKET);
     // while (curr_token.type != CLOSE_BRACKET && curr_token.type != TOKEN_EOF
     //         && curr_token.type != TOKEN_ERR)
@@ -228,13 +231,13 @@ t_location Parser::parseLocations()
     //     this->grab(SEMICOLON);
     // }
     this->grab(CLOSE_BRACKET);
-    return (location);
+    _locations.push_back(location);
+    return (_locations);
 }
 
 ServerConfig Parser::parseServer()
 {
     ServerConfig server_setup;
-
     this->grab(OPEN_BRACKET);
     while (current_token.type != CLOSE_BRACKET && current_token.type != TOKEN_EOF && current_token.type != TOKEN_ERR)
     {
@@ -259,10 +262,10 @@ ServerConfig Parser::parseServer()
             server_setup.setLocations(parseLocations());
             continue;
         }
-        // else
-        // {
-        //     std::cout << "Invalid Token" << std::endl;
-        // }
+        else
+        {
+            std::cout << "Invalid Token" << std::endl;
+        }
         this->grab(SEMICOLON);
     }
     this->grab(CLOSE_BRACKET);
