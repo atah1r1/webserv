@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 09:38:49 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/08 11:27:26 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/06/08 19:24:03 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,6 @@ void Parser::grab(TokenType token)
     }
     else
     {
-        // std::cout << "dghsfhdsfsghfsf" <<  this->current_token.value << std::endl;
         std::cout << "Error: expected " << token << " but got " << this->current_token.type << std::endl;
         exit(1);
     }
@@ -206,30 +205,26 @@ std::vector<Location *> Parser::parseLocations()
 {
     std::vector<Location *> _locations;
     Location *location = new Location();
-    
     this->grab(WORD); // path
     location->_location = current_token.value;
-    std::cout << "---> " << location->_location << std::endl;
+    // std::cout << "---> " << location->_location << std::endl;
+    this->grab(WORD);
     this->grab(OPEN_BRACKET);
-    // while (curr_token.type != CLOSE_BRACKET && curr_token.type != TOKEN_EOF
-    //         && curr_token.type != TOKEN_ERR)
-    // {
-    //     if (!curr_token.value.compare("root") && !location.root.length())
-    //         location.root = parseWord();
-    //     else if (!curr_token.value.compare("index") && location.index.empty())
-    //         location.index = parseWords();
-    //     else if (!curr_token.value.compare("error_pages") && location.error_pages.empty())
-    //         location.error_pages = parseErrorPages();
-    //     else if (!curr_token.value.compare("client_max_body_size") && location.client_max_body_size == -1)
-    //         location.client_max_body_size = stringToInt(parseWord());
-    //     else if (!curr_token.value.compare("request_method") && location.request_method.empty())
-    //         location.request_method = parseWords();
-    //     else if (!curr_token.value.compare("autoindex") && !location.autoindex.length())
-    //         location.autoindex = parseWord();
-    //     else
-    //         errorDisplay("Invalid Token");
-    //     this->grab(SEMICOLON);
-    // }
+    while (current_token.type != CLOSE_BRACKET && current_token.type != TOKEN_EOF
+            && current_token.type != TOKEN_ERR)
+    {
+        if (!current_token.value.compare("autoindex"))
+            location->_autoindex = parseAutoIndex();
+        else if (!current_token.value.compare("allow_methods"))
+            location->_allow_methods = parseAllowMethods();
+        else if (!current_token.value.compare("index"))
+            location->_index_file = parseIndex();
+        else
+        {
+            std::cout << "Invalid Token" << std::endl;
+        }
+        this->grab(SEMICOLON);
+    }
     this->grab(CLOSE_BRACKET);
     _locations.push_back(location);
     return (_locations);

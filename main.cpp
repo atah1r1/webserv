@@ -6,15 +6,14 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 17:17:03 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/07 15:10:05 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/06/08 19:30:00 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "./Config/Config.hpp"
 
-void    printData()
+void    printData(Config *config)
 {
-    Config *config = new Config();
     std::cout << "Root " << config->getRoot() << std::endl;
     std::cout << "Port " << config->getPort() << std::endl;
     std::cout << "ServerName: " << config->getServerName() << std::endl;
@@ -54,6 +53,5 @@ int main(int argc, char *argv[])
     }
     Config *config = new Config(argv[1]);
     (void)config;
-    // printData();
     return 0;
 }
