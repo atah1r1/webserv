@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 16:04:34 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/08 19:48:02 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/06/09 09:12:27 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,16 +35,17 @@ Config::Config(std::string file_name)
     Lexer lexer(str);
     Parser parser(lexer);
     std::vector<ServerConfig> config = parser.parse();
-    for(int i = 0; i < 1; i++)
+    for (std::vector<ServerConfig>::iterator it = config.begin(); it != config.end(); ++it)
     {
         std::cout << "----------------------------------------" << std::endl;
-        std::cout << "ServerName: " << config[i].getServerName() << std::endl;
-        std::cout << "Port: " << config[i].getPort() << std::endl;
-        std::cout << "Root: " << config[i].getRoot() << std::endl;
-        std::cout << "Client buffer size: " << config[i].getClientBufferSize() << std::endl;
-        std::cout << "Auto index: " << (config[i].getAutoIndex() ? "true" : "false") << std::endl;
-        std::cout << "Allow methods: " << config[i].getAllowMethods().front() << std::endl;
-        std::cout << "Error pages: " << config[i].getErrorPages().front() << std::endl;
+        std::cout << "ServerName: " << it->getServerName() << std::endl;
+        std::cout << "IP: " << it->getServerIp() << std::endl;
+        std::cout << "Port: " << it->getPort() << std::endl;
+        std::cout << "Root: " << it->getRoot() << std::endl;
+        std::cout << "Client buffer size: " << it->getClientBufferSize() << std::endl;
+        std::cout << "Auto index: " << (it->getAutoIndex() ? "true" : "false") << std::endl;
+        std::cout << "Allow methods: " << it->getAllowMethods().front() << std::endl;
+        std::cout << "Error pages: " << it->getErrorPages().front() << std::endl;
         std::cout << "----------------------------------------" << std::endl;
     }
 }

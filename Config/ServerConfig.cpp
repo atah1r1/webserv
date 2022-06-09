@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 16:08:24 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/08 09:42:35 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/06/09 08:54:21 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,7 +71,7 @@ std::string ServerConfig::getServerIp(void) const
 void ServerConfig::setServerIp(std::string _ip)
 {
     std::vector<std::string> ip_port = split(_ip, ":");
-    _ip = ip_port[0];
+    this->_ip = ip_port[0];
     setPort(std::stoi(ip_port[1]));
 }
 
