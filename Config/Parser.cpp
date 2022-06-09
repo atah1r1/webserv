@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 09:38:49 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/09 08:54:31 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/06/09 16:31:26 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -127,13 +127,30 @@ std::string Parser::parseRoot()
     return (root);
 }
 
+std::string Parser::parseRedirection()
+{
+    this->grab(WORD); // redirection
+    this->grab(WORD);
+    std::string redirection_path;
+    if (current_token.type == WORD)
+    {
+        redirection_path = current_token.value;
+        this->grab(WORD);
+    }
+    else
+    {
+        std::cout << "Error: expected ip but got " << this->current_token.type << std::endl;
+        exit(1);
+    }
+    return (redirection_path);
+}
+
 std::vector<std::string> Parser::parseIndex()
 {
     std::vector<std::string> index;
     this->grab(WORD); // index
     while (current_token.type == WORD)
     {
-        // std::cout << "---> " << current_token.value << std::endl;
         index.push_back(current_token.value);
         this->grab(WORD);
     }
@@ -146,7 +163,6 @@ std::vector<std::string> Parser::parseErrorPages()
     this->grab(WORD); // index
     while (current_token.type == WORD)
     {
-        // std::cout << "---> " << current_token.value << std::endl;
         index.push_back(current_token.value);
         this->grab(WORD);
     }
@@ -176,7 +192,6 @@ std::vector<std::string> Parser::parseAllowMethods()
     this->grab(WORD); // allow_methods
     while (current_token.type == WORD)
     {
-        // std::cout << "---> " << current_token.value << std::endl;
         allow_methods.push_back(current_token.value);
         this->grab(WORD);
     }
@@ -201,24 +216,26 @@ bool Parser::parseAutoIndex()
 }
 
 
-std::vector<Location *> Parser::parseLocations()
+Location * Parser::parseLocations()
 {
-    std::vector<Location *> _locations;
     Location *location = new Location();
     this->grab(WORD); // path
     location->_location = current_token.value;
-    // std::cout << "---> " << location->_location << std::endl;
     this->grab(WORD);
     this->grab(OPEN_BRACKET);
     while (current_token.type != CLOSE_BRACKET && current_token.type != TOKEN_EOF
             && current_token.type != TOKEN_ERR)
     {
-        if (!current_token.value.compare("autoindex"))
-            location->_autoindex = parseAutoIndex();
+        if (!current_token.value.compare("root"))
+            location->_root = parseRoot();
         else if (!current_token.value.compare("allow_methods"))
             location->_allow_methods = parseAllowMethods();
         else if (!current_token.value.compare("index"))
             location->_index_file = parseIndex();
+        else if (!current_token.value.compare("autoindex"))
+            location->_autoindex = parseAutoIndex();
+        else if (!current_token.value.compare("return"))
+            location->_redirection_path = parseRedirection();
         else
         {
             std::cout << "Invalid Token" << std::endl;
@@ -226,8 +243,7 @@ std::vector<Location *> Parser::parseLocations()
         this->grab(SEMICOLON);
     }
     this->grab(CLOSE_BRACKET);
-    _locations.push_back(location);
-    return (_locations);
+    return (location);
 }
 
 ServerConfig Parser::parseServer()
@@ -240,18 +256,10 @@ ServerConfig Parser::parseServer()
             server_setup.setServerIp(parseIp());
         else if (!current_token.value.compare("server_name"))
             server_setup.setServerName(parseServerName());
-        else if (!current_token.value.compare("root"))
-            server_setup.setRoot(parseRoot());
-        else if (!current_token.value.compare("index"))
-            server_setup.setIndexFile(parseIndex());
         else if (!current_token.value.compare("error_pages"))
             server_setup.setErrorPages(parseErrorPages());
         else if (!current_token.value.compare("client_max_body_size"))
             server_setup.setClientBufferSize(parseClientBufferSize());
-        else if (!current_token.value.compare("allow_methods"))
-            server_setup.setAllowMethods(parseAllowMethods());
-        else if (!current_token.value.compare("autoindex"))
-            server_setup.setAutoIndex(parseAutoIndex());
         else if (!current_token.value.compare("location"))
         {
             server_setup.setLocations(parseLocations());
