@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 09:38:49 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/09 16:31:26 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/06/10 14:25:09 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -246,6 +246,17 @@ Location * Parser::parseLocations()
     return (location);
 }
 
+ServerConfig Parser::checkConfig(ServerConfig server_setup)
+{
+    std::cout << "Checking config" << std::endl;
+    if (server_setup.getServerIp().empty())
+    {
+        std::cout << "Error: ip is empty" << std::endl;
+        exit(1);
+    }
+    return server_setup;
+}
+
 ServerConfig Parser::parseServer()
 {
     ServerConfig server_setup;
@@ -272,6 +283,5 @@ ServerConfig Parser::parseServer()
         this->grab(SEMICOLON);
     }
     this->grab(CLOSE_BRACKET);
-    // return (CheckConfig(server_setup));
-    return (server_setup);
+    return (checkConfig(server_setup));
 }

@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 09:38:10 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/09 15:15:36 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/06/10 14:19:57 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,7 @@ public:
     int grabServer();
     std::vector<ServerConfig> parse();
     ServerConfig parseServer();
+    ServerConfig checkConfig(ServerConfig server_setup);
     std::string parseIp();
     std::string parseServerName();
     std::string parseRoot();
