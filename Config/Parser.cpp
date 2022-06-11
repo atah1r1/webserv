@@ -6,12 +6,14 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 09:38:49 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/10 14:25:09 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/06/11 14:33:01 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Parser.hpp"
 #include <iostream>
+
+bool validateIpAddress(const std::string &ipAddress);
 
 Parser::Parser(Lexer lexer) : lexer(lexer)
 {
@@ -249,9 +251,19 @@ Location * Parser::parseLocations()
 ServerConfig Parser::checkConfig(ServerConfig server_setup)
 {
     std::cout << "Checking config" << std::endl;
-    if (server_setup.getServerIp().empty())
+    if (server_setup.getPort() == 0)
     {
-        std::cout << "Error: ip is empty" << std::endl;
+        std::cout << "Error: bad or no port founded" << std::endl;
+        exit(1);
+    }
+    if (validateIpAddress(server_setup.getServerIp()) == 0)
+    {
+        std::cout << "Error: bad or no ip founded" << std::endl;
+        exit(1);
+    }
+    if (server_setup.getServerName().empty())
+    {
+        std::cout << "Error: bad or no server name founded" << std::endl;
         exit(1);
     }
     return server_setup;

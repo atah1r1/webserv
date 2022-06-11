@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 16:04:34 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/09 16:33:03 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/06/11 16:28:23 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,6 +59,21 @@ void PrintData(std::vector<ServerConfig> config)
     }
 }
 
+void Config::checkErrors(std::vector<ServerConfig> config)
+{
+    for (std::vector<ServerConfig>::iterator it = config.begin(); it != config.end(); ++it)
+    {
+        std::cout << (*it).getServerName() << std::endl;
+        if ((*it).getServerName() == (*it++).getServerName())
+        {
+            if ((*it).getPort() != (*it++).getPort())
+                return ;
+            std::cout << "Server names are the same" << std::endl;
+            exit(1);
+        }
+    }
+}
+
 Config::Config(std::string file_name)
 {
     std::ifstream inFile;
@@ -73,6 +88,7 @@ Config::Config(std::string file_name)
     Lexer lexer(str);
     Parser parser(lexer);
     std::vector<ServerConfig> config = parser.parse();
+    checkErrors(config);
     PrintData(config);
 }
 

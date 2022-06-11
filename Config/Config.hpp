@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 16:04:25 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/03 15:21:04 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/06/11 16:14:00 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,4 +22,5 @@ public:
     Config(/* args */);
     Config(std::string file_name);
     ~Config();
+    void checkErrors(std::vector<ServerConfig> config);
 };

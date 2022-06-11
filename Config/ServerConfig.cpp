@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 16:08:24 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/10 15:04:28 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/06/11 14:33:45 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,38 +15,10 @@
 
 ServerConfig::ServerConfig(/* args */)
 {
-    // setPort(80);
-    // setServerName("www");
-    // setRoot("./www/");
-
-    // std::vector<std::string> error_pages;
-    // error_pages.push_back("500");
-    // error_pages.push_back("502");
-    // error_pages.push_back("503");
-    // error_pages.push_back("504");
-    // error_pages.push_back("/custom_50x.html");
-    // setErrorPages(error_pages);
-
-    // std::vector<std::string> allow_methods;
-    // allow_methods.push_back("GET");
-    // allow_methods.push_back("POST");
-    // allow_methods.push_back("DELETE");
-    // setAllowMethods(allow_methods);
-
-    // setClientBufferSize(100);
-    // setAutoIndex(true);
-
-    // std::vector<Location *> locations;
-    // Location *location = new Location();
-    // location->_location = "/dir";
-    // location->_autoindex = false;
-    // location->_index_file = "index.html";
-    // location->_client_buffer_size = "100";
-    // location->_allow_methods.push_back("GET");
-    // location->_allow_methods.push_back("POST");
-    // locations.push_back(location);
-
-    // setLocations(locations);
+    setPort(0);
+    this->_ip = "";
+    setServerName("");
+    setClientBufferSize(1024);
 }
 
 ServerConfig::~ServerConfig()
@@ -71,14 +43,11 @@ std::string ServerConfig::getServerIp(void) const
 void ServerConfig::setServerIp(std::string _ip)
 {
     std::vector<std::string> ip_port = split(_ip, ":");
-    for(std::vector<std::string>::iterator it = ip_port.begin(); it != ip_port.end(); ++it)
-    {
-        std::cout << "inside ip_port: " << *it << std::endl;
-    }
     this->_ip = ip_port[0];
-    std::cout << "ip_port[1].empty() " << ip_port.size() << std::endl;
     if (ip_port.size() > 1)
+    {
         setPort(std::stoi(ip_port[1]));
+    }
 }
 
 int ServerConfig::getPort(void) const
