@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 16:04:34 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/11 18:25:48 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/06/12 00:00:28 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,8 @@ void PrintData(std::vector<ServerConfig> config)
         std::vector<std::string> _error_pages = it->getErrorPages();
         for (std::vector<std::string>::iterator ite = _error_pages.begin(); ite != _error_pages.end(); ++ite)
         {
-            std::cout << "Error page" << "[" << ite - _error_pages.begin() << "]: " << *ite << std::endl;
+            std::cout << "Error page"
+                      << "[" << ite - _error_pages.begin() << "]: " << *ite << std::endl;
         }
         std::vector<Location *> _locations = it->getLocations();
         // std::cout << _locations.front(). << std::endl;
@@ -46,12 +47,14 @@ void PrintData(std::vector<ServerConfig> config)
             std::vector<std::string> _allow_methods = (*itl)->_allow_methods;
             for (std::vector<std::string>::iterator itm = _allow_methods.begin(); itm != _allow_methods.end(); ++itm)
             {
-                std::cout << "Allow method" << "[" << itm - _allow_methods.begin() << "]: " << *itm << std::endl;
+                std::cout << "Allow method"
+                          << "[" << itm - _allow_methods.begin() << "]: " << *itm << std::endl;
             }
             std::vector<std::string> _index = (*itl)->_index_file;
             for (std::vector<std::string>::iterator iti = _index.begin(); iti != _index.end(); ++iti)
             {
-                std::cout << "Index file" << "[" << iti - _index.begin() << "]: " << *iti << std::endl;
+                std::cout << "Index file"
+                          << "[" << iti - _index.begin() << "]: " << *iti << std::endl;
             }
             std::cout << "-------------LOCATIONS--------------" << std::endl;
         }
@@ -61,15 +64,21 @@ void PrintData(std::vector<ServerConfig> config)
 
 void Config::checkErrors(std::vector<ServerConfig> config)
 {
-    for (std::vector<ServerConfig>::iterator it = config.begin(); it != config.end(); ++it)
+    if (config.size() > 1)
     {
-        std::string server_name = (*it).getServerName();
-        int port = (*it).getPort();
-        ++it;
-        if (server_name == (*it).getServerName() && port == (*it).getPort())
+        for (std::vector<ServerConfig>::iterator it = config.begin(); it != config.end(); ++it)
         {
-            std::cout << "Error: Server name and port are duplicated" << std::endl;
-            exit(1);
+            if ((*it).getServerName() != "" && (*it).getPort() != 0)
+            {
+                std::string server_name = (*it).getServerName();
+                int port = (*it).getPort();
+                ++it;
+                if (server_name == (*it).getServerName() && port == (*it).getPort())
+                {
+                    std::cout << "Error: Server name and port are duplicated" << std::endl;
+                    exit(1);
+                }
+            }
         }
     }
 }
@@ -77,11 +86,11 @@ void Config::checkErrors(std::vector<ServerConfig> config)
 Config::Config(std::string file_name)
 {
     std::ifstream inFile;
-    inFile.open(file_name); //open the input file
+    inFile.open(file_name); // open the input file
 
     std::stringstream strStream;
-    strStream << inFile.rdbuf(); //read the file
-    std::string str = strStream.str(); //str holds the content of the file
+    strStream << inFile.rdbuf();       // read the file
+    std::string str = strStream.str(); // str holds the content of the file
 
     inFile.close();
     // std::cout << str << std::endl;

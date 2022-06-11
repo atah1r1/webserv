@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 09:38:49 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/11 14:33:01 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/06/11 19:37:57 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -250,7 +250,6 @@ Location * Parser::parseLocations()
 
 ServerConfig Parser::checkConfig(ServerConfig server_setup)
 {
-    std::cout << "Checking config" << std::endl;
     if (server_setup.getPort() == 0)
     {
         std::cout << "Error: bad or no port founded" << std::endl;

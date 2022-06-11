@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 16:08:24 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/11 14:33:45 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/06/12 00:01:53 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,10 +15,12 @@
 
 ServerConfig::ServerConfig(/* args */)
 {
+    std::vector<std::string> vec(1, "");
     setPort(0);
     this->_ip = "";
     setServerName("");
     setClientBufferSize(1024);
+    setErrorPages(vec);
 }
 
 ServerConfig::~ServerConfig()
