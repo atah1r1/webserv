@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 16:04:34 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/11 16:28:23 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/06/11 18:25:48 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,12 +63,12 @@ void Config::checkErrors(std::vector<ServerConfig> config)
 {
     for (std::vector<ServerConfig>::iterator it = config.begin(); it != config.end(); ++it)
     {
-        std::cout << (*it).getServerName() << std::endl;
-        if ((*it).getServerName() == (*it++).getServerName())
+        std::string server_name = (*it).getServerName();
+        int port = (*it).getPort();
+        ++it;
+        if (server_name == (*it).getServerName() && port == (*it).getPort())
         {
-            if ((*it).getPort() != (*it++).getPort())
-                return ;
-            std::cout << "Server names are the same" << std::endl;
+            std::cout << "Error: Server name and port are duplicated" << std::endl;
             exit(1);
         }
     }
