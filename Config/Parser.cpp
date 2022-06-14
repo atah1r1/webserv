@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 09:38:49 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/14 15:01:29 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/06/14 16:22:42 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -194,9 +194,25 @@ std::vector<std::string> Parser::parseAllowMethods()
     this->grab(WORD); // allow_methods
     while (current_token.type == WORD)
     {
+        // std::cout << "ETET: " << current_token.value << std::endl;
         allow_methods.push_back(current_token.value);
         this->grab(WORD);
     }
+    if (!allow_methods.empty())
+    {
+        for (std::vector<std::string>::iterator it = allow_methods.begin(); it != allow_methods.end(); ++it)
+        {
+            if (*it != "DELETE" && *it != "GET" && *it != "POST")
+            {
+                std::cout << "Error: expected valid method but got " << *it << std::endl;
+                exit(1);
+            }
+        }
+    } else {
+        std::cout << "Error: expected valid method but got " << this->current_token.type << std::endl;
+        exit(1);
+    }
+
     return (allow_methods);
 }
 
@@ -217,16 +233,14 @@ bool Parser::parseAutoIndex()
     return (auto_index == "on" ? true : false);
 }
 
-
-Location * Parser::parseLocations()
+Location *Parser::parseLocations()
 {
     Location *location = new Location();
     this->grab(WORD); // path
     location->_location = current_token.value;
     this->grab(WORD);
     this->grab(OPEN_BRACKET);
-    while (current_token.type != CLOSE_BRACKET && current_token.type != TOKEN_EOF
-            && current_token.type != TOKEN_ERR)
+    while (current_token.type != CLOSE_BRACKET && current_token.type != TOKEN_EOF && current_token.type != TOKEN_ERR)
     {
         if (!current_token.value.compare("root"))
             location->_root = parseRoot();
