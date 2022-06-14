@@ -1,1 +1,4 @@
-- same port and same server_name ==> error in parsing
+- same port and same server_name ==> error in parsing √
+- socket implemention
+- cgi implementation
+- response implementation

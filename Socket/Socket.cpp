@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/12 15:40:19 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/12 16:33:13 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/06/14 14:20:54 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,16 +20,15 @@
 #include <iostream>
 #define PORT 8080
 
-
 Socket::Socket(/* args */)
 {
     int server_fd, new_socket, valread;
     struct sockaddr_in address;
     int opt = 1;
     int addrlen = sizeof(address);
-    char buffer[1024] = { 0 };
-    std::string hello ="HTTP/1.1 200 OK\nContent-Type:text/html\nContent-Length: 16\n\n<h1>testing</h1>";
- 
+    char buffer[1024] = {0};
+    std::string hello = "HTTP/1.1 200 OK\nContent-Type:text/html\nContent-Length: 16\n\n<h1>testing</h1>";
+
     // Creating socket file descriptor
     if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0)
     {
@@ -48,7 +47,7 @@ Socket::Socket(/* args */)
     address.sin_port = htons(PORT);
 
     // Forcefully attaching socket to the port 8080
-    if (bind(server_fd, (struct sockaddr*)&address, sizeof(address)) < 0)
+    if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0)
     {
         std::cout << "bind failed" << std::endl;
         exit(EXIT_FAILURE);
@@ -58,22 +57,22 @@ Socket::Socket(/* args */)
         std::cout << "listen failed" << std::endl;
         exit(EXIT_FAILURE);
     }
-    if ((new_socket = accept(server_fd, (struct sockaddr*)&address, (socklen_t*)&addrlen)) < 0)
-    {
-        std::cout << "accept failed" << std::endl;
-        exit(EXIT_FAILURE);
-    }
     while (1)
     {
+        if ((new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t *)&addrlen)) < 0)
+        {
+            std::cout << "accept failed" << std::endl;
+            exit(EXIT_FAILURE);
+        }
         valread = read(new_socket, buffer, 1024);
         std::cout << buffer << std::endl;
         send(new_socket, hello.c_str(), strlen(hello.c_str()), 0);
     }
     // printf("Hello message sent\n");
 
-// closing the connected socket
+    // closing the connected socket
     close(new_socket);
-  // closing the listening socket
+    // closing the listening socket
     // shutdown(server_fd, SHUT_RDWR);
 }
 

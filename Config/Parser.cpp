@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 09:38:49 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/11 19:37:57 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/06/14 15:01:29 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,7 +106,7 @@ std::string Parser::parseServerName()
     }
     else
     {
-        std::cout << "Error: expected ip but got " << this->current_token.type << std::endl;
+        std::cout << "Error: expected server_name but got " << this->current_token.type << std::endl;
         exit(1);
     }
     return (server_name);
@@ -123,7 +123,7 @@ std::string Parser::parseRoot()
     }
     else
     {
-        std::cout << "Error: expected ip but got " << this->current_token.type << std::endl;
+        std::cout << "Error: expected root but got " << this->current_token.type << std::endl;
         exit(1);
     }
     return (root);
@@ -141,7 +141,7 @@ std::string Parser::parseRedirection()
     }
     else
     {
-        std::cout << "Error: expected ip but got " << this->current_token.type << std::endl;
+        std::cout << "Error: expected redirect but got " << this->current_token.type << std::endl;
         exit(1);
     }
     return (redirection_path);
@@ -182,7 +182,7 @@ int Parser::parseClientBufferSize()
     }
     else
     {
-        std::cout << "Error: expected ip but got " << this->current_token.type << std::endl;
+        std::cout << "Error: expected client max body size but got " << this->current_token.type << std::endl;
         exit(1);
     }
     return (client_max_size_body);
@@ -211,7 +211,7 @@ bool Parser::parseAutoIndex()
     }
     else
     {
-        std::cout << "Error: expected ip but got " << this->current_token.type << std::endl;
+        std::cout << "Error: expected autoindex but got " << this->current_token.type << std::endl;
         exit(1);
     }
     return (auto_index == "on" ? true : false);
@@ -263,6 +263,16 @@ ServerConfig Parser::checkConfig(ServerConfig server_setup)
     if (server_setup.getServerName().empty())
     {
         std::cout << "Error: bad or no server name founded" << std::endl;
+        exit(1);
+    }
+    if (server_setup.getPort() <= 0)
+    {
+        std::cout << "Error: ip address cannot be negative" << std::endl;
+        exit(1);
+    }
+    if (server_setup.getClientBufferSize() <= 0)
+    {
+        std::cout << "Error: client max body size cannot be negative" << std::endl;
         exit(1);
     }
     return server_setup;

@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 17:17:03 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/12 16:02:15 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/06/14 14:25:37 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
     }
     Config *config = new Config(argv[1]);
     (void)config;
-    Socket *socket = new Socket();
-    (void)socket;
+    // Socket *socket = new Socket();
+    // (void)socket;
     return 0;
 }
