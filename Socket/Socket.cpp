@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/12 15:40:19 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/15 21:27:26 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/06/16 17:06:34 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,10 +17,11 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <arpa/inet.h>
 #include <iostream>
 #define PORT 8080
 
-Socket::Socket(/* args */)
+Socket::Socket()
 {
     int server_fd, new_socket, valread;
     struct sockaddr_in address;
@@ -50,8 +51,9 @@ Socket::Socket(/* args */)
         std::cout << "setsockopt error" << std::endl;
         exit(EXIT_FAILURE);
     }
+    memset(&address, 0, sizeof(address));
     address.sin_family = AF_INET;
-    address.sin_addr.s_addr = INADDR_ANY;
+    address.sin_addr.s_addr = inet_addr("10.11.11.1");
     address.sin_port = htons(PORT);
 
     // Forcefully attaching socket to the port 8080
@@ -84,6 +86,17 @@ Socket::Socket(/* args */)
     // closing the listening socket
     // shutdown(server_fd, SHUT_RDWR);
 }
+
+// Socket::Socket(Socket const &rhs)
+// {
+//     *this = rhs;
+// }
+
+// Socket &Socket::operator=(Socket const &rhs)
+// {
+//     (void)rhs;
+//     return (*this);
+// }
 
 Socket::~Socket()
 {
