@@ -6,86 +6,99 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/12 15:40:19 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/16 17:06:34 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/06/17 16:27:50 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Socket.hpp"
-#include <netinet/in.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/socket.h>
-#include <unistd.h>
-#include <arpa/inet.h>
-#include <iostream>
-#define PORT 8080
 
 Socket::Socket()
 {
-    int server_fd, new_socket, valread;
-    struct sockaddr_in address;
-    int opt = 1;
-    int addrlen = sizeof(address);
-    char buffer[1024] = {0};
-    std::string hello = "HTTP/1.1 200 OK\nContent-Type:text/html\nContent-Length: 16\n\n<h1>testing</h1>";
+    this->_init();
+    this->_socket();
+    this->_bind();
+    this->_listen();
+    while(1)
+    {
+        this->_accept();
+        this->_recv();
+        this->_send(this->hello);
+    }
+    this->_close();
+}
 
-    // Creating socket file descriptor
-    // AF_INET - IPv4, SOCK_STREAM - TCP
-    // 0 indicates that the caller does not want to specify the protocol
-    // and will leave it up to the service provider.
-    if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
+void Socket::_init()
+{
+    this->opt = true;
+    this->port = 8080;
+    this->ip = "0.0.0.0";
+    this->hello = "HTTP/1.1 200 OK\nContent-Type:text/html\nContent-Length: 16\n\n<h1>testing</h1>";
+}
+
+void Socket::_socket()
+{
+    if ((this->server_fd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
     {
         std::cout << "socket failed" << std::endl;
         exit(EXIT_FAILURE);
     }
-
-    // Forcefully attaching socket to the port 8080
-    /*  This socket option tells the kernel that even if
-        this port is busy (in the TIME_WAIT state), go ahead and reuse it anyway.
-        If it is busy, but with another state, you will still get an address already in use error.
-        It is useful if your server has been shut down,
-        and then restarted right away while sockets are still active on its port */
-    if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(int)))
+    if (setsockopt(this->server_fd, SOL_SOCKET, SO_REUSEADDR, &this->opt, sizeof(int)))
     {
         std::cout << "setsockopt error" << std::endl;
         exit(EXIT_FAILURE);
     }
-    memset(&address, 0, sizeof(address));
-    address.sin_family = AF_INET;
-    address.sin_addr.s_addr = inet_addr("10.11.11.1");
-    address.sin_port = htons(PORT);
+}
+
+void Socket::_bind()
+{
+    memset(&this->address, 0, sizeof(this->address));
+    this->address.sin_family = AF_INET;
+    this->address.sin_addr.s_addr = inet_addr(this->ip.c_str());
+    this->address.sin_port = htons(this->port);
 
     // Forcefully attaching socket to the port 8080
-    if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0)
+    if (bind(this->server_fd, (struct sockaddr *)&this->address, sizeof(this->address)) < 0)
     {
         std::cout << "bind failed" << std::endl;
         exit(EXIT_FAILURE);
     }
-    if (listen(server_fd, 3) < 0)
+}
+
+void Socket::_listen()
+{
+    if (listen(this->server_fd, 3) < 0)
     {
         std::cout << "listen failed" << std::endl;
         exit(EXIT_FAILURE);
     }
-    while (1)
-    {
-        if ((new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t *)&addrlen)) < 0)
-        {
-            std::cout << "accept failed" << std::endl;
-            exit(EXIT_FAILURE);
-        }
-        valread = read(new_socket, buffer, 1024);
-        std::cout << buffer << std::endl;
-        std::cout << "How much line i read: " << valread << std::endl;
-        send(new_socket, hello.c_str(), strlen(hello.c_str()), 0);
-    }
-    // printf("Hello message sent\n");
-
-    // closing the connected socket
-    close(new_socket);
-    // closing the listening socket
-    // shutdown(server_fd, SHUT_RDWR);
 }
+
+void Socket::_accept()
+{
+    if ((new_socket = accept(this->server_fd, (struct sockaddr *)&this->address, (socklen_t *)&(this->address))) < 0)
+    {
+        std::cout << "accept failed" << std::endl;
+        exit(EXIT_FAILURE);
+    }
+}
+
+void Socket::_send(std::string msg)
+{
+    send(this->new_socket, msg.c_str(), strlen(msg.c_str()), 0);
+}
+
+void Socket::_recv()
+{
+    this->valread = read(this->new_socket, this->buffer, 1024);
+    std::cout << "How much line i read: " << valread << std::endl;
+    std::cout << this->buffer << std::endl;
+}
+
+void Socket::_close()
+{
+    close(this->new_socket);
+}
+
 
 // Socket::Socket(Socket const &rhs)
 // {
