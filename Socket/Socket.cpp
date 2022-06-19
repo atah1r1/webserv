@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/12 15:40:19 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/19 16:44:14 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/06/19 21:44:54 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 
 Socket::Socket(std::vector<ServerConfig> servers)
 {
+    std::cout << "inside while" << std::endl;
     for(std::vector<ServerConfig>::iterator it = servers.begin(); it != servers.end(); ++it)
     {
         this->_init((*it).getServerIp(), (*it).getPort());
@@ -50,6 +51,7 @@ void Socket::_socket()
         exit(EXIT_FAILURE);
     }
     servers_fds.push_back(this->server_fd);
+    std::cout << servers_fds.size() << std::endl;
     // if (fcntl(this->server_fd, F_SETFL, O_NONBLOCK) < 0)
     // {
     //     std::cerr << "non_blocking error" << std::endl;
