@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 17:17:03 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/16 16:33:14 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/06/19 16:25:00 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,9 +21,8 @@ int main(int argc, char *argv[])
         std::cout << "Usage: ./webserv <config_file>" << std::endl;
         return (0);
     }
-    Config *config = new Config(argv[1]);
-    (void)config;
-    Socket *socket = new Socket();
+    Config *config = new Config();
+    Socket *socket = new Socket(config->getServers(argv[1]));
     (void)socket;
     return 0;
 }

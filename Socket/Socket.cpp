@@ -6,34 +6,41 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/12 15:40:19 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/17 16:27:50 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/06/19 16:44:14 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Socket.hpp"
 
-Socket::Socket()
+Socket::Socket(std::vector<ServerConfig> servers)
 {
-    this->_init();
-    this->_socket();
-    this->_bind();
-    this->_listen();
-    while(1)
+    for(std::vector<ServerConfig>::iterator it = servers.begin(); it != servers.end(); ++it)
     {
+        this->_init((*it).getServerIp(), (*it).getPort());
+        this->_socket();
+        this->_bind();
+        this->_listen();
         this->_accept();
-        this->_recv();
-        this->_send(this->hello);
     }
+    this->_recv();
+    this->_send(this->hello);
     this->_close();
 }
 
-void Socket::_init()
+void Socket::_init(std::string host, int port)
 {
-    this->opt = true;
-    this->port = 8080;
-    this->ip = "0.0.0.0";
+    this->opt = 1;
+    this->port = port;
+    this->ip = host;
     this->hello = "HTTP/1.1 200 OK\nContent-Type:text/html\nContent-Length: 16\n\n<h1>testing</h1>";
 }
+
+// AF_INET ipv4
+// SOCK_STREAM tcp
+// 0 indicates that the caller does not want to specify the protocol and will leave it up to the service provider.
+
+// set option for socket level SOL_SOCKET
+// SO_REUSEADDR allows the socket to be bound to the address even if it is already in use.
 
 void Socket::_socket()
 {
@@ -42,6 +49,12 @@ void Socket::_socket()
         std::cout << "socket failed" << std::endl;
         exit(EXIT_FAILURE);
     }
+    servers_fds.push_back(this->server_fd);
+    // if (fcntl(this->server_fd, F_SETFL, O_NONBLOCK) < 0)
+    // {
+    //     std::cerr << "non_blocking error" << std::endl;
+    //     exit(EXIT_FAILURE);
+    // }
     if (setsockopt(this->server_fd, SOL_SOCKET, SO_REUSEADDR, &this->opt, sizeof(int)))
     {
         std::cout << "setsockopt error" << std::endl;
@@ -64,9 +77,11 @@ void Socket::_bind()
     }
 }
 
+// 128 backlogs
+
 void Socket::_listen()
 {
-    if (listen(this->server_fd, 3) < 0)
+    if (listen(this->server_fd, 128) < 0)
     {
         std::cout << "listen failed" << std::endl;
         exit(EXIT_FAILURE);
@@ -89,6 +104,7 @@ void Socket::_send(std::string msg)
 
 void Socket::_recv()
 {
+    memset(this->buffer, 0, 1024);
     this->valread = read(this->new_socket, this->buffer, 1024);
     std::cout << "How much line i read: " << valread << std::endl;
     std::cout << this->buffer << std::endl;
@@ -98,7 +114,6 @@ void Socket::_close()
 {
     close(this->new_socket);
 }
-
 
 // Socket::Socket(Socket const &rhs)
 // {
