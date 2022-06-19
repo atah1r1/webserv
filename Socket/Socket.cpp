@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/12 15:40:19 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/17 16:27:50 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/06/19 14:31:03 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,6 +89,7 @@ void Socket::_send(std::string msg)
 
 void Socket::_recv()
 {
+    memset(this->buffer, 0, 1024);
     this->valread = read(this->new_socket, this->buffer, 1024);
     std::cout << "How much line i read: " << valread << std::endl;
     std::cout << this->buffer << std::endl;
