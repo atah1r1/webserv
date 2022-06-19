@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 16:04:34 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/16 15:51:03 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/06/19 16:24:01 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,7 +83,7 @@ void Config::checkErrors(std::vector<ServerConfig> config)
     }
 }
 
-Config::Config(std::string file_name)
+std::vector<ServerConfig> Config::getServers(std::string file_name)
 {
     std::ifstream inFile;
     inFile.open(file_name); // open the input file
@@ -99,6 +99,7 @@ Config::Config(std::string file_name)
     std::vector<ServerConfig> config = parser.parse();
     checkErrors(config);
     // PrintData(config);
+    return config;
 }
 
 Config::~Config()

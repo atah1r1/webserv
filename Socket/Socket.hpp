@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/12 15:40:18 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/17 16:22:17 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/06/19 16:43:59 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <iostream>
+ #include <fcntl.h>
 
 class Socket
 {
@@ -32,12 +33,13 @@ private:
     struct sockaddr_in address;
     int port;
     std::string ip;
+    std::vector<int> servers_fds;
 public:
-    Socket();
+    Socket(std::vector<ServerConfig> servers);
     ~Socket();
     // Socket(Socket const &rhs);
     // Socket &operator=(Socket const &rhs);
-    void _init();
+    void _init(std::string host, int port);
     void _socket();
     void _bind();
     void _listen();
