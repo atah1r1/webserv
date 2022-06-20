@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/12 15:40:19 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/20 11:40:05 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/06/20 15:14:16 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,11 +26,13 @@ Socket::Socket(std::vector<ServerConfig> servers): address_len(sizeof(address))
         }
         servers_fds.push_back(this->server_fd);
         it++;
+        // set socket to non-blocking
         if (fcntl(this->server_fd, F_SETFL, O_NONBLOCK) < 0)
         {
             std::cerr << "non_blocking error" << std::endl;
             exit(EXIT_FAILURE);
         }
+        // set default socket options (reuse address)
         if (setsockopt(this->server_fd, SOL_SOCKET, SO_REUSEADDR, &this->opt, sizeof(int)))
         {
             std::cout << "setsockopt error" << std::endl;
@@ -102,9 +104,13 @@ void Socket::_accept()
     }
 }
 
-void Socket::_send(std::string msg)
+void Socket::_send(int my_socket, std::string msg)
 {
-    send(this->new_socket, msg.c_str(), strlen(msg.c_str()), 0);
+    if (send(my_socket, msg.c_str(), msg.length(), 0) < 0)
+    {
+        std::cout << "send failed" << std::endl;
+        exit(EXIT_FAILURE);
+    }
 }
 
 void Socket::_recv()
@@ -127,7 +133,7 @@ std::vector<int> Socket::getServersFds()
 
 int Socket::acceptNewConnection(std::pair<int, size_t> pair)
 {
-    // pair<server, possition>
+    // pair<server, position>
 	int new_socket;
 	if ((new_socket = accept(pair.first, (struct sockaddr *)&this->vec_addresses[pair.second], (socklen_t *)&address_len)) < 0)
 	{
@@ -143,7 +149,7 @@ bool Socket::handleConnection(ServerConfig server_setup, int new_socket)
     std::cout << "inside handleConnection" << std::endl;
     while ((valread = recv(new_socket, buffer, 1024, 0)) > 0)
 	{
-        std::cout << "valread: " << buffer << std::endl;
+        std::cout << buffer << std::endl;
 		memset(buffer, 0, 1024);
 	}
     return true;
