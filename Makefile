@@ -6,7 +6,7 @@
 #    By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/05/31 17:16:31 by atahiri           #+#    #+#              #
-#    Updated: 2022/06/20 15:09:19 by atahiri          ###   ########.fr        #
+#    Updated: 2022/06/20 16:29:58 by atahiri          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -26,6 +26,7 @@ $(NAME) : 	$(SRCS)
 			@$(CC) $(FLAGS) $(SRCS) -o $(NAME)
 
 all		: 	$(NAME)
+			@rm -rf webserv.dSYM
 
 clean	:
 			@rm -rf *.o
