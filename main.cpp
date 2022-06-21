@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 17:17:03 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/21 22:19:30 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/06/21 22:48:00 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,9 @@
 
 void start(std::vector<ServerConfig> servers)
 {
+    struct timeval tv;
+    tv.tv_sec = 20;
+    tv.tv_usec = 0;
     std::vector<ServerConfig>::iterator it_b(servers.begin());
     Socket socket(servers);
 
@@ -32,7 +35,7 @@ void start(std::vector<ServerConfig> servers)
         // select function destroys the sets it is passed, so we need to copy them
         ReadyForRead = SocketsRead;
         ReadyForWrite = SocketsWrite;
-        if (select(FD_SETSIZE, &ReadyForRead, &ReadyForWrite, NULL, NULL) < 0)
+        if (select(FD_SETSIZE, &ReadyForRead, &ReadyForWrite, NULL, &tv) < 0)
         {
             std::cerr << "In select" << std::endl;
             exit(EXIT_FAILURE);
@@ -52,21 +55,13 @@ void start(std::vector<ServerConfig> servers)
                 }
                 else
                 {
-                    // if (socket.handleConnection(*server_it, i) == true)
-                    // {
-                    //     std::cout << "handleConnection" << std::endl;
-                    //     socket._send(i ,"HTTP/1.1 200 OK\nContent-Type:text/html\nContent-Length: 16\n\n<h1>testing</h1>");
-                    //     FD_CLR(i, &SocketsRead);
-                    // }
-                    // std::cout << "ELSE" << std::endl;
-                    char buffer[1024];
-                    int valread;
-                    while((valread = recv(i, buffer, sizeof(buffer), 0)) > 0)
+                    if (socket.handleConnection(*server_it, i) == true)
                     {
-                        printf("\n%s\n", buffer);
+                        std::cout << "handleConnection" << std::endl;
                         socket._send(i ,"HTTP/1.1 200 OK\nContent-Type:text/html\nContent-Length: 16\n\n<h1>testing</h1>");
-                        FD_CLR(i, &ReadyForRead);
+                        FD_CLR(i, &SocketsRead);
                     }
+                    // std::cout << "ELSE" << std::endl;
                 }
                 // else
                 // {
