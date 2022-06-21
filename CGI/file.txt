@@ -1,0 +1,12 @@
+X-Powered-By: PHP/8.0.2
+Content-type: text/html; charset=UTF-8
+
+<!DOCTYPE html>
+<html>
+<body>
+
+<h1>Testing the CGI</h1>
+
+Hello World!
+</body>
+</html>
