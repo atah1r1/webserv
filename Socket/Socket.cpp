@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/12 15:40:19 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/20 15:14:16 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/06/21 12:23:22 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -147,10 +147,12 @@ bool Socket::handleConnection(ServerConfig server_setup, int new_socket)
 {
     (void)server_setup;
     std::cout << "inside handleConnection" << std::endl;
+	memset(buffer, 0, 1024);
     while ((valread = recv(new_socket, buffer, 1024, 0)) > 0)
 	{
+        std::cout << "-----------------------------------" << std::endl;
         std::cout << buffer << std::endl;
-		memset(buffer, 0, 1024);
+        std::cout << "-----------------------------------" << std::endl;
 	}
     return true;
 }
