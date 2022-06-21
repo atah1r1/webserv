@@ -6,7 +6,7 @@
 #    By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/05/31 17:16:31 by atahiri           #+#    #+#              #
-#    Updated: 2022/06/12 15:59:39 by atahiri          ###   ########.fr        #
+#    Updated: 2022/06/20 16:29:58 by atahiri          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -23,9 +23,10 @@ SRCS	= 	main.cpp\
 
 
 $(NAME) : 	$(SRCS)
-			$(CC) $(FLAGS) $(SRCS) -o $(NAME)
+			@$(CC) $(FLAGS) $(SRCS) -o $(NAME)
 
 all		: 	$(NAME)
+			@rm -rf webserv.dSYM
 
 clean	:
 			@rm -rf *.o
