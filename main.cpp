@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 17:17:03 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/21 14:57:25 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/06/21 22:19:30 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,12 +52,21 @@ void start(std::vector<ServerConfig> servers)
                 }
                 else
                 {
-                    if (socket.handleConnection(*server_it, i) == true)
-                    {
-                        socket._send(i ,"HTTP/1.1 200 OK\nContent-Type:text/html\nContent-Length: 16\n\n<h1>testing</h1>");
-                        FD_CLR(i, &SocketsRead);
-                    }
+                    // if (socket.handleConnection(*server_it, i) == true)
+                    // {
+                    //     std::cout << "handleConnection" << std::endl;
+                    //     socket._send(i ,"HTTP/1.1 200 OK\nContent-Type:text/html\nContent-Length: 16\n\n<h1>testing</h1>");
+                    //     FD_CLR(i, &SocketsRead);
+                    // }
                     // std::cout << "ELSE" << std::endl;
+                    char buffer[1024];
+                    int valread;
+                    while((valread = recv(i, buffer, sizeof(buffer), 0)) > 0)
+                    {
+                        printf("\n%s\n", buffer);
+                        socket._send(i ,"HTTP/1.1 200 OK\nContent-Type:text/html\nContent-Length: 16\n\n<h1>testing</h1>");
+                        FD_CLR(i, &ReadyForRead);
+                    }
                 }
                 // else
                 // {

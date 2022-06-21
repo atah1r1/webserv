@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/12 15:40:19 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/21 12:23:22 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/06/21 17:15:24 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,11 +40,7 @@ Socket::Socket(std::vector<ServerConfig> servers): address_len(sizeof(address))
         }
         this->_bind();
         this->_listen();
-        // this->_accept();
     }
-    // this->_recv();
-    // this->_send(this->hello);
-    // this->_close();
 }
 
 void Socket::_init(std::string host, int port)
