@@ -6,7 +6,7 @@
 /*   By: aes-salm <aes-salm@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/20 12:35:16 by aes-salm          #+#    #+#             */
-/*   Updated: 2022/06/21 01:32:22 by aes-salm         ###   ########.fr       */
+/*   Updated: 2022/06/21 10:57:50 by aes-salm         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <sys/stat.h>
 
 char **generate_execve_args(std::string path)
 {
@@ -26,16 +27,15 @@ char **generate_execve_args(std::string path)
 	return execve_args;
 }
 
-void cgi(std::string file_path, char **envp)
+std::string cgi(std::string file_path, char **envp)
 {
-	pid_t pid = fork();
 	int status;
 	int fd[2];
-	pipe(fd);
+	struct stat sb;
+	std::string result;
 
-	char output[1024];
-	memset(output, 0, 1024);
-	// int fd = open("./file.txt", O_WRONLY | O_CREAT);
+	pipe(fd);
+	pid_t pid = fork();
 
 	if (pid == -1)
 	{
@@ -45,23 +45,25 @@ void cgi(std::string file_path, char **envp)
 	else if (pid == 0)
 	{
 		close(fd[0]);
-		write(fd[1], "Hello World!", strlen("Hello World!"));
-		// dup2(fd[1], 1);
-		// char **execve_args = generate_execve_args(file_path);
-		// execve(execve_args[0], execve_args, envp);
+		char **execve_args = generate_execve_args(file_path);
+		execve(execve_args[0], execve_args, envp);
 	}
 	else
 	{
 		waitpid(pid, &status, 0);
 		close(fd[1]);
-		read(fd[0], output, 1024);
+
+		fstat(fd[0], &sb);		   // get file size
+		result.resize(sb.st_size); // resize string to file size
+
+		read(fd[0], (char *)(result.data()), sb.st_size);
 		close(fd[0]);
-		std::cout << output << std::endl;
 	}
+	return result;
 }
 
 int main(int argc, char **argv, char **envp)
 {
-	cgi("./tests/test.php", envp);
+	std::cout << cgi("./tests/test.php", envp) << std::endl;
 	return (0);
 }
