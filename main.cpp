@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 17:17:03 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/21 12:21:06 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/06/21 14:57:25 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@ void start(std::vector<ServerConfig> servers)
                     // std::cout << "IF CONDITION" << std::endl;
                     int client_socket = socket.acceptNewConnection(search_fd.second);
                     server_it = it_b + (search_fd.second).second;
-                    std::cout << "server_it: " << (*server_it).getPort() << std::endl;
+                    // std::cout << "server_it: " << (*server_it).getPort() << std::endl;
                     FD_SET(client_socket, &SocketsRead);
                 }
                 else

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cgi.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aes-salm <aes-salm@student.42.fr>          +#+  +:+       +#+        */
+/*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/20 12:35:16 by aes-salm          #+#    #+#             */
-/*   Updated: 2022/06/21 10:57:50 by aes-salm         ###   ########.fr       */
+/*   Updated: 2022/06/21 15:19:41 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ char **generate_execve_args(std::string path)
 	char **execve_args = (char **)malloc(sizeof(char *) * 3);
 	execve_args[0] = (char *)"./bin/PHP_CGI";
 	execve_args[1] = strdup(path.c_str());
-	execve_args[2] = nullptr;
+	execve_args[2] = NULL;
 	return execve_args;
 }
 
@@ -64,6 +64,6 @@ std::string cgi(std::string file_path, char **envp)
 
 int main(int argc, char **argv, char **envp)
 {
-	std::cout << cgi("./tests/test.php", envp) << std::endl;
+	std::cout << cgi("./tests/test.html", envp) << std::endl;
 	return (0);
 }
