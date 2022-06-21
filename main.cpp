@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 17:17:03 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/20 15:30:22 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/06/21 12:21:06 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ void start(std::vector<ServerConfig> servers)
         // select function destroys the sets it is passed, so we need to copy them
         ReadyForRead = SocketsRead;
         ReadyForWrite = SocketsWrite;
-        if (select(FD_SETSIZE, &ReadyForRead,&ReadyForWrite, NULL, NULL) < 0)
+        if (select(FD_SETSIZE, &ReadyForRead, &ReadyForWrite, NULL, NULL) < 0)
         {
             std::cerr << "In select" << std::endl;
             exit(EXIT_FAILURE);
@@ -47,6 +47,7 @@ void start(std::vector<ServerConfig> servers)
                     // std::cout << "IF CONDITION" << std::endl;
                     int client_socket = socket.acceptNewConnection(search_fd.second);
                     server_it = it_b + (search_fd.second).second;
+                    std::cout << "server_it: " << (*server_it).getPort() << std::endl;
                     FD_SET(client_socket, &SocketsRead);
                 }
                 else
@@ -54,8 +55,8 @@ void start(std::vector<ServerConfig> servers)
                     if (socket.handleConnection(*server_it, i) == true)
                     {
                         socket._send(i ,"HTTP/1.1 200 OK\nContent-Type:text/html\nContent-Length: 16\n\n<h1>testing</h1>");
+                        FD_CLR(i, &SocketsRead);
                     }
-                    FD_CLR(i, &SocketsRead);
                     // std::cout << "ELSE" << std::endl;
                 }
                 // else
