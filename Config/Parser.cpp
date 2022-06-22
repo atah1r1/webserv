@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 09:38:49 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/22 22:48:28 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/06/22 23:20:10 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,6 +132,14 @@ std::string Parser::parseRoot()
 std::string Parser::parseRedirection()
 {
     this->grab(WORD); // redirection
+    if (current_token.type == WORD)
+    {
+        if (current_token.value != "301")
+        {
+            std::cout << "Error: Redirection must use 301" << std::endl;
+            exit(1);
+        }
+    }
     this->grab(WORD);
     std::string redirection_path;
     if (current_token.type == WORD)
