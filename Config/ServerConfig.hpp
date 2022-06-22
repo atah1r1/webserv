@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 16:08:26 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/11 14:26:11 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/06/22 22:47:07 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@ struct Location {
     std::string _client_buffer_size;
     std::string _root;
     std::string _redirection_path;
+    std::string _upload_store;
 };
 
 class ServerConfig

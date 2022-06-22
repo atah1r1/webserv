@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 09:38:49 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/14 16:22:42 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/06/22 22:48:28 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -147,6 +147,25 @@ std::string Parser::parseRedirection()
     return (redirection_path);
 }
 
+std::string Parser::parseUploadStore()
+{
+    this->grab(WORD); // redirection
+    std::string upload_store;
+    if (current_token.type == WORD)
+    {
+        upload_store = current_token.value;
+        this->grab(WORD);
+    }
+    else
+    {
+        std::cout << "Error: expected redirect but got " << this->current_token.type << std::endl;
+        exit(1);
+    }
+    return (upload_store);
+}
+
+
+
 std::vector<std::string> Parser::parseIndex()
 {
     std::vector<std::string> index;
@@ -252,6 +271,8 @@ Location *Parser::parseLocations()
             location->_autoindex = parseAutoIndex();
         else if (!current_token.value.compare("return"))
             location->_redirection_path = parseRedirection();
+        else if (!current_token.value.compare("upload_store"))
+            location->_upload_store = parseUploadStore();
         else
         {
             std::cout << "Invalid Token" << std::endl;
