@@ -6,19 +6,17 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 17:17:03 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/23 12:54:13 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/06/23 17:04:18 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "./Config/Config.hpp"
 #include "Socket/Socket.hpp"
 #include "Socket/Utils.hpp"
+#include "Request/Request.hpp"
 
 void start(std::vector<ServerConfig> servers)
 {
-    struct timeval tv;
-    tv.tv_sec = 20;
-    tv.tv_usec = 0;
     std::vector<ServerConfig>::iterator it_b(servers.begin());
     Socket socket(servers);
 
@@ -35,7 +33,7 @@ void start(std::vector<ServerConfig> servers)
         // select function destroys the sets it is passed, so we need to copy them
         ReadyForRead = SocketsRead;
         ReadyForWrite = SocketsWrite;
-        if (select(FD_SETSIZE, &ReadyForRead, &ReadyForWrite, NULL, &tv) < 0)
+        if (select(FD_SETSIZE, &ReadyForRead, &ReadyForWrite, NULL, NULL) < 0)
         {
             std::cerr << "In select" << std::endl;
             exit(EXIT_FAILURE);

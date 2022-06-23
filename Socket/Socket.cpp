@@ -6,11 +6,13 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/12 15:40:19 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/23 12:51:04 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/06/23 17:04:11 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Socket.hpp"
+#include "../Request/Request.hpp"
+#include "../Request/Utils.hpp"
 
 Socket::Socket(std::vector<ServerConfig> servers): address_len(sizeof(address))
 {
@@ -145,11 +147,14 @@ bool Socket::handleConnection(ServerConfig server_setup, int new_socket)
     char buff[1024];
     std::cout << "inside handleConnection" << std::endl;
 	memset(buff, 0, 1024);
+    // Request request;
     while ((valread = recv(new_socket, buff, 1024, 0)) > 0)
 	{
         std::cout << "-----------------------------------" << std::endl;
         std::cout << buff << std::endl;
         std::cout << "-----------------------------------" << std::endl;
+        // request = ParseRequest(request, buff);
+        // requests.push_back(request);
 	}
     return true;
 }

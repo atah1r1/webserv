@@ -6,11 +6,12 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/12 15:40:18 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/20 15:14:30 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/06/23 17:01:13 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../Config/ServerConfig.hpp"
+#include "../Request/Request.hpp"
 #include <netinet/in.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -36,6 +37,7 @@ private:
     std::vector<int> servers_fds;
     std::vector<struct sockaddr_in> vec_addresses;
     int address_len;
+    std::vector<Request> requests;
 
 public:
     Socket(std::vector<ServerConfig> servers);
