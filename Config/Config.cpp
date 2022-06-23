@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 16:04:34 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/19 16:24:01 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/06/22 23:22:23 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,7 @@ void PrintData(std::vector<ServerConfig> config)
             std::cout << "Root: " << (*itl)->_root << std::endl;
             std::cout << "Autoindex: " << (*itl)->_autoindex << std::endl;
             std::cout << "Redirection PATH: " << (*itl)->_redirection_path << std::endl;
+            std::cout << "Upload store: " << (*itl)->_upload_store << std::endl;
             std::vector<std::string> _allow_methods = (*itl)->_allow_methods;
             for (std::vector<std::string>::iterator itm = _allow_methods.begin(); itm != _allow_methods.end(); ++itm)
             {

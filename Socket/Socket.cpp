@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/12 15:40:19 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/21 12:23:22 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/06/23 12:51:04 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,11 +40,7 @@ Socket::Socket(std::vector<ServerConfig> servers): address_len(sizeof(address))
         }
         this->_bind();
         this->_listen();
-        // this->_accept();
     }
-    // this->_recv();
-    // this->_send(this->hello);
-    // this->_close();
 }
 
 void Socket::_init(std::string host, int port)
@@ -146,12 +142,13 @@ int Socket::acceptNewConnection(std::pair<int, size_t> pair)
 bool Socket::handleConnection(ServerConfig server_setup, int new_socket)
 {
     (void)server_setup;
+    char buff[1024];
     std::cout << "inside handleConnection" << std::endl;
-	memset(buffer, 0, 1024);
-    while ((valread = recv(new_socket, buffer, 1024, 0)) > 0)
+	memset(buff, 0, 1024);
+    while ((valread = recv(new_socket, buff, 1024, 0)) > 0)
 	{
         std::cout << "-----------------------------------" << std::endl;
-        std::cout << buffer << std::endl;
+        std::cout << buff << std::endl;
         std::cout << "-----------------------------------" << std::endl;
 	}
     return true;
