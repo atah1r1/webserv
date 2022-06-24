@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 16:08:26 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/22 22:47:07 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/06/24 09:46:40 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,6 @@
 #define SERVERCONFIG_HPP
 
 #include <iostream>
-#include <list>
 #include <vector>
 
 struct Location {

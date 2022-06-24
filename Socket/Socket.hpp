@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/12 15:40:18 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/23 17:01:13 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/06/24 10:36:02 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ private:
     std::vector<int> servers_fds;
     std::vector<struct sockaddr_in> vec_addresses;
     int address_len;
-    std::vector<Request> requests;
+    std::map<int, Request> requests;
 
 public:
     Socket(std::vector<ServerConfig> servers);
@@ -55,4 +55,8 @@ public:
     bool handleConnection(ServerConfig server_setup, int new_socket);
     void _recv();
     void _close();
+    bool isThisRequestExist(int fd);
+    void pushNewRequest(int fd);
+    void removeRequest(int fd);
+    Request receiveRequest(int fd);
 };

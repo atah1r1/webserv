@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/12 15:40:19 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/23 17:04:11 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/06/24 10:39:40 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 #include "../Request/Request.hpp"
 #include "../Request/Utils.hpp"
 
-Socket::Socket(std::vector<ServerConfig> servers): address_len(sizeof(address))
+Socket::Socket(std::vector<ServerConfig> servers) : address_len(sizeof(address))
 {
     std::vector<ServerConfig>::iterator it(servers.begin());
     size_t size = servers.size();
@@ -70,7 +70,6 @@ void Socket::_bind()
     this->address.sin_family = AF_INET;
     this->address.sin_addr.s_addr = inet_addr(this->ip.c_str());
     this->address.sin_port = htons(this->port);
-
 
     vec_addresses.push_back(this->address);
 
@@ -132,31 +131,58 @@ std::vector<int> Socket::getServersFds()
 int Socket::acceptNewConnection(std::pair<int, size_t> pair)
 {
     // pair<server, position>
-	int new_socket;
-	if ((new_socket = accept(pair.first, (struct sockaddr *)&this->vec_addresses[pair.second], (socklen_t *)&address_len)) < 0)
-	{
-		std::cerr << "In accept" << std::endl;
-		exit(EXIT_FAILURE);
-	}
-	return new_socket;
+    int new_socket;
+    if ((new_socket = accept(pair.first, (struct sockaddr *)&this->vec_addresses[pair.second], (socklen_t *)&address_len)) < 0)
+    {
+        std::cerr << "In accept" << std::endl;
+        exit(EXIT_FAILURE);
+    }
+    return new_socket;
 }
 
 bool Socket::handleConnection(ServerConfig server_setup, int new_socket)
 {
     (void)server_setup;
-    char buff[1024];
-    std::cout << "inside handleConnection" << std::endl;
-	memset(buff, 0, 1024);
-    // Request request;
-    while ((valread = recv(new_socket, buff, 1024, 0)) > 0)
-	{
-        std::cout << "-----------------------------------" << std::endl;
-        std::cout << buff << std::endl;
-        std::cout << "-----------------------------------" << std::endl;
-        // request = ParseRequest(request, buff);
-        // requests.push_back(request);
-	}
+    // ---------------------- Reading Request --------------------------- //
+    Request request = receiveRequest(new_socket);
+
+    // --------------------- Parsing The Request ------------------------- //
+    // if (!request.isCompleted()) // if the request is not completed, we return false
+    //     return false;
+    // else if (request.getBuffer() == "error")
+    // {
+    //     std::cerr << "Error in request" << std::endl;
+    //     close(new_socket);
+    //     this->requests.erase(new_socket); // request completed
+    //     return true;
+    // }
     return true;
+}
+
+bool Socket::isThisRequestExist(int fd)
+{
+    return this->requests.find(fd) != this->requests.end();
+}
+
+void Socket::pushNewRequest(int fd)
+{
+    std::cout << "pushed...." << std::endl;
+    this->requests.insert(std::pair<int, Request>(fd, Request()));
+}
+
+void Socket::removeRequest(int fd)
+{
+    if (this->requests.find(fd) != this->requests.end())
+        this->requests.erase(fd);
+}
+
+Request Socket::receiveRequest(int fd)
+{
+    char buffer[1024] = {0};
+	long valread = 0;
+	valread = recv(fd, buffer, 1024, 0);
+    std::cout << buffer << std::endl;
+    return requests[fd];
 }
 
 // Socket::Socket(Socket const &rhs)

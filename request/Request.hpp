@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/23 15:55:34 by aes-salm          #+#    #+#             */
-/*   Updated: 2022/06/23 16:47:24 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/06/24 10:39:14 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,8 +29,8 @@ private:
 	std::map<std::string, std::string> _headers;
 
 public:
-	Request(/* args */);
-	~Request();
+	Request(/* args */){};
+	~Request(){};
 
 	// GETTERS
 	std::string getMethod();

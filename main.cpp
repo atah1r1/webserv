@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 17:17:03 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/23 17:04:18 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/06/24 10:12:42 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,39 +53,38 @@ void start(std::vector<ServerConfig> servers)
                 }
                 else
                 {
+                    if (!socket.isThisRequestExist(i))
+						socket.pushNewRequest(i);
                     if (socket.handleConnection(*server_it, i) == true)
-                    {
-                        std::cout << "handleConnection" << std::endl;
-                        socket._send(i, "HTTP/1.1 200 OK\nContent-Type:text/html\nContent-Length: 16\n\n<h1>testing</h1>");
                         FD_CLR(i, &SocketsRead);
-                        close(i);
-                    }
+                    //socket._send(i, "HTTP/1.1 200 OK\nContent-Type:text/html\nContent-Length: 16\n\n<h1>testing</h1>");
+                        //close(i);
                     // std::cout << "ELSE" << std::endl;
                 }
             }
-            if (FD_ISSET(i, &ReadyForWrite))
-            {
-                if ((search_fd = find_fd(i, socket.getServersFds())).first)
-                {
-                    // this is a new connection
-                    // std::cout << "IF CONDITION" << std::endl;
-                    int client_socket = socket.acceptNewConnection(search_fd.second);
-                    server_it = it_b + (search_fd.second).second;
-                    // std::cout << "server_it: " << (*server_it).getPort() << std::endl;
-                    FD_SET(client_socket, &SocketsWrite);
-                }
-                else
-                {
-                    if (socket.handleConnection(*server_it, i) == true)
-                    {
-                        std::cout << "handleConnection" << std::endl;
-                        socket._send(i, "HTTP/1.1 200 OK\nContent-Type:text/html\nContent-Length: 16\n\n<h1>testing</h1>");
-                        FD_CLR(i, &SocketsWrite);
-                        close(i);
-                    }
-                    // std::cout << "ELSE" << std::endl;
-                }
-            }
+            // if (FD_ISSET(i, &ReadyForWrite))
+            // {
+            //     if ((search_fd = find_fd(i, socket.getServersFds())).first)
+            //     {
+            //         // this is a new connection
+            //         // std::cout << "IF CONDITION" << std::endl;
+            //         int client_socket = socket.acceptNewConnection(search_fd.second);
+            //         server_it = it_b + (search_fd.second).second;
+            //         // std::cout << "server_it: " << (*server_it).getPort() << std::endl;
+            //         FD_SET(client_socket, &SocketsWrite);
+            //     }
+            //     else
+            //     {
+            //         if (socket.handleConnection(*server_it, i) == true)
+            //         {
+            //             std::cout << "handleConnection" << std::endl;
+            //             socket._send(i, "HTTP/1.1 200 OK\nContent-Type:text/html\nContent-Length: 16\n\n<h1>testing</h1>");
+            //             FD_CLR(i, &SocketsWrite);
+            //             close(i);
+            //         }
+            //         // std::cout << "ELSE" << std::endl;
+            //     }
+            // }
         }
     }
 }

@@ -1,7 +1,8 @@
 #include "Request.hpp"
 
 
-Request ParseRequest(Request request, std::string buffer)
+void ParseRequest(Request request, std::string buffer)
 {
+    (void)request;
     std::cout << buffer << std::endl;
 }
