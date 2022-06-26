@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/12 15:40:19 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/24 10:39:40 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/06/27 00:16:28 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -166,7 +166,6 @@ bool Socket::isThisRequestExist(int fd)
 
 void Socket::pushNewRequest(int fd)
 {
-    std::cout << "pushed...." << std::endl;
     this->requests.insert(std::pair<int, Request>(fd, Request()));
 }
 
