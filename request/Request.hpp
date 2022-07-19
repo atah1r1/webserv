@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/23 15:55:34 by aes-salm          #+#    #+#             */
-/*   Updated: 2022/06/24 10:39:14 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/07/19 15:31:30 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 class Request
 {
 private:
+	bool _completed;
 	std::string _method;
 	std::string _path;
 	std::string _version;
@@ -29,8 +30,8 @@ private:
 	std::map<std::string, std::string> _headers;
 
 public:
-	Request(/* args */){};
-	~Request(){};
+	Request(/* args */);
+	~Request();
 
 	// GETTERS
 	std::string getMethod();
@@ -38,6 +39,7 @@ public:
 	std::string getVersion();
 	std::string getHost();
 	int getPort();
+	bool isCompleted();
 };
 
 #endif

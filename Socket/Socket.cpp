@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/12 15:40:19 by atahiri           #+#    #+#             */
-/*   Updated: 2022/07/19 12:16:50 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/07/19 15:21:38 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -179,7 +179,8 @@ Request Socket::receiveRequest(int fd)
     char buffer[1024] = {0};
 	long valread = 0;
 	valread = recv(fd, buffer, 1024, 0);
-    std::cout << buffer << std::endl;
+    // std::cout << buffer << std::endl;
+    ParseRequest(requests[fd], buffer);
     return requests[fd];
 }
 
