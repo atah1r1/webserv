@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/12 15:40:19 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/27 00:16:28 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/07/19 12:16:50 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -145,7 +145,6 @@ bool Socket::handleConnection(ServerConfig server_setup, int new_socket)
     (void)server_setup;
     // ---------------------- Reading Request --------------------------- //
     Request request = receiveRequest(new_socket);
-
     // --------------------- Parsing The Request ------------------------- //
     // if (!request.isCompleted()) // if the request is not completed, we return false
     //     return false;
