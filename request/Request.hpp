@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
+/*   By: aes-salm <aes-salm@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/23 15:55:34 by aes-salm          #+#    #+#             */
-/*   Updated: 2022/06/24 10:39:14 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/06/24 15:15:45 by aes-salm         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,7 @@
 #ifndef REQUEST_HPP
 #define REQUEST_HPP
 
-#include <iostream>
-#include <map>
+#include "../Includes/Webserv.hpp"
 
 class Request
 {
