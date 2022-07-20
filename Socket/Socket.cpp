@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/12 15:40:19 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/24 10:39:40 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/07/19 15:21:38 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -145,7 +145,6 @@ bool Socket::handleConnection(ServerConfig server_setup, int new_socket)
     (void)server_setup;
     // ---------------------- Reading Request --------------------------- //
     Request request = receiveRequest(new_socket);
-
     // --------------------- Parsing The Request ------------------------- //
     // if (!request.isCompleted()) // if the request is not completed, we return false
     //     return false;
@@ -166,7 +165,6 @@ bool Socket::isThisRequestExist(int fd)
 
 void Socket::pushNewRequest(int fd)
 {
-    std::cout << "pushed...." << std::endl;
     this->requests.insert(std::pair<int, Request>(fd, Request()));
 }
 
@@ -181,7 +179,8 @@ Request Socket::receiveRequest(int fd)
     char buffer[1024] = {0};
 	long valread = 0;
 	valread = recv(fd, buffer, 1024, 0);
-    std::cout << buffer << std::endl;
+    // std::cout << buffer << std::endl;
+    ParseRequest(requests[fd], buffer);
     return requests[fd];
 }
 

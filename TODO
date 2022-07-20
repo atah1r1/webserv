@@ -3,3 +3,8 @@
 // check if request was done or not
 - cgi implementation
 - response implementation
+
+
+***************PARSING***********
+-> duplicate location must give an error in parsing
+***************PARSING***********

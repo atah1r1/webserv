@@ -6,7 +6,7 @@
 #    By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/05/31 17:16:31 by atahiri           #+#    #+#              #
-#    Updated: 2022/06/20 16:29:58 by atahiri          ###   ########.fr        #
+#    Updated: 2022/07/19 15:29:09 by atahiri          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -20,6 +20,7 @@ SRCS	= 	main.cpp\
 			Config/Lexer.cpp\
 			Config/Parser.cpp\
 			Socket/Socket.cpp\
+			Request/Request.cpp\
 
 
 $(NAME) : 	$(SRCS)
