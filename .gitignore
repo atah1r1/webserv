@@ -1,9 +1,6 @@
 webserv.dSYM
 webserv
-.vscode
+.vscode/
 .DS_Store
-*/.DS_Store
-*/*/.DS_Store
-*/a.out
-*/*/a.out
-*/*/a.out.dSYM
+a.out
+a.out.dSYM/
