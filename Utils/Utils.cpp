@@ -42,18 +42,28 @@ std::pair<size_t, std::string> nextLine(const std::string& str, size_t start) {
 	return std::make_pair(_end, _line);
 }
 
-Location *matchLocation( std::vector<Location *> locations, const std::string& path) {
+Location *_matchLocation( std::vector<Location *> locations, const std::string& path) {
 	for (size_t i = 0; i < locations.size(); ++i) {
 		if (locations[i] == NULL) continue;
-
-		std::string _loc = locations[i]->_location;
-		if (_loc.back() == '/') {
-			// remove last "/"
-			_loc = _loc.substr(0, _loc.size() - 1);
-		}
-		// check if path startswith or equals location
-		if (beginsWith(path, _loc)) {
+		std::string _loc = trim(locations[i]->_location);
+		if (_loc == path) {
 			return locations[i];
+		}
+	}
+	return NULL;
+}
+
+Location *matchLocation( std::vector<Location *> locations, const std::string& path) {
+	std::string _path = trim(path);
+	while(!_path.empty()) {
+		Location* _l = _matchLocation(locations, _path);
+		if (_l != NULL) return _l;
+		int _index = _path.find_last_of("/");
+		if (_index == -1) continue;
+		if (_index == _path.length() - 1) {
+			_path = _path.substr(0, _index);
+		} else {
+			_path = _path.substr(0, _index + 1);
 		}
 	}
 	return NULL;
