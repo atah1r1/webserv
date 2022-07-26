@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/26 01:32:29 by ehakam            #+#    #+#             */
-/*   Updated: 2022/07/26 01:44:42 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/07/27 00:27:05 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,10 @@
 # define __STATUS_CODES_HPP__
 
 #include <iostream>
+
+#define SERVER_VERSION "Webserv/0.0.1 (MacOS)"
+#define H_TRANSFER_ENCODING "Transfer-Encoding"
+#define H_CONTENT_LENGTH "Content-Length"
 
 enum StatusCodes {
 	None			   			= 0,

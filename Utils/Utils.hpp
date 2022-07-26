@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/26 04:36:47 by ehakam            #+#    #+#             */
-/*   Updated: 2022/07/26 19:17:24 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/07/26 23:15:22 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,6 +64,14 @@ T toNumber(const std::string& str) {
 	ss << str;
 	ss >> i;
 	return i;
+}
+
+template<typename T>
+std::string toString(T t) {
+	std::stringstream ss;
+
+	ss << t;
+	return ss.str();
 }
 
 #endif // __GENERAL_UTILS_HPP__

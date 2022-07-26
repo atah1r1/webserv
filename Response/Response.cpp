@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/26 03:00:15 by ehakam            #+#    #+#             */
-/*   Updated: 2022/07/26 19:31:49 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/07/27 00:19:58 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,7 +81,7 @@ void Response::addHeader( const std::pair<std::string, std::string>& header )  {
 }
 
 void Response::addHeader( const std::string& key, const std::string& value ) {
-	this->_headers.insert(std::make_pair(trim(key), trim(value)));
+	this->addHeader(std::make_pair(toHeaderCase(trim(key)), trim(value)));
 }
 
 void Response::removeHeader( const std::pair<std::string, std::string>& header )  {
@@ -113,7 +113,7 @@ std::string Response::toString( void ) {
 	results << "\n";
 
 	// append body
-	results << this->_body << "\n";
+	results << this->_body << "\r\n";
 	return results.str();
 }
 

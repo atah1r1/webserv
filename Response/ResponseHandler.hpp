@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/26 14:35:35 by ehakam            #+#    #+#             */
-/*   Updated: 2022/07/26 19:57:34 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/07/27 00:41:31 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,31 +22,48 @@
 #include "../Utils/Utils.hpp"
 #include "../Utils/StatusCodes.hpp"
 
+/*
+<html>
+<head><title>404 Not Found</title></head>
+<body bgcolor="white">
+<center><h1>404 Not Found</h1></center>
+<hr><center>nginx/1.14.0 (Ubuntu)</center>
+</body>
+</html>
+*/
+
 class ResponseHandler {
 private:
-	static Response _create501Error(Request req, std::pair<ServerConfig *, Location *> config) {
-		// TODO: 501 Not Implemented
-		return Response();
+	static std::string _getStandardErrorBody(int statusCode) {
+		std::stringstream ss;
+
+		ss << "<html>" << "\n";
+		ss << "<head><title>" << statusCode << " " << getReason(statusCode) << "</title></head>\n";
+		ss << "<body bgcolor=\"white\">\n";
+		ss << "<center><h1>" << statusCode << " " << getReason(statusCode) << "</h1></center>\n";
+		ss << "<hr><center>" << SERVER_VERSION << "</center>";
+		ss << "</body>\n";
+		ss << "</html>\r\n";
+
+		return ss.str();
 	}
 
-	static Response _create400Error(Request req, std::pair<ServerConfig *, Location *> config) {
-		// TODO: 400 Bad Request
-		return Response();
-	}
+	static Response _createErrorPage(int statusCode) {
+		Response r;
+		std::string body = _getStandardErrorBody(statusCode);
 
-	static Response _create414Error(Request req, std::pair<ServerConfig *, Location *> config) {
-		// TODO: 414 Request-URI Too Long
-		return Response();
-	}
+		r.setVersion("HTTP/1.1");
+		r.setStatusCode(statusCode);
+		r.setStatus(getReason(statusCode));
+		r.addHeader("Server", SERVER_VERSION);
+		r.addHeader("Date", getCurrentDate());
+		r.addHeader("Content-Type", "text/html");
+		r.addHeader("Content-Length", toString<size_t>(body.length()));
+		r.addHeader("Connection", "keep-alive");
 
-	static Response _create413Error(Request req, std::pair<ServerConfig *, Location *> config) {
-		// TODO: 413 Request Entity Too Large
-		return Response();
-	}
+		r.setBody(body);
 
-	static Response _create404Error(Request req, std::pair<ServerConfig *, Location *> config) {
-		// TODO: 404 Not found
-		return Response();
+		return r;
 	}
 
 public:
@@ -113,32 +130,37 @@ public:
 	}
 
 	static std::pair<bool, Response> handleErrors(Request req, std::pair<ServerConfig *, Location *> config) {
-		if (req.getHeader("Transfer-Encoding") != "chunked") {
-			Response r = _create501Error(req, config);
+		if (req.getHeader(H_TRANSFER_ENCODING) != "chunked") {
+			Response r = _createErrorPage(NotImplemented); // 501
 			return std::make_pair(true, r);
 		}
-		if (req.getHeader("Transfer-Encoding") == "" && req.getHeader("Content-Length") == "") {
-			Response r = _create400Error(req, config);
+		if (req.getHeader(H_TRANSFER_ENCODING) == "" && req.getHeader(H_CONTENT_LENGTH) == "") {
+			Response r = _createErrorPage(BadRequest); // 400
 			return std::make_pair(true, r);
 		}
 		if (req.getPath().length() > 2048) {
-			Response r = _create414Error(req, config);
+			Response r = _createErrorPage(URITooLong); // 414
 			return std::make_pair(true, r);
 		}
 		if (config.first != NULL && config.first->getClientBufferSize() > 0
 			/*&& req.bodySize() > config.first->getClientBufferSize()*/) {
-			Response r = _create413Error(req, config);
+			Response r = _createErrorPage(PayloadTooLarge); // 413
 			return std::make_pair(true, r);
 		}
 		if (config.second == NULL) {
-			Response r = _create404Error(req, config);
+			Response r = _createErrorPage(NotFound); // 404
 			return std::make_pair(true, r);
 		}
 		return std::make_pair(false, Response());
 	}
 
-	void handleCGIRequest(Request req, std::pair<ServerConfig *, Location *> config) {
-		
+	static Response handleCGIRequest(Request req, std::pair<ServerConfig *, Location *> config) {
+		// check for request errors
+		std::pair<bool, Response> _res = handleErrors(req, config);
+		if (_res.first) return _res.second;
+
+		// if no erros found
+		// TODO: 
 	}
 };
 
