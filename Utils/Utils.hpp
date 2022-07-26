@@ -1,43 +1,38 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Utils.hpp                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/07/26 04:36:47 by ehakam            #+#    #+#             */
+/*   Updated: 2022/07/26 04:57:48 by ehakam           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#ifndef __GENERAL_UTILS_HPP__
+# define __GENERAL_UTILS_HPP__
 
 #include <iostream>
+#include <sstream>
+#include <utility>
 #include "../Config/ServerConfig.hpp"
 #include "Debug.hpp"
 
-const char *getFileExtension(const std::string& fileName) {
-	int index = fileName.find_last_of(".");
-	if (index != -1) {
-		std::string ext = fileName.substr(index + 1);
-		return ext.c_str();
-	}
-	return "";
+const char *getFileExtension(const std::string& fileName);
+bool beginsWith(const std::string& haystack, const std::string& needle);
+const std::string trim(const std::string& str);
+std::pair<size_t, std::string> nextLine(const std::string& str, size_t start);
+Location *matchLocation( std::vector<Location *> locations, const std::string& path);
+
+template<typename T>
+T toNumber(const std::string& str) {
+	std::stringstream ss;
+	T i = 0;
+
+	ss << str;
+	ss >> i;
+	return i;
 }
 
-bool beginsWith(const std::string& haystack, const std::string& needle) {
-	if (haystack.empty() || needle.empty()) return false;
-	std::string::const_iterator hit = haystack.begin();
-	std::string::const_iterator nit = needle.begin();
-	while (nit != needle.end())
-	{
-		if (*nit != *hit) return false;
-		++nit; ++hit;
-	}
-	return true;
-}
-
-Location *matchLocation( std::vector<Location *> locations, const std::string& path) {
-	for (size_t i = 0; i < locations.size(); ++i) {
-		if (locations[i] == NULL) continue;
-
-		std::string _loc = locations[i]->_location;
-		if (_loc.back() == '/') {
-			// remove last "/"
-			_loc = _loc.substr(0, _loc.size() - 1);
-		}
-		// check if path startswith or equals location
-		if (beginsWith(path, _loc)) {
-			return locations[i];
-		}
-	}
-	return NULL;
-}
-
+#endif // __GENERAL_UTILS_HPP__
