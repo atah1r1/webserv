@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/26 01:23:28 by ehakam            #+#    #+#             */
-/*   Updated: 2022/07/26 04:53:02 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/07/26 19:25:33 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,6 +62,7 @@ public:
 	std::string getBody( void ) const;
 	void setBody( const std::string& body );
 	std::map<std::string, std::string> getHeaders( void ) const;
+	std::string getHeader( const std::string& key ) const;
 	void setHeaders( std::map<std::string, std::string>& headers );
 	void addHeader( const std::pair<std::string, std::string>& header );
 	void addHeader( const std::string& key, const std::string& value );

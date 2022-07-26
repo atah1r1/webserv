@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/26 03:00:15 by ehakam            #+#    #+#             */
-/*   Updated: 2022/07/26 05:08:23 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/07/26 19:31:49 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,6 +63,13 @@ void Response::setBody( const std::string& body )  {
 
 std::map<std::string, std::string> Response::getHeaders( void ) const  {
 	return this->_headers;
+}
+
+std::string Response::getHeader( const std::string& key ) const {
+	std::map<std::string, std::string>::const_iterator it = this->_headers.find(key);
+	if (it != this->_headers.end())
+		return it->second;
+	return "";
 }
 
 void Response::setHeaders( std::map<std::string, std::string>& headers )  {

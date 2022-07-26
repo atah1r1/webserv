@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/26 14:35:35 by ehakam            #+#    #+#             */
-/*   Updated: 2022/07/26 16:13:54 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/07/26 19:57:34 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,32 @@
 #include "../Utils/StatusCodes.hpp"
 
 class ResponseHandler {
+private:
+	static Response _create501Error(Request req, std::pair<ServerConfig *, Location *> config) {
+		// TODO: 501 Not Implemented
+		return Response();
+	}
+
+	static Response _create400Error(Request req, std::pair<ServerConfig *, Location *> config) {
+		// TODO: 400 Bad Request
+		return Response();
+	}
+
+	static Response _create414Error(Request req, std::pair<ServerConfig *, Location *> config) {
+		// TODO: 414 Request-URI Too Long
+		return Response();
+	}
+
+	static Response _create413Error(Request req, std::pair<ServerConfig *, Location *> config) {
+		// TODO: 413 Request Entity Too Large
+		return Response();
+	}
+
+	static Response _create404Error(Request req, std::pair<ServerConfig *, Location *> config) {
+		// TODO: 404 Not found
+		return Response();
+	}
+
 public:
 	static std::pair<ServerConfig *, Location *> getConfig(Request req, std::vector<ServerConfig *> servers) {
 		std::vector<ServerConfig *>::iterator it = servers.begin();
@@ -30,7 +56,7 @@ public:
 		// match Server & Location with same SERVERNAME & PATH
 		while (it != servers.end())
 		{
-			if ((*it)->getServerName() == req.getHost()) {
+			if ((*it)->getServerIp() == req.getHost() && (*it)->getPort() == req.getPort()) {
 				std::vector<Location *> _locations = (*it)->getLocations();
 				Location* _l = matchLocation(_locations, req.getPath());
 				if (_l != NULL) return std::make_pair(*it, _l);
@@ -38,17 +64,29 @@ public:
 			++it;
 		}
 
-		// match Server & Location with EMPTY SERVERNAME & same PATH
+		// match Server & Location with same SERVERNAME & PATH
 		it = servers.begin();
 		while (it != servers.end())
 		{
-			if ((*it)->getServerName().empty()) {
+			if ((*it)->getServerName() == req.getHost() && (*it)->getPort() == req.getPort()) {
 				std::vector<Location *> _locations = (*it)->getLocations();
 				Location* _l = matchLocation(_locations, req.getPath());
 				if (_l != NULL) return std::make_pair(*it, _l);
 			}
 			++it;
 		}
+
+		// // match Server & Location with EMPTY SERVERNAME & same PATH
+		// it = servers.begin();
+		// while (it != servers.end())
+		// {
+		// 	if ((*it)->getServerName().empty() && (*it)->getPort() == req.getPort()) {
+		// 		std::vector<Location *> _locations = (*it)->getLocations();
+		// 		Location* _l = matchLocation(_locations, req.getPath());
+		// 		if (_l != NULL) return std::make_pair(*it, _l);
+		// 	}
+		// 	++it;
+		// }
 
 		// // match Server with same SERVERNAME
 		// it = servers.begin();
@@ -74,11 +112,29 @@ public:
 		return std::make_pair((ServerConfig *)NULL, (Location *)NULL);
 	}
 
-	Response handleErrors(Request req, std::pair<ServerConfig *, Location *> config) {
-		if (config.first == NULL && config.second == NULL) {
-			// TODO: 404 Not found
+	static std::pair<bool, Response> handleErrors(Request req, std::pair<ServerConfig *, Location *> config) {
+		if (req.getHeader("Transfer-Encoding") != "chunked") {
+			Response r = _create501Error(req, config);
+			return std::make_pair(true, r);
 		}
-		return Response();
+		if (req.getHeader("Transfer-Encoding") == "" && req.getHeader("Content-Length") == "") {
+			Response r = _create400Error(req, config);
+			return std::make_pair(true, r);
+		}
+		if (req.getPath().length() > 2048) {
+			Response r = _create414Error(req, config);
+			return std::make_pair(true, r);
+		}
+		if (config.first != NULL && config.first->getClientBufferSize() > 0
+			/*&& req.bodySize() > config.first->getClientBufferSize()*/) {
+			Response r = _create413Error(req, config);
+			return std::make_pair(true, r);
+		}
+		if (config.second == NULL) {
+			Response r = _create404Error(req, config);
+			return std::make_pair(true, r);
+		}
+		return std::make_pair(false, Response());
 	}
 
 	void handleCGIRequest(Request req, std::pair<ServerConfig *, Location *> config) {

@@ -70,4 +70,6 @@ int main() {
 		std::cout << "LOC: " << "SHIIIIT" << std::endl;
 	}
 
+	std::cout << "|" << toHeaderCase("CONtent") << "|" << std::endl;
+
 }

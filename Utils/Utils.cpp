@@ -1,10 +1,22 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Utils.cpp                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/07/26 19:17:39 by ehakam            #+#    #+#             */
+/*   Updated: 2022/07/26 19:20:27 by ehakam           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "Utils.hpp"
 
-const char *getFileExtension(const std::string& fileName) {
+std::string getFileExtension(const std::string& fileName) {
 	int index = fileName.find_last_of(".");
 	if (index != -1) {
 		std::string ext = fileName.substr(index + 1);
-		return ext.c_str();
+		return ext;
 	}
 	return "";
 }
@@ -21,7 +33,7 @@ bool beginsWith(const std::string& haystack, const std::string& needle) {
 	return true;
 }
 
-const std::string trim(const std::string& str) {
+std::string trim(const std::string& str) {
 	if (str.empty()) return str;
 	size_t _begin = 0;
 	size_t _end = str.length() - 1;
@@ -67,4 +79,45 @@ Location *matchLocation( std::vector<Location *> locations, const std::string& p
 		}
 	}
 	return NULL;
+}
+
+std::string	getLastModificationDate(struct stat buffer)
+{
+	tm *ltm = gmtime(&buffer.st_mtime);
+
+	std::stringstream date;
+
+	date << day_names[ltm->tm_wday] << ", " << ltm->tm_mday << " "
+		<< month_names[ltm->tm_mon] << " " << (ltm->tm_year + 1900) << " " 
+		<< (ltm->tm_hour) % 24 << ":" << ltm->tm_min << ":" << ltm->tm_sec << " GMT";
+	return date.str();
+}
+
+std::string	getCurrentDate(void)
+{
+	time_t now = time(0);
+	tm *ltm = gmtime(&now);
+
+	std::stringstream date;
+
+	date << day_names[ltm->tm_wday] << ", " << ltm->tm_mday << " "
+		<< month_names[ltm->tm_mon] << " " << (ltm->tm_year + 1900) << " " 
+		<< (ltm->tm_hour) % 24 << ":" << ltm->tm_min << ":" << ltm->tm_sec << " GMT";
+	return date.str();
+}
+
+std::string toHeaderCase(const std::string& header) {
+	if (header.empty()) return "";
+	std::string _new_header;
+	
+	for (size_t i = 0; i < header.length(); ++i)
+	{
+		if (i == 0)
+			_new_header.push_back(toupper(header[i]));
+		else if (header[i - 1] == '-')
+			_new_header.push_back(toupper(header[i]));
+		else
+			_new_header.push_back(tolower(header[i]));
+	}
+	return _new_header;
 }

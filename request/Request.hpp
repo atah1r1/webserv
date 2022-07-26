@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aes-salm <aes-salm@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/23 15:55:34 by aes-salm          #+#    #+#             */
-/*   Updated: 2022/07/20 17:53:33 by aes-salm         ###   ########.fr       */
+/*   Updated: 2022/07/26 19:34:00 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,7 @@ public:
 	std::string getVersion();
 	std::string getHost();
 	std::map<std::string, std::string> getHeaders();
+	std::string getHeader( std::string key );
 	int getPort();
 	Request::state getState();
 
