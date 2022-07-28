@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/26 03:00:15 by ehakam            #+#    #+#             */
-/*   Updated: 2022/07/27 00:19:58 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/07/28 16:59:43 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,19 +101,19 @@ std::string Response::toString( void ) {
 	std::stringstream results;
 
 	// append metadata (http-version status-code status-message)
-	results << this->_version << " " << this->_status_code << " " << this->_status << "\n";
+	results << this->_version << " " << this->_status_code << " " << this->_status << CRLF;
 
 	// append headers
 	std::map<std::string, std::string>::iterator it = this->_headers.begin();
 	while (it != this->_headers.end()) {
-		results << it->first << ": " << it->second << "\n";
+		results << it->first << ": " << it->second << CRLF;
 		++it;
 	}
 	// append empty line after headers
-	results << "\n";
+	results << CRLF;
 
 	// append body
-	results << this->_body << "\r\n";
+	results << this->_body << CRLF;
 	return results.str();
 }
 

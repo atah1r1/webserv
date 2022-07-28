@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/26 01:32:29 by ehakam            #+#    #+#             */
-/*   Updated: 2022/07/27 00:27:05 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/07/28 16:58:13 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 #include <iostream>
 
+#define CRLF "\r\n"
 #define SERVER_VERSION "Webserv/0.0.1 (MacOS)"
 #define H_TRANSFER_ENCODING "Transfer-Encoding"
 #define H_CONTENT_LENGTH "Content-Length"

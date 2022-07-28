@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/26 14:35:35 by ehakam            #+#    #+#             */
-/*   Updated: 2022/07/27 00:41:31 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/07/28 19:49:08 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,11 @@
 
 class ResponseHandler {
 private:
+	static std::string _getDefaultErrorBody(int statusCode, std::pair<ServerConfig *, Location *> config) {
+		// TODO: find default error_page path (if exists) by statusCode
+		// if no error_page exists in config, or failed to open error_page path, return standardErrorBody
+	}
+
 	static std::string _getStandardErrorBody(int statusCode) {
 		std::stringstream ss;
 
@@ -43,7 +48,7 @@ private:
 		ss << "<center><h1>" << statusCode << " " << getReason(statusCode) << "</h1></center>\n";
 		ss << "<hr><center>" << SERVER_VERSION << "</center>";
 		ss << "</body>\n";
-		ss << "</html>\r\n";
+		ss << "</html>\n";
 
 		return ss.str();
 	}
@@ -67,7 +72,7 @@ private:
 	}
 
 public:
-	static std::pair<ServerConfig *, Location *> getConfig(Request req, std::vector<ServerConfig *> servers) {
+	static std::pair<ServerConfig *, Location *> getMatchingConfig(Request req, std::vector<ServerConfig *> servers) {
 		std::vector<ServerConfig *>::iterator it = servers.begin();
 
 		// match Server & Location with same SERVERNAME & PATH
@@ -129,7 +134,7 @@ public:
 		return std::make_pair((ServerConfig *)NULL, (Location *)NULL);
 	}
 
-	static std::pair<bool, Response> handleErrors(Request req, std::pair<ServerConfig *, Location *> config) {
+	static std::pair<bool, Response> handleRequestErrors(Request req, std::pair<ServerConfig *, Location *> config) {
 		if (req.getHeader(H_TRANSFER_ENCODING) != "chunked") {
 			Response r = _createErrorPage(NotImplemented); // 501
 			return std::make_pair(true, r);
@@ -151,17 +156,27 @@ public:
 			Response r = _createErrorPage(NotFound); // 404
 			return std::make_pair(true, r);
 		}
+		if (!config.second->_allow_methods.empty() && !isMethodAllowed(config.second->_allow_methods, req.getMethod())) {
+			Response r = _createErrorPage(MethodNotAllowed); // 405
+			return std::make_pair(true, r);
+		}
+		if (!isMethodImplemented(req.getMethod())) {
+			Response r = _createErrorPage(NotImplemented); // 501
+			return std::make_pair(true, r);
+		}
 		return std::make_pair(false, Response());
 	}
 
 	static Response handleCGIRequest(Request req, std::pair<ServerConfig *, Location *> config) {
 		// check for request errors
-		std::pair<bool, Response> _res = handleErrors(req, config);
+		std::pair<bool, Response> _res = handleRequestErrors(req, config);
 		if (_res.first) return _res.second;
 
 		// if no erros found
 		// TODO: 
 	}
+
+	
 };
 
 #endif // __RESPONSE_HANDLER_HPP__

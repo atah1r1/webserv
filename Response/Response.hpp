@@ -6,25 +6,9 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/26 01:23:28 by ehakam            #+#    #+#             */
-/*   Updated: 2022/07/26 19:25:33 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/07/28 18:05:36 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-/*
-HTTP/1.1 200 OK
-Date: Mon, 27 Jul 2009 12:28:53 GMT
-Server: Apache/2.2.14 (Win32)
-Last-Modified: Wed, 22 Jul 2009 19:15:56 GMT
-Content-Length: 88
-Content-Type: text/html
-Connection: Closed
-
-<html>
-<body>
-<h1>Hello, World!</h1>
-</body>
-</html>
-*/
 
 #ifndef __RESPONSE_HPP__
 # define __RESPONSE_HPP__
@@ -33,7 +17,7 @@ Connection: Closed
 #include <sstream>
 #include <map>
 #include <vector>
-//#include "../Utils/StatusCodes.hpp"
+#include "../Utils/StatusCodes.hpp"
 #include "../Utils/Utils.hpp"
 
 class Response {
