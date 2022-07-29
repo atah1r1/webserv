@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/26 04:36:47 by ehakam            #+#    #+#             */
-/*   Updated: 2022/07/29 01:13:59 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/07/29 02:56:26 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,14 +20,8 @@
 #include <unistd.h>
 #include <map>
 #include "../Config/ServerConfig.hpp"
-#include "Debug.hpp"
 #include "../Includes/Webserv.hpp"
-
-const std::string http_methods[3] = {
-	GET,
-	POST,
-	DELETE
-};
+#include "Debug.hpp"
 
 const std::string day_names[7] = {
 	"Sun",
@@ -61,6 +55,7 @@ Location *matchLocation( std::vector<Location *> locations, const std::string& p
 std::string	getCurrentDate(void);
 std::string toHeaderCase(const std::string& header);
 std::string getMimeType(const std::string& extension);
+std::string getCGIPath(const std::string& extension);
 std::string trim(const std::string& str);
 std::string toUpperCase(const std::string& str);
 std::string toLowerCase(const std::string& str);

@@ -6,13 +6,21 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/26 19:17:39 by ehakam            #+#    #+#             */
-/*   Updated: 2022/07/29 01:14:07 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/07/29 02:52:56 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Utils.hpp"
 
 std::map<std::string, std::string> mimes;
+
+std::map<std::string, std::string> CGIs;
+
+const std::string http_methods[3] = {
+	GET,
+	POST,
+	DELETE
+};
 
 bool beginsWith(const std::string& haystack, const std::string& needle) {
 	if (haystack.empty() || needle.empty()) return false;
@@ -87,7 +95,7 @@ std::string	getCurrentDate(void)
 	return date.str();
 }
 
-std::string toHeaderCase(const std::string& header) {
+std::string toHeaderCase( const std::string& header ) {
 	if (header.empty()) return "";
 	std::string _new_header;
 	
@@ -101,6 +109,23 @@ std::string toHeaderCase(const std::string& header) {
 			_new_header.push_back(tolower(header[i]));
 	}
 	return _new_header;
+}
+
+void _fillCGIs( void ) {
+	if (!CGIs.empty()) return;
+
+	CGIs.insert(std::make_pair("php", "./CGI/PHP_CGI"));
+	CGIs.insert(std::make_pair("py", "./CGI/PY_CGI"));
+}
+
+std::string getCGIPath(const std::string& extension) {
+	_fillCGIs();
+
+	std::map<std::string, std::string>::iterator it = 
+		CGIs.find(toLowerCase(trim(extension)));
+	if (it != CGIs.end())
+		return it->second;
+	return "";
 }
 
 void _fillMimes( void ) {
@@ -458,11 +483,12 @@ void _fillMimes( void ) {
 
 std::string getMimeType(const std::string& extension) {
 	_fillMimes();
-	std::map<std::string, std::string>::iterator it = mimes.find(extension);
-	if (it != mimes.end()) {
+
+	std::map<std::string, std::string>::iterator it = 
+		mimes.find(toLowerCase(trim(extension)));
+	if (it != mimes.end())
 		return it->second;
-	}
-	return "";	
+	return "";
 }
 
 std::string toUpperCase(const std::string& str) {
