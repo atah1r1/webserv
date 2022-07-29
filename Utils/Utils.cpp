@@ -6,20 +6,13 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/26 19:17:39 by ehakam            #+#    #+#             */
-/*   Updated: 2022/07/28 20:23:11 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/07/29 01:14:07 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Utils.hpp"
 
-std::string getFileExtension(const std::string& fileName) {
-	int index = fileName.find_last_of(".");
-	if (index != -1) {
-		std::string ext = fileName.substr(index + 1);
-		return ext;
-	}
-	return "";
-}
+std::map<std::string, std::string> mimes;
 
 bool beginsWith(const std::string& haystack, const std::string& needle) {
 	if (haystack.empty() || needle.empty()) return false;
@@ -81,18 +74,6 @@ Location *matchLocation( std::vector<Location *> locations, const std::string& p
 	return NULL;
 }
 
-std::string	getLastModificationDate(struct stat st)
-{
-	tm *ltm = gmtime(&st.st_mtime);
-
-	std::stringstream date;
-
-	date << day_names[ltm->tm_wday] << ", " << ltm->tm_mday << " "
-		<< month_names[ltm->tm_mon] << " " << (ltm->tm_year + 1900) << " " 
-		<< (ltm->tm_hour) % 24 << ":" << ltm->tm_min << ":" << ltm->tm_sec << " GMT";
-	return date.str();
-}
-
 std::string	getCurrentDate(void)
 {
 	time_t now = time(0);
@@ -122,24 +103,8 @@ std::string toHeaderCase(const std::string& header) {
 	return _new_header;
 }
 
-FileType getType(const std::string& path) {
-	struct stat s;
-
-	if( stat(path.c_str(), &s) == 0 )
-	{
-		if( s.st_mode & S_IFDIR )
-			return T_DIR;
-		else if( s.st_mode & S_IFREG )
-			return T_FILE;
-		else
-			return T_OTHER;
-	}
-	return T_ERROR;
-}
-
 void _fillMimes( void ) {
 	if (!mimes.empty()) return;
-		std::map<std::string, std::string> mimes;
 
 	mimes.insert(std::make_pair("*3gpp", "audio/3gpp"));
 	mimes.insert(std::make_pair("*jpm", "video/jpm"));
@@ -536,21 +501,5 @@ bool isMethodImplemented(const std::string& method) {
 			return true;
 	}
 	return false;
-}
-
-inline bool pathExists( const std::string& path ) {
-	return ( access( path.c_str(), F_OK ) != -1 );
-}
-
-std::string getFullPath( const std::string& root, const std::string& path ) {
-	std::string _root = trim(root);
-	std::string _path = trim(path);
-
-	if (_root.back() == '/' && _path.front() == '/') {
-		return _root.substr(0, _root.length() - 1).append(_path);
-	} else if (_root.back() != '/' && _path.front() != '/') {
-		return _root.append("/").append(_path);
-	}
-	return _root.append(_path);
 }
 

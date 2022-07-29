@@ -2,9 +2,11 @@
 // #include "ResponseHandler.hpp"
 // #include "../Request/Request.hpp"
 // #include "../Config/ServerConfig.hpp"
-//#include "../Utils/Utils.hpp"
+//#include "../Utils/FileHandler.hpp"
 #include <unistd.h>
 #include <iostream>
+#include <dirent.h>
+#include <sys/stat.h>
 
 /*
 POST /cgi-bin/process.cgi HTTP/1.1
@@ -19,6 +21,36 @@ Connection: Keep-Alive
 licenseID=string&content=string&/paramsXML=string
 */
 
+void explore(const char *dir_name, const std::string& indent, const std::string& ext){
+    DIR *dir; // pointer to directory
+    struct dirent *entry; // all stuff in the directory
+    struct stat info; // info about each entry
+
+    dir = opendir(dir_name);
+
+    if (!dir)
+    {
+        std::cout << "Directory not found" << std::endl;
+        return;
+    }
+
+    while ((entry = readdir(dir)) != NULL)
+    {
+        if (entry->d_name[0] != '.')
+        {
+            std::string path = std::string(dir_name) + "/" + std::string(entry->d_name);
+			stat(path.c_str() ,&info);
+
+			// if (FileHandler::getFileExtension(path) == ext)
+            // 	std::cout << path << std::endl;
+
+            if (S_ISDIR(info.st_mode) && !S_ISLNK(info.st_mode))
+                explore(path.c_str(), indent + "    ", ext);
+        }
+    }
+    closedir(dir);
+}
+
 inline bool fileExists( const std::string& path ) {
 	return ( access( path.c_str(), F_OK ) != -1 );
 }
@@ -27,7 +59,9 @@ int main(int ac, char **av) {
 
 	std::cout << std::boolalpha;
 
-	std::cout << "EXISTS: " << fileExists(std::string(av[1]));
+	std::cout << fileExists(std::string(av[1])) <<std::endl;
+
+	//explore(av[1], "", av[2]);
 
 	// Request r;
 	// r.setMethod("POST");

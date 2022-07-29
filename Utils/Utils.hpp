@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/26 04:36:47 by ehakam            #+#    #+#             */
-/*   Updated: 2022/07/28 20:24:26 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/07/29 01:13:59 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,13 +22,6 @@
 #include "../Config/ServerConfig.hpp"
 #include "Debug.hpp"
 #include "../Includes/Webserv.hpp"
-
-enum FileType {
-	T_FILE = 0,
-	T_DIR = 1,
-	T_OTHER = 2,
-	T_ERROR = 3
-};
 
 const std::string http_methods[3] = {
 	GET,
@@ -61,26 +54,19 @@ const std::string month_names[12] = {
 	"Dec"
 };
 
-std::map<std::string, std::string> mimes;
-
 bool beginsWith(const std::string& haystack, const std::string& needle);
 std::pair<size_t, std::string> nextLine(const std::string& str, size_t start);
 Location *matchLocation( std::vector<Location *> locations, const std::string& path);
-FileType getType(const std::string& path);
 
-std::string	getLastModificationDate(struct stat st);
 std::string	getCurrentDate(void);
 std::string toHeaderCase(const std::string& header);
-std::string getFileExtension(const std::string& fileName);
 std::string getMimeType(const std::string& extension);
 std::string trim(const std::string& str);
 std::string toUpperCase(const std::string& str);
 std::string toLowerCase(const std::string& str);
-std::string getFullPath( const std::string& root, const std::string& path );
 
 bool isMethodAllowed(std::vector<std::string> allowedMethods, const std::string& method);
 bool isMethodImplemented(const std::string& method);
-inline bool pathExists( const std::string& path );
 
 template<typename T>
 T toNumber(const std::string& str) {

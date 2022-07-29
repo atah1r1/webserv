@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerConfig.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 16:08:24 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/12 00:01:53 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/07/29 01:29:57 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -125,4 +125,9 @@ void ServerConfig::setLocations(Location * _locations)
 void ServerConfig::setIndexFile(std::vector<std::string> _index_file)
 {
     this->_index_file = _index_file;
+}
+
+std::vector<std::string> ServerConfig::getIndexFiles( void )
+{
+    return this->_index_file;
 }
