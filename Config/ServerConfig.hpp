@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 16:08:26 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/24 09:46:40 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/07/30 15:25:50 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,8 @@
 
 #include <iostream>
 #include <vector>
+#include <map>
+#include <utility>
 
 struct Location {
     std::string _location;
@@ -34,7 +36,7 @@ private:
     std::string _ip;
     int _port;
     std::string _root;
-    std::vector<std::string> _error_pages;
+    std::map<int, std::string> _error_pages;
     std::vector<std::string> _allow_methods;
     std::vector<std::string> _index_file;
     int _client_buffer_size;
@@ -53,8 +55,8 @@ public:
     void setPort(int _ip);
     std::string getRoot() const;
     void setRoot(std::string _root);
-    std::vector<std::string> getErrorPages() const;
-    void setErrorPages(std::vector<std::string> _error_pages);
+    std::map<int, std::string> getErrorPages() const;
+    void setErrorPages(std::pair<int, std::string> _error_pages);
     std::vector<std::string> getAllowMethods() const;
     void setAllowMethods(std::vector<std::string> _allow_methods);
     int getClientBufferSize() const;
