@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/26 14:35:35 by ehakam            #+#    #+#             */
-/*   Updated: 2022/07/29 03:56:54 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/07/30 19:18:31 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,7 +68,7 @@ private:
 		return ss.str();
 	}
 
-	static Response _createErrorPage(int statusCode, std::pair<ServerConfig *, Location *> config) {
+	static Response _createErrorResponse(int statusCode, std::pair<ServerConfig *, Location *> config) {
 		Response r;
 		std::string body = _getDefaultErrorBody(statusCode, config);
 
@@ -86,7 +86,7 @@ private:
 		return r;
 	}
 
-	static Response _createDirListingPage( const std::string& uri, const std::string& root, const std::string& dirPath ) {
+	static Response _createDirListingResponse( const std::string& uri, const std::string& root, const std::string& dirPath ) {
 		Response r;
 		std::string body = _getDirListingBody(uri, root, dirPath);
 
@@ -104,11 +104,23 @@ private:
 		return r;
 	}
 
+	static Response _createRedirectionResponse( int statusCode, const std::string& dirPath ) {
+		Response r;
+
+		r.setVersion("HTTP/1.1");
+		r.setStatusCode(statusCode);
+		r.setStatus(getReason(statusCode));
+		r.addHeader("Server", SERVER_VERSION);
+		r.addHeader(H_LOCATION, dirPath);
+
+		return r;
+	}
+
 public:
 	static std::pair<ServerConfig *, Location *> getMatchingConfig(Request req, std::vector<ServerConfig *> servers) {
 		std::vector<ServerConfig *>::iterator it = servers.begin();
 
-		// match Server & Location with same SERVERNAME & PATH
+		// match Server & Location with same HOST & PATH
 		while (it != servers.end())
 		{
 			if ((*it)->getServerIp() == req.getHost() && (*it)->getPort() == req.getPort()) {
@@ -167,34 +179,61 @@ public:
 		return std::make_pair((ServerConfig *)NULL, (Location *)NULL);
 	}
 
+	static Response handleRequests( Request req, std::pair<ServerConfig *, Location *> config ) {
+		// check for request errors
+		std::pair<bool, Response> _res = handleRequestErrors(req, config);
+		if (_res.first) return _res.second;
+
+		// no errors / redirections
+		std::string _m = toUpperCase(trim(req.getMethod()));
+
+		if (_m == GET) {
+			// TODO: handle GET
+		} else if (_m == POST) {
+			// TODO: handle POST
+		} else if (_m == DELETE) {
+			// TODO: handle DELETE
+		} else {
+			// normally it shouldn't get here but if so:
+			return _createErrorResponse(MethodNotAllowed, config); 
+		}
+	}
+
 	static std::pair<bool, Response> handleRequestErrors(Request req, std::pair<ServerConfig *, Location *> config) {
 		if (req.getHeader(H_TRANSFER_ENCODING) != "chunked") {
-			Response r = _createErrorPage(NotImplemented, config); // 501
+			Response r = _createErrorResponse(NotImplemented, config); // 501
 			return std::make_pair(true, r);
 		}
 		if (req.getHeader(H_TRANSFER_ENCODING) == "" && req.getHeader(H_CONTENT_LENGTH) == "") {
-			Response r = _createErrorPage(BadRequest, config); // 400
+			Response r = _createErrorResponse(BadRequest, config); // 400
 			return std::make_pair(true, r);
 		}
 		if (req.getPath().length() > 2048) {
-			Response r = _createErrorPage(URITooLong, config); // 414
+			Response r = _createErrorResponse(URITooLong, config); // 414
 			return std::make_pair(true, r);
 		}
 		if (config.first != NULL && config.first->getClientBufferSize() > 0
 			/*&& req.bodySize() > config.first->getClientBufferSize()*/) {
-			Response r = _createErrorPage(PayloadTooLarge, config); // 413
+			Response r = _createErrorResponse(PayloadTooLarge, config); // 413
 			return std::make_pair(true, r);
 		}
 		if (config.second == NULL) {
-			Response r = _createErrorPage(NotFound, config); // 404
+			Response r = _createErrorResponse(NotFound, config); // 404
+			return std::make_pair(true, r);
+		}
+		if (!config.second->_redirection_path.empty()) {
+			// check if redir path start with /, else add it
+			if (config.second->_redirection_path.front() != '/')
+				config.second->_redirection_path.insert(config.second->_redirection_path.begin(), '/');
+			Response r = _createRedirectionResponse(MovedPermanently, config.second->_redirection_path);
 			return std::make_pair(true, r);
 		}
 		if (!config.second->_allow_methods.empty() && !isMethodAllowed(config.second->_allow_methods, req.getMethod())) {
-			Response r = _createErrorPage(MethodNotAllowed, config); // 405
+			Response r = _createErrorResponse(MethodNotAllowed, config); // 405
 			return std::make_pair(true, r);
 		}
 		if (!isMethodImplemented(req.getMethod())) {
-			Response r = _createErrorPage(NotImplemented, config); // 501
+			Response r = _createErrorResponse(NotImplemented, config); // 501
 			return std::make_pair(true, r);
 		}
 		return std::make_pair(false, Response());
@@ -209,7 +248,67 @@ public:
 		// TODO: 
 	}
 
-	
+	static Response handleGETRequest( Request req, std::pair<ServerConfig *, Location *> config ) {
+		// check for request errors
+		std::pair<bool, Response> _res = handleRequestErrors(req, config);
+		if (_res.first) return _res.second;
+
+		ServerConfig* _conf = config.first;
+		Location* _loc = config.second;
+
+		std::string _requestPath = FileHandler::getFullPath(_loc->_root, req.getPath());
+		// check if path exists and is readable
+		if (FileHandler::pathExists(_requestPath)) {
+			// path exists
+			if (FileHandler::isPathReadable(_requestPath)) {
+				// path readable
+				FileType _type = FileHandler::getType(_requestPath);
+				// check path type
+				if (_type == T_DIR) {
+					// path = directory
+					// check redir
+					if (_requestPath.back() != '/') {
+						return _createRedirectionResponse(MovedPermanently, _requestPath + "/");
+					} else {
+						// check for index files
+						std::string _indexPath = FileHandler::searchIndexes(_requestPath, _loc->_index_file);
+						if (!_indexPath.empty()) {
+							// index file exists
+							// TODO: serve index file => CGI/file
+						} else {
+							// index file doesn't exist
+							// check for autoindex
+							if (_loc->_autoindex) {
+								// autoindex on
+								
+							} else {
+								// autoindex off
+								return _createErrorResponse(Forbidden, config);
+							}
+						}
+					}
+				} else if (_type == T_FILE) {
+					// path = file
+					// TODO: serve file => CGI/file
+				} else {
+					// path = other
+					return _createErrorResponse(InternalServerError, config);
+				}
+			} else {
+				// path not readable
+				return _createErrorResponse(Forbidden, config);
+			}
+		} else {
+			// path does not exist
+			return _createErrorResponse(NotFound, config);
+		}
+
+		// path is dir but does not end with "/" 
+		
+
+		// 
+		
+	}
 
 };
 

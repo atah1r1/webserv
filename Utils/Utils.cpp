@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/26 19:17:39 by ehakam            #+#    #+#             */
-/*   Updated: 2022/07/29 02:52:56 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/07/30 15:22:59 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ const std::string http_methods[3] = {
 	DELETE
 };
 
-bool beginsWith(const std::string& haystack, const std::string& needle) {
+bool beginsWith( const std::string& haystack, const std::string& needle ) {
 	if (haystack.empty() || needle.empty()) return false;
 	std::string::const_iterator hit = haystack.begin();
 	std::string::const_iterator nit = needle.begin();
@@ -34,7 +34,7 @@ bool beginsWith(const std::string& haystack, const std::string& needle) {
 	return true;
 }
 
-std::string trim(const std::string& str) {
+std::string trim( const std::string& str ) {
 	if (str.empty()) return str;
 	size_t _begin = 0;
 	size_t _end = str.length() - 1;
@@ -43,7 +43,7 @@ std::string trim(const std::string& str) {
 	return str.substr(_begin, _end - _begin + 1);
 }
 
-std::pair<size_t, std::string> nextLine(const std::string& str, size_t start) {
+std::pair<size_t, std::string> nextLine( const std::string& str, size_t start ) {
 	if (str.empty()) return std::make_pair(0, str);
 	size_t _end = start;
 
@@ -68,6 +68,15 @@ Location *_matchLocation( std::vector<Location *> locations, const std::string& 
 
 Location *matchLocation( std::vector<Location *> locations, const std::string& path) {
 	std::string _path = trim(path);
+	// special case
+	// if location e.g. /wordpress/ and path = /wordpress , it would never match.
+	// so in this case we add a "/" to end of path and check if it matches
+	if (path.back() != '/') {
+		Location* _l = _matchLocation(locations, _path + "/");
+		if (_l != NULL) return _l;
+	}
+
+	// general case
 	while(!_path.empty()) {
 		Location* _l = _matchLocation(locations, _path);
 		if (_l != NULL) return _l;
@@ -118,7 +127,7 @@ void _fillCGIs( void ) {
 	CGIs.insert(std::make_pair("py", "./CGI/PY_CGI"));
 }
 
-std::string getCGIPath(const std::string& extension) {
+std::string getCGIPath( const std::string& extension ) {
 	_fillCGIs();
 
 	std::map<std::string, std::string>::iterator it = 
@@ -481,7 +490,7 @@ void _fillMimes( void ) {
 	mimes.insert(std::make_pair("zip", "application/zip"));
 }
 
-std::string getMimeType(const std::string& extension) {
+std::string getMimeType( const std::string& extension ) {
 	_fillMimes();
 
 	std::map<std::string, std::string>::iterator it = 
@@ -491,7 +500,7 @@ std::string getMimeType(const std::string& extension) {
 	return "";
 }
 
-std::string toUpperCase(const std::string& str) {
+std::string toUpperCase( const std::string& str ) {
 	std::string _s;
 	
 	for (size_t i = 0; i < str.length(); ++i)
@@ -499,7 +508,7 @@ std::string toUpperCase(const std::string& str) {
 	return _s;
 }
 
-std::string toLowerCase(const std::string& str) {
+std::string toLowerCase( const std::string& str ) {
 	std::string _s;
 	
 	for (size_t i = 0; i < str.length(); ++i)
@@ -507,7 +516,7 @@ std::string toLowerCase(const std::string& str) {
 	return _s;
 }
 
-bool isMethodAllowed(std::vector<std::string> allowedMethods, const std::string& method) {
+bool isMethodAllowed( std::vector<std::string> allowedMethods, const std::string& method ) {
 	std::string _m = toUpperCase(trim(method));
 
 	std::vector<std::string>::iterator it = allowedMethods.begin();
@@ -519,7 +528,7 @@ bool isMethodAllowed(std::vector<std::string> allowedMethods, const std::string&
 	return false;
 }
 
-bool isMethodImplemented(const std::string& method) {
+bool isMethodImplemented( const std::string& method ) {
 	std::string _m = toUpperCase(trim(method));
 
 	for (size_t i = 0; i < 3; ++i) {
