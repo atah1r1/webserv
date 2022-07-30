@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 09:38:49 by atahiri           #+#    #+#             */
-/*   Updated: 2022/07/30 15:28:36 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/07/30 15:53:45 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -319,7 +319,7 @@ ServerConfig Parser::checkConfig(ServerConfig server_setup)
         std::cout << "Error: ip address cannot be negative" << std::endl;
         exit(1);
     }
-    if (server_setup.getClientBufferSize() <= 0)
+    if (server_setup.getClientBufferSize() < 0)
     {
         std::cout << "Error: client max body size cannot be negative" << std::endl;
         exit(1);

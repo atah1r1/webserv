@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 16:08:24 by atahiri           #+#    #+#             */
-/*   Updated: 2022/07/30 15:26:00 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/07/30 15:53:25 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ ServerConfig::ServerConfig(/* args */)
     setPort(0);
     this->_ip = "";
     setServerName("");
-    setClientBufferSize(1024);
+    setClientBufferSize(0);
     // setErrorPages(err_pages);
 }
 
