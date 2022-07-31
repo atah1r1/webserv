@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/23 15:57:03 by aes-salm          #+#    #+#             */
-/*   Updated: 2022/07/31 14:33:59 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/07/31 14:35:26 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,9 +22,6 @@ Request::Request(/* args */)
 	_port = 0;
 	_headers = std::map<std::string, std::string>();
 }
-
-
-
 
 Request::~Request()
 {
