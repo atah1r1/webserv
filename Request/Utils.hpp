@@ -6,7 +6,7 @@
 /*   By: aes-salm <aes-salm@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/24 12:22:25 by aes-salm          #+#    #+#             */
-/*   Updated: 2022/07/20 17:54:34 by aes-salm         ###   ########.fr       */
+/*   Updated: 2022/07/24 20:09:15 by aes-salm         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,6 +66,24 @@ void parseSecondLine(std::string line, Request *request)
 	}
 }
 
+void parseHeaders(std::string line, Request *request)
+{
+	std::istringstream iss(line);
+	std::string token;
+	std::string key;
+	std::string value;
+	int j = 0;
+	while (std::getline(iss, token, ':'))
+	{
+		if (j == 0)
+			key = token;
+		else if (j == 1)
+			value = token.substr(1, token.size()); // remove first char ' '
+		j++;
+	}
+	request->setHeader(key, value);
+}
+
 void parseRequest(Request request, std::string buffer)
 {
 	std::istringstream is(buffer);
@@ -74,31 +92,31 @@ void parseRequest(Request request, std::string buffer)
 
 	while (std::getline(is, line))
 	{
-		if (i == 0)
+		if (i == 0 && request.getState() == Request::FIRST_LINE)
 			parseFirstLine(line, &request);
-		else if (i == 1)
+		else if (i == 1 && request.getState() == Request::BEFORE_HEADERS)
 			parseSecondLine(line, &request);
-		else
+		else if (request.getState() == Request::HEADERS)
 		{
 			if (line == "\r")
-				break;
-			std::istringstream iss(line);
-			std::string token;
-			std::string key;
-			std::string value;
-			int j = 0;
-			while (std::getline(iss, token, ':'))
 			{
-				if (j == 0)
-					key = token;
-				else if (j == 1)
-					value = token.substr(1, token.size()); // remove first char ' '
-				j++;
+				request.setState(Request::BEFORE_BODY);
+				if (request.getMethod() == "GET" || request.getMethod() == "DELETE")
+				{
+					request.setState(Request::COMPLETED);
+					break;
+				}
+				continue;
 			}
-			request.setHeader(key, value);
+			parseHeaders(line, &request);
+		}
+
+		else if (request.getState() == Request::BEFORE_BODY || request.getState() == Request::BODY)
+		{
+			std::cout << "Body: " << line << std::endl;
 		}
 		i++;
 	}
-	request.setState(Request::BEFORE_BODY);
+
 	printRequest(request);
 }
