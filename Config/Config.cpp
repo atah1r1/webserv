@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 16:04:34 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/22 23:22:23 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/07/30 15:28:23 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,17 +30,16 @@ void PrintData(std::vector<ServerConfig> config)
         std::cout << "IP: " << it->getServerIp() << std::endl;
         std::cout << "Port: " << it->getPort() << std::endl;
         std::cout << "Client buffer size: " << it->getClientBufferSize() << std::endl;
-        std::vector<std::string> _error_pages = it->getErrorPages();
-        for (std::vector<std::string>::iterator ite = _error_pages.begin(); ite != _error_pages.end(); ++ite)
+        std::map<int, std::string> _error_pages = it->getErrorPages();
+        for (std::map<int, std::string>::iterator it = _error_pages.begin(); it != _error_pages.end(); ++it)
         {
-            std::cout << "Error page"
-                      << "[" << ite - _error_pages.begin() << "]: " << *ite << std::endl;
+            std::cout << it->first << " " << it->second << "\n";
         }
         std::vector<Location *> _locations = it->getLocations();
         // std::cout << _locations.front(). << std::endl;
         for (std::vector<Location *>::iterator itl = _locations.begin(); itl != _locations.end(); ++itl)
         {
-            std::cout << "-------------LOCATIONS--------------" << std::endl;
+            std::cout << "-------------LOCATIONS " << (*itl)->_location << "--------------" << std::endl;
             std::cout << "Root: " << (*itl)->_root << std::endl;
             std::cout << "Autoindex: " << (*itl)->_autoindex << std::endl;
             std::cout << "Redirection PATH: " << (*itl)->_redirection_path << std::endl;
@@ -80,6 +79,38 @@ void Config::checkErrors(std::vector<ServerConfig> config)
                     exit(1);
                 }
             }
+            std::vector<Location *> _locations = it->getLocations();
+            for (std::vector<Location *>::iterator itl = _locations.begin(); itl != _locations.end(); ++itl)
+            {
+                std::cout << "---------HERE----------" << std::endl;
+                std::cout << (*itl)->_location << std::endl;
+                if ((*itl)->_location[0] == '.')
+                {
+                    std::cout << "Error: Location must start with /" << std::endl;
+                    exit(1);
+                }
+            }
+        }
+    }
+    else
+    {
+        for (std::vector<ServerConfig>::iterator it = config.begin(); it != config.end(); ++it)
+        {
+            std::vector<Location *> _locations = it->getLocations();
+            for (std::vector<Location *>::iterator itl = _locations.begin(); itl != _locations.end(); ++itl)
+            {
+                int count = std::count((*itl)->_location.begin(), (*itl)->_location.end(), '/');
+                if (count > 1)
+                {
+                    std::cout << "Error: Location must start with /" << std::endl;
+                    exit(1);
+                }
+                if ((*itl)->_location[0] != '/')
+                {
+                    std::cout << "Error: Location must start with /" << std::endl;
+                    exit(1);
+                }
+            }
         }
     }
 }
@@ -99,7 +130,7 @@ std::vector<ServerConfig> Config::getServers(std::string file_name)
     Parser parser(lexer);
     std::vector<ServerConfig> config = parser.parse();
     checkErrors(config);
-    // PrintData(config);
+    PrintData(config);
     return config;
 }
 

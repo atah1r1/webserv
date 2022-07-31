@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 16:08:24 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/12 00:01:53 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/07/30 15:53:25 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,8 +19,8 @@ ServerConfig::ServerConfig(/* args */)
     setPort(0);
     this->_ip = "";
     setServerName("");
-    setClientBufferSize(1024);
-    setErrorPages(vec);
+    setClientBufferSize(0);
+    // setErrorPages(err_pages);
 }
 
 ServerConfig::~ServerConfig()
@@ -72,14 +72,14 @@ void ServerConfig::setRoot(std::string _root)
     this->_root = _root;
 }
 
-std::vector<std::string> ServerConfig::getErrorPages() const
+std::map<int, std::string> ServerConfig::getErrorPages() const
 {
     return this->_error_pages;
 }
 
-void ServerConfig::setErrorPages(std::vector<std::string> _error_pages)
+void ServerConfig::setErrorPages(std::pair<int, std::string> _error_pages)
 {
-    this->_error_pages = _error_pages;
+    this->_error_pages.insert(_error_pages);
 }
 
 std::vector<std::string> ServerConfig::getAllowMethods() const
