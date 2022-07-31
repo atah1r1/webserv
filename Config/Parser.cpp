@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 09:38:49 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/22 23:20:10 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/07/30 15:53:45 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -186,13 +186,19 @@ std::vector<std::string> Parser::parseIndex()
     return (index);
 }
 
-std::vector<std::string> Parser::parseErrorPages()
+std::pair<int, std::string> Parser::parseErrorPages()
 {
-    std::vector<std::string> index;
+    std::pair<int, std::string> index;
     this->grab(WORD); // index
-    while (current_token.type == WORD)
+    if (current_token.type == WORD)
     {
-        index.push_back(current_token.value);
+        // std::cout << current_token.value << " INSIDE ERROR PAGES WHILE" << std::endl;
+        int code = std::stoi(current_token.value);
+        this->grab(WORD);
+        // std::cout <<  " AFTER GRAB" << current_token.value  << std::endl;
+        // index[code] = current_token.value;
+        index.first = code;
+        index.second = current_token.value;
         this->grab(WORD);
     }
     return (index);
@@ -313,7 +319,7 @@ ServerConfig Parser::checkConfig(ServerConfig server_setup)
         std::cout << "Error: ip address cannot be negative" << std::endl;
         exit(1);
     }
-    if (server_setup.getClientBufferSize() <= 0)
+    if (server_setup.getClientBufferSize() < 0)
     {
         std::cout << "Error: client max body size cannot be negative" << std::endl;
         exit(1);
@@ -331,8 +337,10 @@ ServerConfig Parser::parseServer()
             server_setup.setServerIp(parseIp());
         else if (!current_token.value.compare("server_name"))
             server_setup.setServerName(parseServerName());
-        else if (!current_token.value.compare("error_pages"))
+        else if (!current_token.value.compare("error_page"))
+        {
             server_setup.setErrorPages(parseErrorPages());
+        }
         else if (!current_token.value.compare("client_max_body_size"))
             server_setup.setClientBufferSize(parseClientBufferSize());
         else if (!current_token.value.compare("location"))

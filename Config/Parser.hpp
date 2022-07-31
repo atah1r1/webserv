@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 09:38:10 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/22 22:47:57 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/07/30 15:27:30 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,7 @@ public:
     std::string parseServerName();
     std::string parseRoot();
     std::vector<std::string> parseIndex();
-    std::vector<std::string> parseErrorPages();
+    std::pair<int, std::string> parseErrorPages();
     int parseClientBufferSize();
     std::vector<std::string> parseAllowMethods();
     bool parseAutoIndex();

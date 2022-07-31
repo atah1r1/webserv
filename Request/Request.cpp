@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
+/*   By: aes-salm <aes-salm@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/23 15:57:03 by aes-salm          #+#    #+#             */
-/*   Updated: 2022/07/26 19:33:20 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/07/31 16:03:37 by aes-salm         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,7 @@ std::map<std::string, std::string> Request::getHeaders()
 {
 	return _headers;
 }
-std::string Request::getHeader( std::string key )
+std::string Request::getHeader(std::string key)
 {
 	std::map<std::string, std::string>::const_iterator it = this->_headers.find(key);
 	if (it != this->_headers.end())
