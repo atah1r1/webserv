@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/29 00:57:02 by ehakam            #+#    #+#             */
-/*   Updated: 2022/07/29 03:27:09 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/07/31 17:55:15 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,6 +90,15 @@ std::string FileHandler::searchIndexes( const std::string& dirPath, std::vector<
 		if (pathExists(_fullPath)) return _fullPath;
 	}
 	return "";
+}
+
+std::string FileHandler::readFile( const std::string& filePath ) {
+	std::ifstream in(filePath);
+	if (!in.is_open()) return "";
+	std::ostringstream sstr;
+    sstr << in.rdbuf();
+	in.close();
+    return sstr.str();
 }
 
 FileType FileHandler::getType( const std::string& path ) {

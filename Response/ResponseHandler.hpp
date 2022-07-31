@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/26 14:35:35 by ehakam            #+#    #+#             */
-/*   Updated: 2022/07/30 19:18:31 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/07/31 18:35:22 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,6 +114,21 @@ private:
 		r.addHeader(H_LOCATION, dirPath);
 
 		return r;
+	}
+
+	static Response _createFileResponse( const std::string& filePath ) {
+		Response r;
+		//std::string body = _getDirListingBody(uri, root, dirPath);
+		// TODO:
+
+		r.setVersion("HTTP/1.1");
+		r.setStatusCode(OK);
+		r.setStatus(getReason(OK));
+		r.addHeader("Server", SERVER_VERSION);
+		r.addHeader("Date", getCurrentDate());
+		r.addHeader("Content-Type", "text/html");
+		//r.addHeader("Content-Length", toString<size_t>(body.length()));
+		r.addHeader("Connection", "keep-alive");
 	}
 
 public:
@@ -239,14 +254,10 @@ public:
 		return std::make_pair(false, Response());
 	}
 
-	static Response handleCGIRequest(Request req, std::pair<ServerConfig *, Location *> config) {
-		// check for request errors
-		std::pair<bool, Response> _res = handleRequestErrors(req, config);
-		if (_res.first) return _res.second;
-
-		// if no erros found
-		// TODO: 
-	}
+	// static Response _handleGetFile() {
+	// 	// TODO: 
+	// 	return Response();
+	// }
 
 	static Response handleGETRequest( Request req, std::pair<ServerConfig *, Location *> config ) {
 		// check for request errors
@@ -257,59 +268,55 @@ public:
 		Location* _loc = config.second;
 
 		std::string _requestPath = FileHandler::getFullPath(_loc->_root, req.getPath());
-		// check if path exists and is readable
-		if (FileHandler::pathExists(_requestPath)) {
-			// path exists
-			if (FileHandler::isPathReadable(_requestPath)) {
-				// path readable
-				FileType _type = FileHandler::getType(_requestPath);
-				// check path type
-				if (_type == T_DIR) {
-					// path = directory
-					// check redir
-					if (_requestPath.back() != '/') {
-						return _createRedirectionResponse(MovedPermanently, _requestPath + "/");
-					} else {
-						// check for index files
-						std::string _indexPath = FileHandler::searchIndexes(_requestPath, _loc->_index_file);
-						if (!_indexPath.empty()) {
-							// index file exists
-							// TODO: serve index file => CGI/file
-						} else {
-							// index file doesn't exist
-							// check for autoindex
-							if (_loc->_autoindex) {
-								// autoindex on
-								
-							} else {
-								// autoindex off
-								return _createErrorResponse(Forbidden, config);
-							}
-						}
-					}
-				} else if (_type == T_FILE) {
-					// path = file
-					// TODO: serve file => CGI/file
-				} else {
-					// path = other
-					return _createErrorResponse(InternalServerError, config);
-				}
-			} else {
-				// path not readable
-				return _createErrorResponse(Forbidden, config);
-			}
-		} else {
-			// path does not exist
+
+		// check if path doesn't exist
+		if (!FileHandler::pathExists(_requestPath)) {
 			return _createErrorResponse(NotFound, config);
 		}
 
-		// path is dir but does not end with "/" 
-		
+		// check if path not readable
+		if (FileHandler::isPathReadable(_requestPath)) {
+			return _createErrorResponse(Forbidden, config);
+		}
 
-		// 
+		// check if path is neither dir nor file
+		FileType _type = FileHandler::getType(_requestPath);
+		if (_type != T_DIR && _type != T_FILE) {
+			return _createErrorResponse(InternalServerError, config);
+		}
 		
+		// check if path is file or dir
+		if (_type == T_DIR) {
+			// check redir
+			if (_requestPath.back() != '/') {
+				return _createRedirectionResponse(MovedPermanently, _requestPath + "/");
+			}
+
+			// check for index files
+			std::string _indexPath = FileHandler::searchIndexes(_requestPath, _loc->_index_file);
+			if (_indexPath.empty() && !_loc->_autoindex) {
+				return _createErrorResponse(Forbidden, config);
+			}
+
+			if (_indexPath.empty() && _loc->_autoindex) {
+				std::string _uri = _conf->getServerIp() + ":" + toString<int>(_conf->getPort());
+				return _createDirListingResponse(_uri, _loc->_root, _requestPath);
+			}
+
+			// if index not empty
+			if (FileHandler::requiresCGI(_indexPath)) {
+				// TODO: use CGI
+				return Response();
+			}
+
+			// serve file as is
+			
+		}
+
+		if (_type == T_FILE) {
+			// TODO: handle file
+		}
 	}
-
 };
 
 #endif // __RESPONSE_HANDLER_HPP__
