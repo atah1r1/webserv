@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/26 19:17:39 by ehakam            #+#    #+#             */
-/*   Updated: 2022/07/30 15:22:59 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/01 22:50:37 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,13 +75,12 @@ Location *matchLocation( std::vector<Location *> locations, const std::string& p
 		Location* _l = _matchLocation(locations, _path + "/");
 		if (_l != NULL) return _l;
 	}
-
 	// general case
 	while(!_path.empty()) {
 		Location* _l = _matchLocation(locations, _path);
 		if (_l != NULL) return _l;
-		int _index = _path.find_last_of("/");
-		if (_index == -1) continue;
+		size_t _index = _path.find_last_of("/");
+		if (_index == std::string::npos) continue;
 		if (_index == _path.length() - 1) {
 			_path = _path.substr(0, _index);
 		} else {
