@@ -6,15 +6,24 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/01 22:24:39 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/01 22:31:00 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/01 23:05:42 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ResponseHandler.hpp"
 
 std::string ResponseHandler::_getDefaultErrorBody( int statusCode, std::pair<ServerConfig *, Location *> config ) {
-	// TODO: find default error_page path (if exists) by statusCode
-	// if no error_page exists in config, or failed to open error_page path, return standardErrorBody
+	ServerConfig* _conf = config.first;
+	Location* _loc = config.second;
+
+	std::string _errorPage = _conf->getErrorPage(statusCode);
+
+	if (!_errorPage.empty()) {
+		std::string _pagePath = FileHandler::getFullPath(_loc->_root, _errorPage);
+		if (FileHandler::isPathReadable(_pagePath))
+			return FileHandler::readFile(_pagePath);
+	}
+
 	return _getStandardErrorBody(statusCode);
 }
 
@@ -220,6 +229,9 @@ Response ResponseHandler::handleGETDirectory( Request req, std::pair<ServerConfi
 }
 
 std::pair<bool, Response> ResponseHandler::handleRequestErrors( Request req, std::pair<ServerConfig *, Location *> config ) {
+	ServerConfig* _conf = config.first;
+	Location* _loc = config.second;
+
 	// If Request is not valid
 	if (false /* TODO: check if req.statusCode is not 0 */) {
 		Response r = _createErrorResponse(BadRequest, config); // 400
@@ -246,35 +258,35 @@ std::pair<bool, Response> ResponseHandler::handleRequestErrors( Request req, std
 
 	// if bodySize > clientmaxbuffersize
 	// TODO: fix and uncomment
-	// if (config.first != NULL && config.first->getClientBufferSize() > 0
-	// 	/*&& req.bodySize() > config.first->getClientBufferSize()*/) {
+	// if (_conf != NULL && _conf->getClientBufferSize() > 0
+	// 	/*&& req.bodySize() > _conf->getClientBufferSize()*/) {
 	// 	Response r = _createErrorResponse(PayloadTooLarge, config); // 413
 	// 	return std::make_pair(true, r);
 	// }
 
 	// If no location matches request
-	if (config.second == NULL) {
+	if (_loc == NULL) {
 		Response r = _createErrorResponse(NotFound, config); // 404
 		return std::make_pair(true, r);
 	}
 
 	// If location has redirection !Not an error but :)
-	if (!config.second->_redirection_path.empty()) {
+	if (!_loc->_redirection_path.empty()) {
 		// check if redir path start with /, else add it
-		if (config.second->_redirection_path.front() != '/')
-			config.second->_redirection_path.insert(config.second->_redirection_path.begin(), '/');
-		Response r = _createRedirectionResponse(MovedPermanently, config.second->_redirection_path);
+		if (_loc->_redirection_path.front() != '/')
+			_loc->_redirection_path.insert(_loc->_redirection_path.begin(), '/');
+		Response r = _createRedirectionResponse(MovedPermanently, _loc->_redirection_path);
 		return std::make_pair(true, r);
 	}
 
 	// Check if method is allowed
-	if (!config.second->_allow_methods.empty() && !isMethodAllowed(config.second->_allow_methods, req.getMethod())) {
+	if (!_loc->_allow_methods.empty() && !isMethodAllowed(_loc->_allow_methods, req.getMethod())) {
 		Response r = _createErrorResponse(MethodNotAllowed, config); // 405
 		return std::make_pair(true, r);
 	}
 
 	// Check if method (DELETE) is explicitely allowed
-	if (config.second->_allow_methods.empty() && toUpperCase(trim(req.getMethod())) == DELETE) {
+	if (_loc->_allow_methods.empty() && toUpperCase(trim(req.getMethod())) == DELETE) {
 		Response r = _createErrorResponse(MethodNotAllowed, config); // TODO: verify if 405 is right or Forbidden
 		return std::make_pair(true, r);
 	}
