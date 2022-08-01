@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 16:04:34 by atahiri           #+#    #+#             */
-/*   Updated: 2022/07/30 15:28:23 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/08/01 16:51:47 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -130,7 +130,7 @@ std::vector<ServerConfig> Config::getServers(std::string file_name)
     Parser parser(lexer);
     std::vector<ServerConfig> config = parser.parse();
     checkErrors(config);
-    PrintData(config);
+    // PrintData(config);
     return config;
 }
 
