@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 16:04:34 by atahiri           #+#    #+#             */
-/*   Updated: 2022/08/01 16:51:47 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/08/01 17:56:37 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,8 +82,7 @@ void Config::checkErrors(std::vector<ServerConfig> config)
             std::vector<Location *> _locations = it->getLocations();
             for (std::vector<Location *>::iterator itl = _locations.begin(); itl != _locations.end(); ++itl)
             {
-                std::cout << "---------HERE----------" << std::endl;
-                std::cout << (*itl)->_location << std::endl;
+                // std::cout << (*itl)->_location << std::endl;
                 if ((*itl)->_location[0] == '.')
                 {
                     std::cout << "Error: Location must start with /" << std::endl;
