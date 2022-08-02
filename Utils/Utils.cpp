@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/26 19:17:39 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/01 23:35:44 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/02 16:28:26 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,9 +97,13 @@ std::string	getCurrentDate(void)
 
 	std::stringstream date;
 
-	date << day_names[ltm->tm_wday] << ", " << ltm->tm_mday << " "
-		<< month_names[ltm->tm_mon] << " " << (ltm->tm_year + 1900) << " " 
-		<< (ltm->tm_hour) % 24 << ":" << ltm->tm_min << ":" << ltm->tm_sec << " GMT";
+	date << day_names[ltm->tm_wday] << ", "
+		<< std::setfill('0') << std::setw(2) << ltm->tm_mday << " "
+		<< month_names[ltm->tm_mon] << " "
+		<< std::setfill('0') << std::setw(4) << (ltm->tm_year + 1900) << " " 
+		<< std::setfill('0') << std::setw(2) << (ltm->tm_hour % 24) << ":" 
+		<< std::setfill('0') << std::setw(2) << ltm->tm_min << ":"
+		<< std::setfill('0') << std::setw(2) << ltm->tm_sec << " GMT";
 	return date.str();
 }
 
@@ -122,8 +126,8 @@ std::string toHeaderCase( const std::string& header ) {
 void _fillCGIs( void ) {
 	if (!CGIs.empty()) return;
 
-	CGIs.insert(std::make_pair("php", "./CGI/PHP_CGI"));
-	CGIs.insert(std::make_pair("py", "./CGI/PY_CGI"));
+	CGIs.insert(std::make_pair("php", "/CGI/bin/PHP_CGI"));
+	CGIs.insert(std::make_pair("py", "/CGI/bin/PY_CGI"));
 }
 
 std::string getCGIPath( const std::string& extension ) {

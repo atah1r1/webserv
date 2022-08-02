@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/29 00:57:02 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/02 00:54:05 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/02 15:14:53 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -122,19 +122,19 @@ FileType FileHandler::getType( const std::string& path ) {
 	return T_ERROR;
 }
 
-inline bool FileHandler::requiresCGI( const std::string& path ) {
+bool FileHandler::requiresCGI( const std::string& path ) {
 	return !getCGIPath(getFileExtension(path)).empty();
 }
 
-inline bool FileHandler::pathExists( const std::string& path ) {
+bool FileHandler::pathExists( const std::string& path ) {
 	return ( access( path.c_str(), F_OK ) != -1 );
 }
 
-inline bool FileHandler::isPathReadable( const std::string& path ) {
+bool FileHandler::isPathReadable( const std::string& path ) {
 	return ( access( path.c_str(), R_OK ) != -1 );
 }
 
-inline bool FileHandler::isPathWritable( const std::string& path ) {
+bool FileHandler::isPathWritable( const std::string& path ) {
 	return ( access( path.c_str(), W_OK ) != -1 );
 }
 

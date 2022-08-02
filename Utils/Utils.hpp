@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/26 04:36:47 by ehakam            #+#    #+#             */
-/*   Updated: 2022/07/29 02:56:26 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/02 16:03:38 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 #include <utility>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <iomanip>
 #include <map>
 #include "../Config/ServerConfig.hpp"
 #include "../Includes/Webserv.hpp"

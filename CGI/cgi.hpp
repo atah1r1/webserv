@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/01 15:38:28 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/01 17:15:50 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/02 16:19:18 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,6 @@
 #include <vector>
 #include "../Utils/Utils.hpp"
 
-std::string cgi(std::string file_path, char * const *envp);
+std::string cgi(const std::string& cgiPath, std::string file_path, char * const *envp);
 
 #endif

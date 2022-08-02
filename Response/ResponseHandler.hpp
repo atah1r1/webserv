@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/26 14:35:35 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/01 22:27:38 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/02 15:22:21 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ private:
 	static std::string _getDefaultErrorBody(int statusCode, std::pair<ServerConfig *, Location *> config);
 	static std::string _getStandardErrorBody(int statusCode);
 	static std::string _getDirListingBody( const std::string& uri, const std::string& root, const std::string& dirPath );
-	static Response _createErrorResponse(int statusCode, std::pair<ServerConfig *, Location *> config);
+	static Response _createErrorResponse(int statusCode, std::pair<ServerConfig *, Location *> config, const std::string& temp );
 	static Response _createDirListingResponse( const std::string& uri, const std::string& root, const std::string& dirPath );
 	static Response _createRedirectionResponse( int statusCode, const std::string& dirPath );
 	static Response _createFileResponse( const std::string& filePath );
@@ -39,7 +39,7 @@ private:
 	static std::pair<bool, Response> handleRequestErrors(Request req, std::pair<ServerConfig *, Location *> config);
 public:
 	static std::pair<ServerConfig *, Location *> getMatchingConfig(Request req, std::vector<ServerConfig *> servers);
-	static Response handleRequests( Request req, std::pair<ServerConfig *, Location *> config);
+	static Response handleRequests( Request req, std::vector<ServerConfig *> servers);
 	static Response handleGETRequest( Request req, std::pair<ServerConfig *, Location *> config );
 };
 
