@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 17:17:03 by atahiri           #+#    #+#             */
-/*   Updated: 2022/07/28 18:46:38 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/08/01 17:56:40 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,6 +98,6 @@ int main(int argc, char *argv[])
     }
     Config *config = new Config();
     std::vector<ServerConfig> servers = config->getServers(argv[1]);
-    // start(servers);
+    start(servers);
     return 0;
 }
