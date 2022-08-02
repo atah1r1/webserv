@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/01 22:24:39 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/02 16:49:51 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/02 17:22:30 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -174,11 +174,14 @@ Response ResponseHandler::_createFileCGIResponse( Request req, ServerConfig *con
 
 	std::string _cgiPath = FileHandler::getFullPath(_root, getCGIPath(FileHandler::getFileExtension(filePath)));
 
-	std::string _cgiResponse = cgi(_cgiPath, filePath, const_cast<char *const*>(v.data()));
+	std::string _cgiResponse = "cgi(_cgiPath, filePath, const_cast<char *const*>(v.data()));";
 
+	std::cout << "======================" << std::endl;
 	std::cout << _cgiResponse << std::endl;
+	std::cout << "----------------------" << std::endl;
 
 	Response r = Response::parseFrom(_cgiResponse);
+
 	r.addHeader("Server", SERVER_VERSION);
 
 	// Response r;

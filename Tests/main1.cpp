@@ -48,7 +48,7 @@ int main(int ac, char **av) {
 	// now test the stuff
 	Response r = ResponseHandler::handleRequests(req, co);
 
-	std::cout << r.toString() << std::endl;
+	//std::cout << r.toString() << std::endl;
 
 	return 0;
 }
