@@ -1,8 +1,102 @@
 
-#include "../Response/Response.hpp"
+#include "Utils.hpp"
 #include "FileHandler.hpp"
 
+#define OUT std::cout
+#define EN std::endl
+#define STR std::string
+
+template<typename K, typename V>
+void printMap(std::map<K, V> m) {
+	typename std::map<K, V>::iterator it = m.begin();
+
+	while (it != m.end())
+	{
+		OUT << std::setw(20) << std::left << it->first << " = " << it->second << EN;
+		++it;
+	}
+}
+
+void UTILS_TEST(int ac, char **av) {
+	std::cout << std::boolalpha;
+	// test getCGIPath
+	std::cout << "CGI: " << getCGIPath(av[1]) << std::endl;
+
+	std::cout << "UPPER: [" << toUpperCase(av[1]) << "]" << std::endl;
+
+	std::cout << "LOWER: [" << toLowerCase(av[1]) << "]" << std::endl;
+
+	std::string marr[] = {"GET", "POST"};
+
+	std::vector<std::string> v(marr, marr + 3);
+
+	std::cout << "IS ALLOWED: (" << av[1] << ") [" << isMethodAllowed(v, av[1]) << "]" << std::endl;
+
+	std::cout << "IS IMPL: (" << av[1] << ") [" << isMethodImplemented(av[1]) << "]" << std::endl;
+
+	std::cout << "to NUMBER: " << toNumber<int>(av[1]) << std::endl;
+	std::cout << "to STR: " << toString<int>(234) << std::endl;
+	std::cout << "to STR: " << toString<int>(0) << std::endl;
+	std::cout << "to STR: " << toString<int>(-12) << std::endl;
+}
+
+void FILE_HANDLER_TEST(int ac, char **av) {
+	// std::string x = FileHandler::readFile(av[1]);
+	// std::cout << x << std::endl;
+
+	//
+	// OUT << "FULL PATH: [" << FileHandler::getFullPath(av[1], av[2]) << "]" << EN;
+
+	// STR f = FileHandler::getFullPath(av[1], av[2]);
+
+	// OUT << "DISC PATH: [" << FileHandler::disconnectPath(av[1], f) << "]" << EN;
+
+	//OUT << "Mod date: [" << FileHandler::getLastModificationDate(av[1]) << "]" << EN;
+
+	// std::string iarr[] = {"index.htm", "index.php", "index.html"};
+	// std::vector<std::string> iv(iarr, iarr + 3);
+
+	// STR p = FileHandler::searchIndexes(av[1], iv);
+
+	// OUT << "IDX PATH: [" << p << "]" << EN;
+	// std::map<STR, STR> m = FileHandler::exploreDir(av[1], FileHandler::getFullPath(av[1], av[2]));
+
+	// perror("Error");
+	// std::cerr << "errno: " << errno << EN;
+
+	// printMap(m);
+	FileType t = FileHandler::getType(av[1]);
+
+	perror("Error");
+	std::cerr << "errno: " << errno << EN;
+
+	switch (t) {
+	case T_FILE:
+		OUT << "T_FILE" << EN;
+		break;
+	case T_DIR:
+		OUT << "T_DIR" << EN;
+		break;
+	case T_OTHER:
+		OUT << "T_OTHER" << EN;
+		break;
+	case T_ERROR:
+		OUT << "T_ERROR" << EN;
+		break;
+	default:
+		break;
+	}
+
+}
+// ERRNO
+// 20 Not a dir
+// 13 Permission denied
+
 int main(int ac, char **av) {
+
+	//UTILS_TEST(ac, av);
+	FILE_HANDLER_TEST(ac, av);
+
 	// Location l;
 	// l._location = "/wordpress/config";
 	// Location l2;
@@ -47,9 +141,6 @@ int main(int ac, char **av) {
 
 	// Response r2 = Response::parseFrom(r.toString());
 
-	std::string x = FileHandler::readFile(av[1]);
-
-	std::cout << x << std::endl;
 
 	return (0);
 }

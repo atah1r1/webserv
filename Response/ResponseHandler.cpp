@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/01 22:24:39 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/01 23:05:42 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/02 00:56:56 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -217,6 +217,11 @@ Response ResponseHandler::handleGETDirectory( Request req, std::pair<ServerConfi
 	if (_indexPath.empty() && _loc->_autoindex) {
 		std::string _uri = _conf->getServerIp() + ":" + toString<int>(_conf->getPort());
 		return _createDirListingResponse(_uri, _loc->_root, requestPath);
+	}
+
+	// if index readable
+	if (FileHandler::isPathReadable(_indexPath)) {
+		return _createErrorResponse(Forbidden, config);
 	}
 
 	// if index not empty

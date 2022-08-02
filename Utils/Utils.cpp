@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/26 19:17:39 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/01 22:50:37 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/01 23:35:44 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -523,6 +523,7 @@ bool isMethodAllowed( std::vector<std::string> allowedMethods, const std::string
 		if (_m == toUpperCase(trim(*it))) {
 			return true;
 		}
+		++it;
 	}
 	return false;
 }
