@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
+/*   By: aes-salm <aes-salm@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/23 15:55:34 by aes-salm          #+#    #+#             */
-/*   Updated: 2022/07/26 19:34:00 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/02 12:05:44 by aes-salm         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,22 +26,23 @@ public:
 	enum state
 	{
 		FIRST_LINE = 0,
-		BEFORE_HEADERS = 1,
-		HEADERS = 2,
-		BEFORE_BODY = 3,
-		BODY = 4,
-		COMPLETED = 5
+		HEADERS = 1,
+		BEFORE_BODY = 2,
+		BODY = 3,
+		COMPLETED = 4
 	};
 
 	// GETTERS
-	std::string getMethod();
-	std::string getPath();
-	std::string getVersion();
-	std::string getHost();
-	std::map<std::string, std::string> getHeaders();
-	std::string getHeader( std::string key );
-	int getPort();
-	Request::state getState();
+	std::string getMethod() const;
+	std::string getPath() const;
+	std::string getVersion() const;
+	std::string getHost() const;
+	std::map<std::string, std::string> getHeaders() const;
+	std::string getHeader(std::string key) const;
+	int getPort() const;
+	Request::state getState() const;
+	int getStatusCode() const;
+	std::string getQueries() const;
 
 	// SETTERS
 	void setMethod(std::string method);
@@ -51,15 +52,20 @@ public:
 	void setPort(int port);
 	void setHeader(std::string key, std::string value);
 	void setState(Request::state state);
+	void setStatusCode(int statusCode);
+	void setQueries(std::string queries);
 
 private:
 	Request::state _state;
+	int _statusCode;
 	std::string _method;
 	std::string _path;
+	std::string _queries;
 	std::string _version;
 	std::string _host;
 	int _port;
-	std::map<std::string, std::string> _headers;
+	std::map<std::string, std::string>
+		_headers;
 };
 
 #endif
