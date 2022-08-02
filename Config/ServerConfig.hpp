@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerConfig.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aes-salm <aes-salm@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 16:08:26 by atahiri           #+#    #+#             */
-/*   Updated: 2022/07/31 16:05:10 by aes-salm         ###   ########.fr       */
+/*   Updated: 2022/08/01 22:54:21 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,6 +56,7 @@ public:
 	std::string getRoot() const;
 	void setRoot(std::string _root);
 	std::map<int, std::string> getErrorPages() const;
+	std::string getErrorPage( int code );
 	void setErrorPages(std::pair<int, std::string> _error_pages);
 	std::vector<std::string> getAllowMethods() const;
 	void setAllowMethods(std::vector<std::string> _allow_methods);

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerConfig.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aes-salm <aes-salm@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 16:08:24 by atahiri           #+#    #+#             */
-/*   Updated: 2022/07/31 16:05:02 by aes-salm         ###   ########.fr       */
+/*   Updated: 2022/08/01 22:55:53 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,6 +75,14 @@ void ServerConfig::setRoot(std::string _root)
 std::map<int, std::string> ServerConfig::getErrorPages() const
 {
 	return this->_error_pages;
+}
+
+std::string ServerConfig::getErrorPage( int code )
+{
+	std::map<int, std::string>::const_iterator it = this->_error_pages.find(code);
+	if (it != this->_error_pages.end())
+		return it->second;
+	return "";
 }
 
 void ServerConfig::setErrorPages(std::pair<int, std::string> _error_pages)

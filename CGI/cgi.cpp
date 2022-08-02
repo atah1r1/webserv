@@ -6,17 +6,11 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/20 12:35:16 by aes-salm          #+#    #+#             */
-/*   Updated: 2022/07/25 19:14:35 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/01 17:15:24 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <stdlib.h>
-#include <iostream>
-#include <sys/wait.h>
-#include <unistd.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <sys/stat.h>
+#include "cgi.hpp"
 
 char **generate_execve_args(std::string path)
 {
@@ -27,7 +21,7 @@ char **generate_execve_args(std::string path)
 	return execve_args;
 }
 
-std::string cgi(std::string file_path, char **envp)
+std::string cgi(std::string file_path, char * const *envp)
 {
 	int status;
 	int fd[2];
@@ -60,10 +54,4 @@ std::string cgi(std::string file_path, char **envp)
 		close(fd[0]);
 	}
 	return result;
-}
-
-int main(int argc, char **argv, char **envp)
-{
-	std::cout << cgi("./tests/test.php", envp) << std::endl;
-	return (0);
 }
