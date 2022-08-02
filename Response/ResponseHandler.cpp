@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/01 22:24:39 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/02 00:56:56 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/02 04:25:47 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,11 +15,12 @@
 std::string ResponseHandler::_getDefaultErrorBody( int statusCode, std::pair<ServerConfig *, Location *> config ) {
 	ServerConfig* _conf = config.first;
 	Location* _loc = config.second;
+	std::string _root = !_loc->_root.empty() ? _loc->_root : _conf->getRoot();
 
 	std::string _errorPage = _conf->getErrorPage(statusCode);
 
 	if (!_errorPage.empty()) {
-		std::string _pagePath = FileHandler::getFullPath(_loc->_root, _errorPage);
+		std::string _pagePath = FileHandler::getFullPath(_root, _errorPage);
 		if (FileHandler::isPathReadable(_pagePath))
 			return FileHandler::readFile(_pagePath);
 	}
@@ -203,20 +204,25 @@ Response ResponseHandler::handleGETDirectory( Request req, std::pair<ServerConfi
 	ServerConfig* _conf = config.first;
 	Location* _loc = config.second;
 
+	// Select default configs
+	std::string _root = !_loc->_root.empty() ? _loc->_root : _conf->getRoot();
+	bool _autoIndexing = _loc->_autoindex ? _loc->_autoindex : _conf->getAutoIndex();
+	std::vector<std::string> _indexFiles = !_loc->_index_file.empty() ? _loc->_index_file : _conf->getIndexFiles();
+
 	// check redir
 	if (requestPath.back() != '/') {
 		return _createRedirectionResponse(MovedPermanently, requestPath + "/");
 	}
 
 	// check for index files
-	std::string _indexPath = FileHandler::searchIndexes(requestPath, _loc->_index_file);
-	if (_indexPath.empty() && !_loc->_autoindex) {
+	std::string _indexPath = FileHandler::searchIndexes(requestPath, _indexFiles);
+	if (_indexPath.empty() && !_autoIndexing) {
 		return _createErrorResponse(Forbidden, config);
 	}
 
-	if (_indexPath.empty() && _loc->_autoindex) {
+	if (_indexPath.empty() && _autoIndexing) {
 		std::string _uri = _conf->getServerIp() + ":" + toString<int>(_conf->getPort());
-		return _createDirListingResponse(_uri, _loc->_root, requestPath);
+		return _createDirListingResponse(_uri, _root, requestPath);
 	}
 
 	// if index readable
@@ -236,6 +242,7 @@ Response ResponseHandler::handleGETDirectory( Request req, std::pair<ServerConfi
 std::pair<bool, Response> ResponseHandler::handleRequestErrors( Request req, std::pair<ServerConfig *, Location *> config ) {
 	ServerConfig* _conf = config.first;
 	Location* _loc = config.second;
+	std::vector<std::string> _allowedMethods = !_loc->_allow_methods.empty() ? _loc->_allow_methods : _conf->getAllowMethods();
 
 	// If Request is not valid
 	if (false /* TODO: check if req.statusCode is not 0 */) {
@@ -285,13 +292,13 @@ std::pair<bool, Response> ResponseHandler::handleRequestErrors( Request req, std
 	}
 
 	// Check if method is allowed
-	if (!_loc->_allow_methods.empty() && !isMethodAllowed(_loc->_allow_methods, req.getMethod())) {
+	if (!_allowedMethods.empty() && !isMethodAllowed(_allowedMethods, req.getMethod())) {
 		Response r = _createErrorResponse(MethodNotAllowed, config); // 405
 		return std::make_pair(true, r);
 	}
 
 	// Check if method (DELETE) is explicitely allowed
-	if (_loc->_allow_methods.empty() && toUpperCase(trim(req.getMethod())) == DELETE) {
+	if (_allowedMethods.empty() && toUpperCase(trim(req.getMethod())) == DELETE) {
 		Response r = _createErrorResponse(MethodNotAllowed, config); // TODO: verify if 405 is right or Forbidden
 		return std::make_pair(true, r);
 	}
@@ -363,8 +370,9 @@ Response ResponseHandler::handleGETRequest( Request req, std::pair<ServerConfig 
 
 	ServerConfig* _conf = config.first;
 	Location* _loc = config.second;
+	std::string _root = !_loc->_root.empty() ? _loc->_root : _conf->getRoot();
 
-	std::string _requestPath = FileHandler::getFullPath(_loc->_root, req.getPath());
+	std::string _requestPath = FileHandler::getFullPath(_root, req.getPath());
 
 	// check if path doesn't exist
 	if (!FileHandler::pathExists(_requestPath)) {
@@ -394,9 +402,5 @@ Response ResponseHandler::handleGETRequest( Request req, std::pair<ServerConfig 
 	// this shouldn't happen
 	return _createErrorResponse(InternalServerError, config);
 }
-
-
-
-
 
 
