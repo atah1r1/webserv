@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/29 00:53:03 by ehakam            #+#    #+#             */
-/*   Updated: 2022/07/31 17:54:23 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/02 15:13:40 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,10 +44,10 @@ public:
 
 	static std::map<std::string, std::string> exploreDir( const std::string& root, const std::string& dirPath );
 	static FileType getType( const std::string& path );
-	static inline bool pathExists( const std::string& path );
-	static inline bool isPathReadable( const std::string& path );
-	static inline bool isPathWritable( const std::string& path );
-	static inline bool requiresCGI( const std::string& path );
+	static bool pathExists( const std::string& path );
+	static bool isPathReadable( const std::string& path );
+	static bool isPathWritable( const std::string& path );
+	static bool requiresCGI( const std::string& path );
 };
 
 #endif
