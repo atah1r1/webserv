@@ -6,7 +6,7 @@
 /*   By: aes-salm <aes-salm@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/26 04:36:47 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/01 16:12:45 by aes-salm         ###   ########.fr       */
+/*   Updated: 2022/08/02 17:45:47 by aes-salm         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 #include <utility>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <iomanip>
 #include <map>
 #include "../Config/ServerConfig.hpp"
 #include "../Includes/Webserv.hpp"

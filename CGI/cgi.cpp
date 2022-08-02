@@ -6,28 +6,22 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/20 12:35:16 by aes-salm          #+#    #+#             */
-/*   Updated: 2022/07/25 19:14:35 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/02 16:18:31 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <stdlib.h>
-#include <iostream>
-#include <sys/wait.h>
-#include <unistd.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <sys/stat.h>
+#include "cgi.hpp"
 
-char **generate_execve_args(std::string path)
+char **generate_execve_args(const std::string& cgiPath, const std::string& filePath)
 {
 	char **execve_args = (char **)malloc(sizeof(char *) * 3);
-	execve_args[0] = (char *)"./bin/PY_CGI";
-	execve_args[1] = strdup(path.c_str());
+	execve_args[0] = strdup(cgiPath.c_str());
+	execve_args[1] = strdup(filePath.c_str());
 	execve_args[2] = NULL;
 	return execve_args;
 }
 
-std::string cgi(std::string file_path, char **envp)
+std::string cgi(const std::string& cgiPath, std::string file_path, char * const *envp)
 {
 	int status;
 	int fd[2];
@@ -45,7 +39,7 @@ std::string cgi(std::string file_path, char **envp)
 	else if (pid == 0)
 	{
 		close(fd[0]);
-		char **execve_args = generate_execve_args(file_path);
+		char **execve_args = generate_execve_args(cgiPath, file_path);
 		execve(execve_args[0], execve_args, envp);
 	}
 	else
@@ -60,10 +54,4 @@ std::string cgi(std::string file_path, char **envp)
 		close(fd[0]);
 	}
 	return result;
-}
-
-int main(int argc, char **argv, char **envp)
-{
-	std::cout << cgi("./tests/test.php", envp) << std::endl;
-	return (0);
 }

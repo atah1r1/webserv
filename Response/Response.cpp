@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/26 03:00:15 by ehakam            #+#    #+#             */
-/*   Updated: 2022/07/28 16:59:43 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/02 17:17:55 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -163,20 +163,32 @@ Response Response::parseFrom(const std::string& response) {
 
 	const std::string _resp = trim(response);
 
+	r.setVersion("HTTP/12.1");
+	r.setStatusCode(OK);
+	r.setStatus(getReason(OK));
+
 	// metadata
 	_ret = nextLine(_resp, _beg);
 	_beg = _ret.first;
 	_line = _ret.second;
-	std::vector<std::string> _meta = _parseMetaData(_line);
-	r.setVersion(_meta[0]);
-	r.setStatusCode(toNumber<int>(_meta[1]));
-	r.setStatus(_meta[2]);
+	if (beginsWith(trim(_line), "HTTP/")) {
+		std::vector<std::string> _meta = _parseMetaData(_line);
+		r.setVersion(_meta[0]);
+		r.setStatusCode(toNumber<int>(_meta[1]));
+		r.setStatus(_meta[2]);
+	} else if (!_line.empty()) {
+		std::pair<std::string, std::string> _h = _parseHeader(_line);
+		r.addHeader(_h);
+	}
+
+	//std::cout << "LINE1: " << _line << std::endl;
 
 	// headers
 	while (_beg < _resp.length()) {
 		_ret = nextLine(_resp, _beg);
 		_beg = _ret.first;
 		_line = _ret.second;
+		//std::cout << "LINE2: " << _line << std::endl;
 		if (_beg >= _resp.length() || _line.empty()) break;
 		std::pair<std::string, std::string> _h = _parseHeader(_line);
 		r.addHeader(_h);

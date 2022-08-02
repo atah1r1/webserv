@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/29 00:57:02 by ehakam            #+#    #+#             */
-/*   Updated: 2022/07/29 03:27:09 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/02 15:14:53 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,8 @@ std::map<std::string, std::string> FileHandler::exploreDir( const std::string& r
 				_pathName.push_back('/');
 			}
 			std::string _path = disconnectPath(root, dirPath);
-			_paths.insert(_pathName, getFullPath(_path, _pathName));
+			_paths[_pathName] = getFullPath(_path, _pathName);
+			//_paths.insert( std::make_pair<std::string, std::string>(_pathName, getFullPath(_path, _pathName)));
 		}
 	}
 	closedir(dir);
@@ -76,9 +77,13 @@ std::string	FileHandler::getLastModificationDate( const std::string& path ) {
 	if( stat(path.c_str(), &st) != 0 ) return "";
 	tm *ltm = gmtime(&st.st_mtime);
 
-	date << day_names[ltm->tm_wday] << ", " << ltm->tm_mday << " "
-		<< month_names[ltm->tm_mon] << " " << (ltm->tm_year + 1900) << " " 
-		<< (ltm->tm_hour) % 24 << ":" << ltm->tm_min << ":" << ltm->tm_sec << " GMT";
+	date << day_names[ltm->tm_wday] << ", "
+		<< std::setfill('0') << std::setw(2) << ltm->tm_mday << " "
+		<< month_names[ltm->tm_mon] << " "
+		<< std::setfill('0') << std::setw(4) << (ltm->tm_year + 1900) << " " 
+		<< std::setfill('0') << std::setw(2) << (ltm->tm_hour % 24) << ":" 
+		<< std::setfill('0') << std::setw(2) << ltm->tm_min << ":"
+		<< std::setfill('0') << std::setw(2) << ltm->tm_sec << " GMT";
 	return date.str();
 }
 
@@ -88,8 +93,18 @@ std::string FileHandler::searchIndexes( const std::string& dirPath, std::vector<
 	{
 		std::string _fullPath = getFullPath(dirPath, *it);
 		if (pathExists(_fullPath)) return _fullPath;
+		++it;
 	}
 	return "";
+}
+
+std::string FileHandler::readFile( const std::string& filePath ) {
+	std::ifstream in(filePath);
+	if (!in.is_open()) return "";
+	std::ostringstream sstr;
+    sstr << in.rdbuf();
+	in.close();
+    return sstr.str();
 }
 
 FileType FileHandler::getType( const std::string& path ) {
@@ -107,18 +122,19 @@ FileType FileHandler::getType( const std::string& path ) {
 	return T_ERROR;
 }
 
-inline bool FileHandler::requiresCGI( const std::string& path ) {
+bool FileHandler::requiresCGI( const std::string& path ) {
 	return !getCGIPath(getFileExtension(path)).empty();
 }
 
-inline bool FileHandler::pathExists( const std::string& path ) {
+bool FileHandler::pathExists( const std::string& path ) {
 	return ( access( path.c_str(), F_OK ) != -1 );
 }
 
-inline bool FileHandler::isPathReadable( const std::string& path ) {
+bool FileHandler::isPathReadable( const std::string& path ) {
 	return ( access( path.c_str(), R_OK ) != -1 );
 }
 
-inline bool FileHandler::isPathWritable( const std::string& path ) {
+bool FileHandler::isPathWritable( const std::string& path ) {
 	return ( access( path.c_str(), W_OK ) != -1 );
 }
+
