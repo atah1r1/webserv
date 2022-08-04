@@ -3,30 +3,30 @@
 /*                                                        :::      ::::::::   */
 /*   cgi.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
+/*   By: aes-salm <aes-salm@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/20 12:35:16 by aes-salm          #+#    #+#             */
-/*   Updated: 2022/08/02 16:18:31 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/04 17:21:12 by aes-salm         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "cgi.hpp"
+#include "CGI.hpp"
 
-char **generate_execve_args(const std::string& cgiPath, const std::string& filePath)
+char ** CGI::generateExecveArgs(const std::string &cgiPath, const std::string &filePath)
 {
-	char **execve_args = (char **)malloc(sizeof(char *) * 3);
-	execve_args[0] = strdup(cgiPath.c_str());
-	execve_args[1] = strdup(filePath.c_str());
-	execve_args[2] = NULL;
-	return execve_args;
+	char **args = (char **)malloc(sizeof(char *) * 3);
+	args[0] = strdup(cgiPath.c_str());
+	args[1] = strdup(filePath.c_str());
+	args[2] = NULL;
+	return args;
 }
 
-std::string cgi(const std::string& cgiPath, std::string file_path, char * const *envp)
-{
+std::string CGI::execute(const std::string &cgiPath, const std::string &filePath, char **env) {
 	int status;
 	int fd[2];
 	struct stat sb;
 	std::string result;
+
 
 	pipe(fd);
 	pid_t pid = fork();
@@ -39,8 +39,9 @@ std::string cgi(const std::string& cgiPath, std::string file_path, char * const 
 	else if (pid == 0)
 	{
 		close(fd[0]);
-		char **execve_args = generate_execve_args(cgiPath, file_path);
-		execve(execve_args[0], execve_args, envp);
+		dup2(fd[1], STDOUT_FILENO);
+		char **args = CGI::generateExecveArgs(cgiPath, filePath);
+		execve(args[0], args, env);
 	}
 	else
 	{

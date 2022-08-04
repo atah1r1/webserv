@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cgi.hpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
+/*   By: aes-salm <aes-salm@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/08/01 15:38:28 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/02 16:19:18 by ehakam           ###   ########.fr       */
+/*   Created: 2022/08/01 15:38:28 by aes-salm          #+#    #+#             */
+/*   Updated: 2022/08/04 17:28:30 by aes-salm         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,8 +22,14 @@
 #include <sys/stat.h>
 #include <string.h>
 #include <vector>
-#include "../Utils/Utils.hpp"
+// #include "../Utils/Utils.hpp"
 
-std::string cgi(const std::string& cgiPath, std::string file_path, char * const *envp);
+class CGI
+{
+public:
+	static char **generateExecveArgs(const std::string &cgiPath, const std::string &filePath);
+	static std::string execute(const std::string &cgiPath, const std::string &filePath, char **env);
+};
+
 
 #endif
