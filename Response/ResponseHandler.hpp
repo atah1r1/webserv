@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/26 14:35:35 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/02 15:22:21 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/04 21:20:24 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,7 @@ public:
 	static std::pair<ServerConfig *, Location *> getMatchingConfig(Request req, std::vector<ServerConfig *> servers);
 	static Response handleRequests( Request req, std::vector<ServerConfig *> servers);
 	static Response handleGETRequest( Request req, std::pair<ServerConfig *, Location *> config );
+	static Response handleDELETERequest( Request req, std::pair<ServerConfig *, Location *> config );
 };
 
 #endif // __RESPONSE_HANDLER_HPP__

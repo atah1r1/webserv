@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/01 22:24:39 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/02 17:22:30 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/04 23:11:28 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -372,7 +372,7 @@ Response ResponseHandler::handleRequests( Request req, std::vector<ServerConfig 
 	} else if (_m == POST) {
 		// TODO: handle POST
 	} else if (_m == DELETE) {
-		// TODO: handle DELETE
+		return handleDELETERequest(req, config);
 	}
 	// normally it shouldn't get here but if so:
 	return _createErrorResponse(MethodNotAllowed, config, "IT SHOULD'T GET HERE\n"); 
@@ -418,3 +418,48 @@ Response ResponseHandler::handleGETRequest( Request req, std::pair<ServerConfig 
 	return _createErrorResponse(InternalServerError, config, "SHOUDN'T HAPPEN TOO\n");
 }
 
+Response ResponseHandler::handleDELETERequest( Request req, std::pair<ServerConfig *, Location *> config ) {
+	// check for request errors
+	std::pair<bool, Response> _res = handleRequestErrors(req, config);
+	if (_res.first) return _res.second;
+
+	ServerConfig* _conf = config.first;
+	Location* _loc = config.second;
+	std::string _root = !_loc->_root.empty() ? _loc->_root : _conf->getRoot();
+
+	std::string _requestPath = FileHandler::getFullPath(_root, req.getPath());
+	
+	// check if path doesn't exist
+	if (!FileHandler::pathExists(_requestPath)) {
+		return _createErrorResponse(NotFound, config, "PATH NOT EXIST\n");
+	}
+
+	// check if path is neither dir nor file
+	FileType _type = FileHandler::getType(_requestPath);
+	if (_type != T_DIR && _type != T_FILE) {
+		return _createErrorResponse(InternalServerError, config, "PATH == T_OTHER | T_ERROR\n");
+	}
+
+	// check if path is file or dir
+	if (_type == T_DIR) {
+		std::string _root = !_loc->_root.empty() ? _loc->_root : _conf->getRoot();
+		bool _autoIndexing = _loc->_autoindex ? _loc->_autoindex : _conf->getAutoIndex();
+		std::vector<std::string> _indexFiles = !_loc->_index_file.empty() ? _loc->_index_file : _conf->getIndexFiles();
+
+		// check /
+		if (_requestPath.back() != '/') {
+			return _createErrorResponse(Conflict, config, "DIR: NO / AT END");
+		}
+
+		std::string _indexPath = FileHandler::searchIndexes(_requestPath, _indexFiles);
+		if (!_indexPath.empty() && FileHandler::requiresCGI(_indexPath)) {
+			return _createFileCGIResponse(req, _conf, _loc, _indexPath);
+		}
+
+		// if (!_indexPath.empty() && !FileHandler::requiresCGI(_indexPath)) {
+		// 	return _createErrorResponse(Forbidden, config, "Index: no cgi");
+		// }
+
+		// TODO: continue delete
+	}
+}
