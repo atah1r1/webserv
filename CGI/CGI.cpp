@@ -6,7 +6,7 @@
 /*   By: aes-salm <aes-salm@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/20 12:35:16 by aes-salm          #+#    #+#             */
-/*   Updated: 2022/08/05 11:58:09 by aes-salm         ###   ########.fr       */
+/*   Updated: 2022/08/05 13:14:22 by aes-salm         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,8 @@ std::string CGI::execute(const std::string &cgiPath, const std::string &filePath
 	int fd[2];
 	struct stat sb;
 	std::string result;
+	std::string outFilePath = randomFileName();
+	std::ofstream outFile(outFilePath);
 
 	pipe(fd);
 	pid_t pid = fork();
@@ -50,9 +52,10 @@ std::string CGI::execute(const std::string &cgiPath, const std::string &filePath
 
 		fstat(fd[0], &sb);		   // get file size
 		result.resize(sb.st_size); // resize string to file size
-
 		read(fd[0], (char *)(result.data()), sb.st_size);
 		close(fd[0]);
 	}
-	return result;
+	outFile << result;
+	outFile.close();
+	return outFilePath;
 }

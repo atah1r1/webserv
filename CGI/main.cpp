@@ -9,7 +9,7 @@ int main(int ac, char **av, char **env)
 
 	// char name[10];
 	// tmpnam(name);
-	std::cout << randomFileName() << std::endl;
+	// std::cout << randomFileName() << std::endl;
 
 	return 0;
 }
