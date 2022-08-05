@@ -6,7 +6,7 @@
 /*   By: aes-salm <aes-salm@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/24 12:22:25 by aes-salm          #+#    #+#             */
-/*   Updated: 2022/08/04 18:11:42 by aes-salm         ###   ########.fr       */
+/*   Updated: 2022/08/05 11:53:51 by aes-salm         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,22 +70,22 @@ void parseHeaders(std::string line, Request *request)
 	std::string token;
 	std::string key;
 	std::string value;
-	std::string port;
+	int port;
 	int j = 0;
 	while (std::getline(iss, token, ':'))
 	{
 		if (j == 0)
-			key = token;
+			key = toHeaderCase(token);
 		else if (j == 1)
-			value = token.substr(1, token.size()); // remove first char ' '
+			value = trim(token); // remove first char ' '
 		else if (j == 2)
-			port = token;
+			port = toNumber<int>(token);
 		j++;
 	}
 	if (key == "Host")
 	{
 		request->setHost(value);
-		request->setPort(std::stoi(port));
+		request->setPort(port);
 	}
 	else
 		request->setHeader(key, value);
