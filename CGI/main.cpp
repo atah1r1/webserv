@@ -6,5 +6,10 @@ int main(int ac, char **av, char **env)
 	std::string FILE_PATH = "./tests/test.php";
 	std::string result = CGI::execute(CGI_PATH, FILE_PATH, env);
 	std::cout << result << std::endl;
+
+	// char name[10];
+	// tmpnam(name);
+	std::cout << randomFileName() << std::endl;
+
 	return 0;
 }

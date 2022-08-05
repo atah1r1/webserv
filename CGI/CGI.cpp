@@ -6,13 +6,13 @@
 /*   By: aes-salm <aes-salm@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/20 12:35:16 by aes-salm          #+#    #+#             */
-/*   Updated: 2022/08/04 17:21:12 by aes-salm         ###   ########.fr       */
+/*   Updated: 2022/08/05 11:58:09 by aes-salm         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "CGI.hpp"
 
-char ** CGI::generateExecveArgs(const std::string &cgiPath, const std::string &filePath)
+char **CGI::generateExecveArgs(const std::string &cgiPath, const std::string &filePath)
 {
 	char **args = (char **)malloc(sizeof(char *) * 3);
 	args[0] = strdup(cgiPath.c_str());
@@ -21,12 +21,12 @@ char ** CGI::generateExecveArgs(const std::string &cgiPath, const std::string &f
 	return args;
 }
 
-std::string CGI::execute(const std::string &cgiPath, const std::string &filePath, char **env) {
+std::string CGI::execute(const std::string &cgiPath, const std::string &filePath, char **env)
+{
 	int status;
 	int fd[2];
 	struct stat sb;
 	std::string result;
-
 
 	pipe(fd);
 	pid_t pid = fork();
