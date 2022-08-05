@@ -6,7 +6,7 @@
 #define EN std::endl
 #define STR std::string
 
-template<typename K, typename V>
+template <typename K, typename V>
 void printMap(std::map<K, V> m) {
 	typename std::map<K, V>::iterator it = m.begin();
 
@@ -41,6 +41,7 @@ void UTILS_TEST(int ac, char **av) {
 }
 
 void FILE_HANDLER_TEST(int ac, char **av) {
+	OUT << std::boolalpha;
 	// std::string x = FileHandler::readFile(av[1]);
 	// std::cout << x << std::endl;
 
@@ -65,7 +66,7 @@ void FILE_HANDLER_TEST(int ac, char **av) {
 	// std::cerr << "errno: " << errno << EN;
 
 	// printMap(m);
-	FileType t = FileHandler::getType(av[1]);
+	FileType t = FileHandler::getTypeS(av[1]);
 
 	perror("Error");
 	std::cerr << "errno: " << errno << EN;
@@ -80,17 +81,23 @@ void FILE_HANDLER_TEST(int ac, char **av) {
 	case T_OTHER:
 		OUT << "T_OTHER" << EN;
 		break;
+	case T_LINK:
+		OUT << "T_LINK" << EN;
+		break;
 	case T_ERROR:
 		OUT << "T_ERROR" << EN;
 		break;
 	default:
 		break;
 	}
-
+	// bool x = FileHandler::pathExists(av[1]);
+	// OUT << "Exists: " << x << EN;
 }
 // ERRNO
 // 20 Not a dir
 // 13 Permission denied
+// 62 Too many levels of symbolic links
+
 
 int main(int ac, char **av) {
 

@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/29 00:57:02 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/02 15:14:53 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/05 17:45:59 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -112,12 +112,31 @@ FileType FileHandler::getType( const std::string& path ) {
 
 	if( stat(path.c_str(), &s) == 0 )
 	{
-		if( s.st_mode & S_IFDIR )
+		if (S_ISDIR(s.st_mode)) {
 			return T_DIR;
-		else if( s.st_mode & S_IFREG )
+		} else if (S_ISREG(s.st_mode)) {
 			return T_FILE;
-		else
+		} else {
 			return T_OTHER;
+		}
+	}
+	return T_ERROR;
+}
+
+FileType FileHandler::getTypeS( const std::string& path ) {
+	struct stat s;
+
+	if( lstat(path.c_str(), &s) == 0 )
+	{
+		if (S_ISDIR(s.st_mode)) {
+			return T_DIR;
+		} else if (S_ISREG(s.st_mode)) {
+			return T_FILE;
+		} else if (S_ISLNK(s.st_mode)) {
+			return T_LINK;
+		} else {
+			return T_OTHER;
+		}
 	}
 	return T_ERROR;
 }

@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/01 22:24:39 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/04 23:11:28 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/05 19:09:37 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -359,10 +359,26 @@ std::pair<ServerConfig *, Location *> ResponseHandler::getMatchingConfig( Reques
 
 Response ResponseHandler::handleRequests( Request req, std::vector<ServerConfig *> servers) {
 	std::pair<ServerConfig *, Location *> config = getMatchingConfig(req, servers);
-	
+	ServerConfig* _conf = config.first;
+	Location* _loc = config.second;
+	std::string _root = !_loc->_root.empty() ? _loc->_root : _conf->getRoot();
 	// check for request errors
 	std::pair<bool, Response> _res = handleRequestErrors(req, config);
 	if (_res.first) return _res.second;
+
+	// loc has redirection
+	if (!_loc->_redirection_path.empty()) {
+		std::string _redir = trim(_loc->_redirection_path);
+		if (beginsWith(_redir, "https://") || beginsWith(_redir, "http://")) {
+			return _createRedirectionResponse(MovedPermanently, _redir);
+		} else if (_redir.front() == '/') {
+			_redir = FileHandler::getFullPath(_root, _redir);
+			return _createRedirectionResponse(MovedPermanently, _redir);
+		} else {
+			_redir = FileHandler::getFullPath(_loc->_location, _redir);
+			return _createRedirectionResponse(MovedPermanently, _redir);
+		}
+	}
 
 	// no errors / redirections
 	std::string _m = toUpperCase(trim(req.getMethod()));
@@ -379,10 +395,6 @@ Response ResponseHandler::handleRequests( Request req, std::vector<ServerConfig 
 }
 
 Response ResponseHandler::handleGETRequest( Request req, std::pair<ServerConfig *, Location *> config ) {
-	// check for request errors
-	std::pair<bool, Response> _res = handleRequestErrors(req, config);
-	if (_res.first) return _res.second;
-
 	ServerConfig* _conf = config.first;
 	Location* _loc = config.second;
 	std::string _root = !_loc->_root.empty() ? _loc->_root : _conf->getRoot();
@@ -419,10 +431,6 @@ Response ResponseHandler::handleGETRequest( Request req, std::pair<ServerConfig 
 }
 
 Response ResponseHandler::handleDELETERequest( Request req, std::pair<ServerConfig *, Location *> config ) {
-	// check for request errors
-	std::pair<bool, Response> _res = handleRequestErrors(req, config);
-	if (_res.first) return _res.second;
-
 	ServerConfig* _conf = config.first;
 	Location* _loc = config.second;
 	std::string _root = !_loc->_root.empty() ? _loc->_root : _conf->getRoot();
@@ -430,15 +438,27 @@ Response ResponseHandler::handleDELETERequest( Request req, std::pair<ServerConf
 	std::string _requestPath = FileHandler::getFullPath(_root, req.getPath());
 	
 	// check if path doesn't exist
-	if (!FileHandler::pathExists(_requestPath)) {
+	// if (!FileHandler::pathExists(_requestPath)) {
+	// 	return _createErrorResponse(NotFound, config, "PATH NOT EXIST\n");
+	// }
+
+	// check if path 
+	FileType _type = FileHandler::getTypeS(_requestPath);
+
+	if (_type == T_ERROR && errno == ENOENT) {
 		return _createErrorResponse(NotFound, config, "PATH NOT EXIST\n");
 	}
 
-	// check if path is neither dir nor file
-	FileType _type = FileHandler::getType(_requestPath);
-	if (_type != T_DIR && _type != T_FILE) {
-		return _createErrorResponse(InternalServerError, config, "PATH == T_OTHER | T_ERROR\n");
+	if ((_type == T_DIR && _requestPath.back() != '/') ||
+		(_type == T_FILE && _requestPath.back() == '/')) {
+		return _createErrorResponse(Conflict, config, "(FILE + /) or (DIR - /)\n");
 	}
+
+	
+	
+	// if (_type != T_DIR && _type != T_FILE) {
+	// 	return _createErrorResponse(InternalServerError, config, "PATH == T_OTHER | T_ERROR\n");
+	// }
 
 	// check if path is file or dir
 	if (_type == T_DIR) {
@@ -463,3 +483,4 @@ Response ResponseHandler::handleDELETERequest( Request req, std::pair<ServerConf
 		// TODO: continue delete
 	}
 }
+

@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/29 00:53:03 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/02 15:13:40 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/05 17:31:09 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,8 @@ enum FileType {
 	T_FILE = 0,
 	T_DIR = 1,
 	T_OTHER = 2,
-	T_ERROR = 3
+	T_LINK = 3,
+	T_ERROR = 4
 };
 
 class FileHandler {
@@ -44,6 +45,7 @@ public:
 
 	static std::map<std::string, std::string> exploreDir( const std::string& root, const std::string& dirPath );
 	static FileType getType( const std::string& path );
+	static FileType getTypeS( const std::string& path );
 	static bool pathExists( const std::string& path );
 	static bool isPathReadable( const std::string& path );
 	static bool isPathWritable( const std::string& path );
