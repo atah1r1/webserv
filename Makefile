@@ -6,7 +6,7 @@
 #    By: aes-salm <aes-salm@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/05/31 17:16:31 by atahiri           #+#    #+#              #
-#    Updated: 2022/08/01 16:47:36 by aes-salm         ###   ########.fr        #
+#    Updated: 2022/08/05 12:50:17 by aes-salm         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -21,7 +21,8 @@ SRCS	= 	main.cpp\
 			Config/Parser.cpp\
 			Socket/Socket.cpp\
 			Request/Request.cpp\
-			# Utils/Utils.cpp\
+			Utils/Utils.cpp\
+			Utils/FileHandler.cpp\
 
 
 $(NAME) : 	$(SRCS)

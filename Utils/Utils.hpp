@@ -1,22 +1,13 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   Utils.hpp                                          :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: aes-salm <aes-salm@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/07/26 04:36:47 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/02 17:45:47 by aes-salm         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #ifndef __GENERAL_UTILS_HPP__
 #define __GENERAL_UTILS_HPP__
 
 #include <iostream>
+#include <fstream>
 #include <sstream>
 #include <utility>
 #include <sys/stat.h>
+#include <sys/time.h>
+#include <fcntl.h>
 #include <unistd.h>
 #include <iomanip>
 #include <map>
@@ -58,6 +49,7 @@ std::string getCGIPath(const std::string &extension);
 std::string trim(const std::string &str);
 std::string toUpperCase(const std::string &str);
 std::string toLowerCase(const std::string &str);
+std::string randomFileName(void);
 
 bool isMethodAllowed(std::vector<std::string> allowedMethods, const std::string &method);
 bool isMethodImplemented(const std::string &method);

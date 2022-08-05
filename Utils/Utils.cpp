@@ -1,16 +1,5 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   Utils.cpp                                          :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/07/26 19:17:39 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/02 16:28:26 by ehakam           ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "Utils.hpp"
+#include "FileHandler.hpp"
 
 std::map<std::string, std::string> mimes;
 
@@ -19,35 +8,45 @@ std::map<std::string, std::string> CGIs;
 const std::string http_methods[3] = {
 	GET,
 	POST,
-	DELETE
-};
+	DELETE};
 
-bool beginsWith( const std::string& haystack, const std::string& needle ) {
-	if (haystack.empty() || needle.empty()) return false;
+bool beginsWith(const std::string &haystack, const std::string &needle)
+{
+	if (haystack.empty() || needle.empty())
+		return false;
 	std::string::const_iterator hit = haystack.begin();
 	std::string::const_iterator nit = needle.begin();
 	while (nit != needle.end())
 	{
-		if (*nit != *hit) return false;
-		++nit; ++hit;
+		if (*nit != *hit)
+			return false;
+		++nit;
+		++hit;
 	}
 	return true;
 }
 
-std::string trim( const std::string& str ) {
-	if (str.empty()) return str;
+std::string trim(const std::string &str)
+{
+	if (str.empty())
+		return str;
 	size_t _begin = 0;
 	size_t _end = str.length() - 1;
-	while (_begin < str.length() && str[_begin] == ' ') ++_begin;
-	while (_end > _begin && str[_end] == ' ') --_end;
+	while (_begin < str.length() && str[_begin] == ' ')
+		++_begin;
+	while (_end > _begin && str[_end] == ' ')
+		--_end;
 	return str.substr(_begin, _end - _begin + 1);
 }
 
-std::pair<size_t, std::string> nextLine( const std::string& str, size_t start ) {
-	if (str.empty()) return std::make_pair(0, str);
+std::pair<size_t, std::string> nextLine(const std::string &str, size_t start)
+{
+	if (str.empty())
+		return std::make_pair(0, str);
 	size_t _end = start;
 
-	while (_end < str.length() && str[_end] != '\n') ++_end;
+	while (_end < str.length() && str[_end] != '\n')
+		++_end;
 	std::string _line = str.substr(start, _end - start);
 
 	if (_end < str.length())
@@ -55,42 +54,55 @@ std::pair<size_t, std::string> nextLine( const std::string& str, size_t start ) 
 	return std::make_pair(_end, _line);
 }
 
-Location *_matchLocation( std::vector<Location *> locations, const std::string& path) {
-	for (size_t i = 0; i < locations.size(); ++i) {
-		if (locations[i] == NULL) continue;
+Location *_matchLocation(std::vector<Location *> locations, const std::string &path)
+{
+	for (size_t i = 0; i < locations.size(); ++i)
+	{
+		if (locations[i] == NULL)
+			continue;
 		std::string _loc = trim(locations[i]->_location);
-		if (_loc == path) {
+		if (_loc == path)
+		{
 			return locations[i];
 		}
 	}
 	return NULL;
 }
 
-Location *matchLocation( std::vector<Location *> locations, const std::string& path) {
+Location *matchLocation(std::vector<Location *> locations, const std::string &path)
+{
 	std::string _path = trim(path);
 	// special case
 	// if location e.g. /wordpress/ and path = /wordpress , it would never match.
 	// so in this case we add a "/" to end of path and check if it matches
-	if (path.back() != '/') {
-		Location* _l = _matchLocation(locations, _path + "/");
-		if (_l != NULL) return _l;
+	if (path.back() != '/')
+	{
+		Location *_l = _matchLocation(locations, _path + "/");
+		if (_l != NULL)
+			return _l;
 	}
 	// general case
-	while(!_path.empty()) {
-		Location* _l = _matchLocation(locations, _path);
-		if (_l != NULL) return _l;
+	while (!_path.empty())
+	{
+		Location *_l = _matchLocation(locations, _path);
+		if (_l != NULL)
+			return _l;
 		size_t _index = _path.find_last_of("/");
-		if (_index == std::string::npos) continue;
-		if (_index == _path.length() - 1) {
+		if (_index == std::string::npos)
+			continue;
+		if (_index == _path.length() - 1)
+		{
 			_path = _path.substr(0, _index);
-		} else {
+		}
+		else
+		{
 			_path = _path.substr(0, _index + 1);
 		}
 	}
 	return NULL;
 }
 
-std::string	getCurrentDate(void)
+std::string getCurrentDate(void)
 {
 	time_t now = time(0);
 	tm *ltm = gmtime(&now);
@@ -98,19 +110,21 @@ std::string	getCurrentDate(void)
 	std::stringstream date;
 
 	date << day_names[ltm->tm_wday] << ", "
-		<< std::setfill('0') << std::setw(2) << ltm->tm_mday << " "
-		<< month_names[ltm->tm_mon] << " "
-		<< std::setfill('0') << std::setw(4) << (ltm->tm_year + 1900) << " " 
-		<< std::setfill('0') << std::setw(2) << (ltm->tm_hour % 24) << ":" 
-		<< std::setfill('0') << std::setw(2) << ltm->tm_min << ":"
-		<< std::setfill('0') << std::setw(2) << ltm->tm_sec << " GMT";
+		 << std::setfill('0') << std::setw(2) << ltm->tm_mday << " "
+		 << month_names[ltm->tm_mon] << " "
+		 << std::setfill('0') << std::setw(4) << (ltm->tm_year + 1900) << " "
+		 << std::setfill('0') << std::setw(2) << (ltm->tm_hour % 24) << ":"
+		 << std::setfill('0') << std::setw(2) << ltm->tm_min << ":"
+		 << std::setfill('0') << std::setw(2) << ltm->tm_sec << " GMT";
 	return date.str();
 }
 
-std::string toHeaderCase( const std::string& header ) {
-	if (header.empty()) return "";
+std::string toHeaderCase(const std::string &header)
+{
+	if (header.empty())
+		return "";
 	std::string _new_header;
-	
+
 	for (size_t i = 0; i < header.length(); ++i)
 	{
 		if (i == 0)
@@ -123,25 +137,30 @@ std::string toHeaderCase( const std::string& header ) {
 	return _new_header;
 }
 
-void _fillCGIs( void ) {
-	if (!CGIs.empty()) return;
+void _fillCGIs(void)
+{
+	if (!CGIs.empty())
+		return;
 
 	CGIs.insert(std::make_pair("php", "/CGI/bin/PHP_CGI"));
 	CGIs.insert(std::make_pair("py", "/CGI/bin/PY_CGI"));
 }
 
-std::string getCGIPath( const std::string& extension ) {
+std::string getCGIPath(const std::string &extension)
+{
 	_fillCGIs();
 
-	std::map<std::string, std::string>::iterator it = 
+	std::map<std::string, std::string>::iterator it =
 		CGIs.find(toLowerCase(trim(extension)));
 	if (it != CGIs.end())
 		return it->second;
 	return "";
 }
 
-void _fillMimes( void ) {
-	if (!mimes.empty()) return;
+void _fillMimes(void)
+{
+	if (!mimes.empty())
+		return;
 
 	mimes.insert(std::make_pair("*3gpp", "audio/3gpp"));
 	mimes.insert(std::make_pair("*jpm", "video/jpm"));
@@ -493,38 +512,44 @@ void _fillMimes( void ) {
 	mimes.insert(std::make_pair("zip", "application/zip"));
 }
 
-std::string getMimeType( const std::string& extension ) {
+std::string getMimeType(const std::string &extension)
+{
 	_fillMimes();
 
-	std::map<std::string, std::string>::iterator it = 
+	std::map<std::string, std::string>::iterator it =
 		mimes.find(toLowerCase(trim(extension)));
 	if (it != mimes.end())
 		return it->second;
 	return "";
 }
 
-std::string toUpperCase( const std::string& str ) {
+std::string toUpperCase(const std::string &str)
+{
 	std::string _s;
-	
+
 	for (size_t i = 0; i < str.length(); ++i)
 		_s.push_back(toupper(str[i]));
 	return _s;
 }
 
-std::string toLowerCase( const std::string& str ) {
+std::string toLowerCase(const std::string &str)
+{
 	std::string _s;
-	
+
 	for (size_t i = 0; i < str.length(); ++i)
 		_s.push_back(tolower(str[i]));
 	return _s;
 }
 
-bool isMethodAllowed( std::vector<std::string> allowedMethods, const std::string& method ) {
+bool isMethodAllowed(std::vector<std::string> allowedMethods, const std::string &method)
+{
 	std::string _m = toUpperCase(trim(method));
 
 	std::vector<std::string>::iterator it = allowedMethods.begin();
-	while (it != allowedMethods.end()) {
-		if (_m == toUpperCase(trim(*it))) {
+	while (it != allowedMethods.end())
+	{
+		if (_m == toUpperCase(trim(*it)))
+		{
 			return true;
 		}
 		++it;
@@ -532,13 +557,27 @@ bool isMethodAllowed( std::vector<std::string> allowedMethods, const std::string
 	return false;
 }
 
-bool isMethodImplemented( const std::string& method ) {
+bool isMethodImplemented(const std::string &method)
+{
 	std::string _m = toUpperCase(trim(method));
 
-	for (size_t i = 0; i < 3; ++i) {
+	for (size_t i = 0; i < 3; ++i)
+	{
 		if (_m == http_methods[i])
 			return true;
 	}
 	return false;
 }
 
+std::string randomFileName(void)
+{
+	struct timeval time;
+	gettimeofday(&time, NULL);
+	int rnd = time.tv_usec;
+	std::string path = "/tmp/" + toString<int>(rnd) + ".tmp";
+
+	if (FileHandler::pathExists(path))
+		return randomFileName();
+	else
+		return path;
+}
