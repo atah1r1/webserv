@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/26 14:35:35 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/04 21:20:24 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/07 00:49:34 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@ private:
 	static std::string _getStandardErrorBody(int statusCode);
 	static std::string _getDirListingBody( const std::string& uri, const std::string& root, const std::string& dirPath );
 	static Response _createErrorResponse(int statusCode, std::pair<ServerConfig *, Location *> config, const std::string& temp );
+	static Response _createBodylessErrorResponse( int statusCode, std::pair<ServerConfig *, Location *> config, const std::string& temp );
 	static Response _createDirListingResponse( const std::string& uri, const std::string& root, const std::string& dirPath );
 	static Response _createRedirectionResponse( int statusCode, const std::string& dirPath );
 	static Response _createFileResponse( const std::string& filePath );

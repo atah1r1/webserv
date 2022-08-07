@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/29 00:53:03 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/05 17:31:09 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/06 19:00:11 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,7 @@ public:
 	static bool isPathReadable( const std::string& path );
 	static bool isPathWritable( const std::string& path );
 	static bool requiresCGI( const std::string& path );
+	static bool removeAll( const std::string& path );
 };
 
 #endif

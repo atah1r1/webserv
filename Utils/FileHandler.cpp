@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/29 00:57:02 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/05 17:45:59 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/06 20:05:57 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -155,5 +155,53 @@ bool FileHandler::isPathReadable( const std::string& path ) {
 
 bool FileHandler::isPathWritable( const std::string& path ) {
 	return ( access( path.c_str(), W_OK ) != -1 );
+}
+
+bool FileHandler::removeAll( const std::string& path ) {
+	DIR *dir;
+	struct dirent *entry;
+	struct stat info;
+	errno = 0;
+	FileType _typeS = getTypeS(path);
+	FileType _type = getType(path);
+
+	// error while checking type.
+	if (_typeS == T_ERROR) return false;
+
+	// sym with / at end -> dir/file that doesn't exist.
+	if ((_typeS == T_LINK && path.back() == '/') && !pathExists(path)) return false;
+
+	// file | sym link with no / at end | sym link -> file
+	if (_typeS == T_FILE || (_typeS == T_LINK && (path.back() != '/' || _type == T_FILE))) {
+		int _ret = remove(path.c_str());
+		return _ret == 0 ? true : false;
+	}
+
+	// dir | sym link with / at end -> dir
+	if (_type == T_DIR && path.back() == '/') {
+		dir = opendir(path.c_str());
+		if (!dir) return false;
+		while ((entry = readdir(dir)) != NULL) {
+			if (std::string(entry->d_name) == "." || std::string(entry->d_name) == "..")
+				continue;
+
+			std::string _pathName = getFullPath(path, entry->d_name);
+
+			if (getType(_pathName) == T_ERROR) {
+				return false;
+			}
+
+			if (getType(_pathName) == T_DIR) {
+				_pathName.push_back('/');
+			}
+
+			if (!FileHandler::removeAll(_pathName)) {
+				return false;
+			}
+		}
+	}
+	int _ret = remove(path.c_str());
+	closedir(dir);
+	return _ret == 0 ? true : false;
 }
 

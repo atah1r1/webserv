@@ -102,7 +102,15 @@ void FILE_HANDLER_TEST(int ac, char **av) {
 int main(int ac, char **av) {
 
 	//UTILS_TEST(ac, av);
-	FILE_HANDLER_TEST(ac, av);
+	//FILE_HANDLER_TEST(ac, av);
+
+	std::string path = std::string("./Test_delete/") + av[1];
+
+	//OUT << "PATH: " << path << EN;
+
+	bool b = FileHandler::removeAll(path);
+
+	if (!b) std::cerr << "END: " << strerror(errno) << std::endl;
 
 	// Location l;
 	// l._location = "/wordpress/config";

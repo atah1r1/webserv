@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/01 22:24:39 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/05 19:09:37 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/07 00:52:57 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,6 +80,19 @@ Response ResponseHandler::_createErrorResponse( int statusCode, std::pair<Server
 	r.addHeader("Connection", "keep-alive");
 
 	r.setBody(body);
+
+	return r;
+}
+
+Response ResponseHandler::_createBodylessErrorResponse( int statusCode, std::pair<ServerConfig *, Location *> config, const std::string& temp ) {
+	Response r;
+
+	r.setVersion("HTTP/1.1");
+	r.setStatusCode(statusCode);
+	r.setStatus(getReason(statusCode));
+	r.addHeader("Server", SERVER_VERSION);
+	r.addHeader("Date", getCurrentDate());
+	r.addHeader("Connection", "keep-alive");
 
 	return r;
 }
@@ -436,11 +449,6 @@ Response ResponseHandler::handleDELETERequest( Request req, std::pair<ServerConf
 	std::string _root = !_loc->_root.empty() ? _loc->_root : _conf->getRoot();
 
 	std::string _requestPath = FileHandler::getFullPath(_root, req.getPath());
-	
-	// check if path doesn't exist
-	// if (!FileHandler::pathExists(_requestPath)) {
-	// 	return _createErrorResponse(NotFound, config, "PATH NOT EXIST\n");
-	// }
 
 	// check if path 
 	FileType _type = FileHandler::getTypeS(_requestPath);
@@ -454,33 +462,16 @@ Response ResponseHandler::handleDELETERequest( Request req, std::pair<ServerConf
 		return _createErrorResponse(Conflict, config, "(FILE + /) or (DIR - /)\n");
 	}
 
-	
-	
-	// if (_type != T_DIR && _type != T_FILE) {
-	// 	return _createErrorResponse(InternalServerError, config, "PATH == T_OTHER | T_ERROR\n");
-	// }
-
 	// check if path is file or dir
-	if (_type == T_DIR) {
-		std::string _root = !_loc->_root.empty() ? _loc->_root : _conf->getRoot();
-		bool _autoIndexing = _loc->_autoindex ? _loc->_autoindex : _conf->getAutoIndex();
-		std::vector<std::string> _indexFiles = !_loc->_index_file.empty() ? _loc->_index_file : _conf->getIndexFiles();
-
-		// check /
-		if (_requestPath.back() != '/') {
-			return _createErrorResponse(Conflict, config, "DIR: NO / AT END");
-		}
-
-		std::string _indexPath = FileHandler::searchIndexes(_requestPath, _indexFiles);
-		if (!_indexPath.empty() && FileHandler::requiresCGI(_indexPath)) {
-			return _createFileCGIResponse(req, _conf, _loc, _indexPath);
-		}
-
-		// if (!_indexPath.empty() && !FileHandler::requiresCGI(_indexPath)) {
-		// 	return _createErrorResponse(Forbidden, config, "Index: no cgi");
-		// }
-
-		// TODO: continue delete
+	if (_type == T_FILE && FileHandler::requiresCGI(_requestPath)) {
+		return _createFileCGIResponse(req, _conf, _loc, _requestPath);
 	}
+
+	bool _removed = FileHandler::removeAll(_requestPath);
+
+	if (_removed)
+		return _createBodylessErrorResponse(NoContent, config, "GOOD");
+
+	return _createErrorResponse(InternalServerError, config, strerror(errno));
 }
 
