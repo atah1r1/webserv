@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
+/*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/26 01:23:28 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/07 18:13:59 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/07 21:56:33 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,7 +65,7 @@ public:
 	bool setupFile( void );
 	void setFilePath( const std::string& path );
 	std::string getFilePath( void ) const;
-	bool getNextChunk(char *buffer);
+	size_t getNextChunk(char *buffer);
 
 	void clearAll( void );
 	std::string toString( void );

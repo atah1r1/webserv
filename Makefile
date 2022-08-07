@@ -9,14 +9,17 @@ SRCS	= 	main.cpp\
 			Config/Parser.cpp\
 			Socket/Socket.cpp\
 			Request/Request.cpp\
-      Request/Utils.cpp\
+      		Request/Utils.cpp\
 			Utils/FileHandler.cpp\
 			Utils/Utils.cpp\
+			Utils/Debug.cpp\
+			Response/ResponseHandler.cpp\
+			Response/Response.cpp\
 
 
 
 $(NAME) : 	$(SRCS)
-			@$(CC) $(FLAGS) $(SRCS) -o $(NAME)
+			@$(CC) $(FLAGS) $(SRCS) -o $(NAME) -D ALLOW_DEBUG
 
 all		: 	$(NAME)
 			@rm -rf webserv.dSYM

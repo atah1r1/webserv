@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   FileHandler.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
+/*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/29 00:57:02 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/07 02:41:05 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/07 22:11:49 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,6 @@
 std::map<std::string, std::string> FileHandler::exploreDir( const std::string& root, const std::string& dirPath ) {
 	DIR *dir;
 	struct dirent *entry;
-	struct stat info;
 	std::map<std::string, std::string> _paths;
 
 	dir = opendir(dirPath.c_str());
@@ -166,9 +165,8 @@ bool FileHandler::isPathWritable( const std::string& path ) {
 }
 
 bool FileHandler::removeAll( const std::string& path ) {
-	DIR *dir;
+	DIR *dir = NULL;
 	struct dirent *entry;
-	struct stat info;
 	errno = 0;
 	FileType _typeS = getTypeS(path);
 	FileType _type = getType(path);

@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/12 15:40:18 by atahiri           #+#    #+#             */
-/*   Updated: 2022/06/24 10:36:02 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/08/07 22:04:19 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,7 @@ public:
     void _listen();
     void _accept();
     int acceptNewConnection(std::pair<int, size_t> pair);
-    void _send(int my_socket, std::string msg);
+    void _send(int my_socket, const char * msg, size_t length);
     bool handleConnection(ServerConfig server_setup, int new_socket);
     void _recv();
     void _close();

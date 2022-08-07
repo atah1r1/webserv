@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
+/*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/26 03:00:15 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/07 19:03:09 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/07 22:52:38 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,19 +14,16 @@
 
 Response::Response( void ) {
 	this->_file = new std::fstream();
-	// TODO: move this to some new function
-	// _file.open(_filePath.c_str(), std::fstream::in);
-
-	// char *buffer = {0};
-
-	// if (_file.is_open()) {
-
-	// 	while(!_file.eof())
-	// 		_file.read(buffer, BUFFER_SIZE);
-	// }
+	this->_version = "";
+	this->_status = "";
+	this->_status_code = 0;
+	this->_body = "";
+	this->_filePath = "";
+	this->_isChunked = false;
+	this->_isFromCGI = false;
 }
 
-Response::Response( const Response& rhs )  {
+Response::Response( const Response& rhs ) : _status_code(0), _isChunked(false), _isFromCGI(false), _file(NULL) {
 	*this = rhs;
 }
 
@@ -38,13 +35,16 @@ Response& Response::operator= ( const Response& rhs )  {
 	this->_headers = rhs.getHeaders();
 	this->_isChunked = rhs.isChunked();
 	this->_isFromCGI = rhs.isFromCGI();
+	if (this->_file != NULL) {
+		if (this->_file->is_open())
+			this->_file->close();
+		delete this->_file;
+	}
 	this->_file = rhs.getFile();
 	return *this;
 }
 
-Response::~Response()  {
-	clearAll();
-}
+Response::~Response()  {}
 
 std::string Response::getVersion( void ) const  {
 	return this->_version;
@@ -138,6 +138,7 @@ bool Response::setupFile( void ) {
 		debugPrint(_ERROR, __FILE__, __LINE__, "Response: open failure: ");
 		return false;
 	}
+	return true;
 }
 
 void Response::setFilePath( const std::string& path ) {
@@ -148,11 +149,11 @@ std::string Response::getFilePath( void ) const {
 	return this->_filePath;
 }
 
-bool Response::getNextChunk(char *buffer) {
+size_t Response::getNextChunk(char *buffer) {
 	if (!this->_file->good())
-		return false;
+		return 0;
 	this->_file->read(buffer, BUFFER_SIZE);
-	return true;
+	return this->_file->gcount();
 }
 
 void Response::clearAll( void )  {
@@ -194,7 +195,7 @@ std::string Response::toString( void ) {
 	results << CRLF;
 
 	// append body
-	results << this->_body << CRLF;
+	results << this->_body;
 	return results.str();
 }
 
