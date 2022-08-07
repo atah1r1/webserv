@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/29 00:57:02 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/06 20:05:57 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/07 02:41:05 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -139,6 +139,14 @@ FileType FileHandler::getTypeS( const std::string& path ) {
 		}
 	}
 	return T_ERROR;
+}
+
+size_t FileHandler::getFileSize(const std::string& path ) {
+    struct stat st;
+    if(stat(path.c_str(), &st) != 0) {
+        return 0;
+    }
+    return st.st_size;   
 }
 
 bool FileHandler::requiresCGI( const std::string& path ) {

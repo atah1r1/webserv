@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/29 00:53:03 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/06 19:00:11 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/07 02:41:16 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,7 @@ public:
 	static std::map<std::string, std::string> exploreDir( const std::string& root, const std::string& dirPath );
 	static FileType getType( const std::string& path );
 	static FileType getTypeS( const std::string& path );
+	static size_t getFileSize(const std::string& path );
 	static bool pathExists( const std::string& path );
 	static bool isPathReadable( const std::string& path );
 	static bool isPathWritable( const std::string& path );
