@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Socket.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/12 15:40:19 by atahiri           #+#    #+#             */
-/*   Updated: 2022/08/07 23:13:36 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/08/07 23:38:06 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -143,34 +143,26 @@ int Socket::acceptNewConnection(std::pair<int, size_t> pair)
 
 bool Socket::handleConnection(ServerConfig server_setup, int new_socket)
 {
-	(void)server_setup;
 	// ---------------------- Reading Request --------------------------- //
 	Request request = receiveRequest(new_socket);
 
-	//std::cerr << "RECV REQ SUCC" << std::endl;
-
 	Response r = ResponseHandler::handleRequests(request, server_setup);
-
-	//std::cerr << "HANDLE REQ SUCC" << std::endl;
 
 	std::string _res = r.toString();
 
-	//std::cerr << "REQ -> STRING SUCC" << std::endl;
-
-	_send(new_socket, _res.c_str(), _res.length());
-
-	//std::cerr << "SEND HEADERS SUCC" << std::endl;
+	this->_send(new_socket, _res.c_str(), _res.length());
 
 	char buffer[BUFFER_SIZE] = {0};
+	size_t len = 0;
 
 	if (r.isChunked()) {
-		while (size_t len = r.getNextChunk(buffer) > 0) {
-			_send(new_socket, buffer, len);
+		while ((len = r.getNextChunk(buffer)) > 0) {
+			this->_send(new_socket, buffer, len);
 			bzero(buffer, BUFFER_SIZE);
 		}
 	}
 
-	_send(new_socket, CRLF, 2);
+	this->_send(new_socket, CRLF, 2);
 
 	r.clearAll();
 	// --------------------- Parsing The Request ------------------------- //
