@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/29 00:57:02 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/02 15:14:53 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/07 02:41:05 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -112,14 +112,41 @@ FileType FileHandler::getType( const std::string& path ) {
 
 	if( stat(path.c_str(), &s) == 0 )
 	{
-		if( s.st_mode & S_IFDIR )
+		if (S_ISDIR(s.st_mode)) {
 			return T_DIR;
-		else if( s.st_mode & S_IFREG )
+		} else if (S_ISREG(s.st_mode)) {
 			return T_FILE;
-		else
+		} else {
 			return T_OTHER;
+		}
 	}
 	return T_ERROR;
+}
+
+FileType FileHandler::getTypeS( const std::string& path ) {
+	struct stat s;
+
+	if( lstat(path.c_str(), &s) == 0 )
+	{
+		if (S_ISDIR(s.st_mode)) {
+			return T_DIR;
+		} else if (S_ISREG(s.st_mode)) {
+			return T_FILE;
+		} else if (S_ISLNK(s.st_mode)) {
+			return T_LINK;
+		} else {
+			return T_OTHER;
+		}
+	}
+	return T_ERROR;
+}
+
+size_t FileHandler::getFileSize(const std::string& path ) {
+    struct stat st;
+    if(stat(path.c_str(), &st) != 0) {
+        return 0;
+    }
+    return st.st_size;   
 }
 
 bool FileHandler::requiresCGI( const std::string& path ) {
@@ -136,5 +163,53 @@ bool FileHandler::isPathReadable( const std::string& path ) {
 
 bool FileHandler::isPathWritable( const std::string& path ) {
 	return ( access( path.c_str(), W_OK ) != -1 );
+}
+
+bool FileHandler::removeAll( const std::string& path ) {
+	DIR *dir;
+	struct dirent *entry;
+	struct stat info;
+	errno = 0;
+	FileType _typeS = getTypeS(path);
+	FileType _type = getType(path);
+
+	// error while checking type.
+	if (_typeS == T_ERROR) return false;
+
+	// sym with / at end -> dir/file that doesn't exist.
+	if ((_typeS == T_LINK && path.back() == '/') && !pathExists(path)) return false;
+
+	// file | sym link with no / at end | sym link -> file
+	if (_typeS == T_FILE || (_typeS == T_LINK && (path.back() != '/' || _type == T_FILE))) {
+		int _ret = remove(path.c_str());
+		return _ret == 0 ? true : false;
+	}
+
+	// dir | sym link with / at end -> dir
+	if (_type == T_DIR && path.back() == '/') {
+		dir = opendir(path.c_str());
+		if (!dir) return false;
+		while ((entry = readdir(dir)) != NULL) {
+			if (std::string(entry->d_name) == "." || std::string(entry->d_name) == "..")
+				continue;
+
+			std::string _pathName = getFullPath(path, entry->d_name);
+
+			if (getType(_pathName) == T_ERROR) {
+				return false;
+			}
+
+			if (getType(_pathName) == T_DIR) {
+				_pathName.push_back('/');
+			}
+
+			if (!FileHandler::removeAll(_pathName)) {
+				return false;
+			}
+		}
+	}
+	int _ret = remove(path.c_str());
+	closedir(dir);
+	return _ret == 0 ? true : false;
 }
 
