@@ -6,13 +6,14 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/26 03:00:15 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/07 02:51:39 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/07 19:03:09 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Response.hpp"
 
 Response::Response( void ) {
+	this->_file = new std::fstream();
 	// TODO: move this to some new function
 	// _file.open(_filePath.c_str(), std::fstream::in);
 
@@ -121,8 +122,22 @@ void Response::setFromCGI( bool isFromCGI ) {
 	this->_isFromCGI = isFromCGI;
 }
 
-std::fstream Response::getFile( void ) const {
+std::fstream* Response::getFile( void ) const {
 	return this->_file;
+}
+
+bool Response::setupFile( void ) {
+	if (this->_file == NULL)
+		this->_file = new std::fstream();
+	if (this->_filePath.empty()) {
+		debugPrint(_ERROR, __FILE__, __LINE__, "Response: setupFile failure: _filePath is empty");
+		return false;
+	}
+	this->_file->open( this->_filePath, std::fstream::in | std::fstream::binary );
+	if (!this->_file->is_open()) {
+		debugPrint(_ERROR, __FILE__, __LINE__, "Response: open failure: ");
+		return false;
+	}
 }
 
 void Response::setFilePath( const std::string& path ) {
@@ -133,11 +148,26 @@ std::string Response::getFilePath( void ) const {
 	return this->_filePath;
 }
 
+bool Response::getNextChunk(char *buffer) {
+	if (!this->_file->good())
+		return false;
+	this->_file->read(buffer, BUFFER_SIZE);
+	return true;
+}
+
 void Response::clearAll( void )  {
-	if (this->_file.is_open())
-		this->_file.close();
+	// reset file
+	if (this->_file->is_open())
+		this->_file->close();
+	if (this->_file != NULL)
+		delete this->_file;
+	this->_file = NULL;
+
+	// unlink cgi file
 	if (this->_isFromCGI && !this->_filePath.empty())
 		remove(this->_filePath.c_str());
+
+	// reset everything else
 	this->_version = "";
 	this->_status = "";
 	this->_status_code = 0;

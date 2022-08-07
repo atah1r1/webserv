@@ -6,12 +6,15 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/01 22:24:39 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/07 00:52:57 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/07 19:05:39 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ResponseHandler.hpp"
 
+/*
+** BODY GENERATORS
+*/
 std::string ResponseHandler::_getDefaultErrorBody( int statusCode, std::pair<ServerConfig *, Location *> config ) {
 	ServerConfig* _conf = config.first;
 	Location* _loc = config.second;
@@ -66,6 +69,9 @@ std::string ResponseHandler::_getDirListingBody( const std::string& uri, const s
 	return ss.str();
 }
 
+/*
+** RESPONSE GENERATORS
+*/
 Response ResponseHandler::_createErrorResponse( int statusCode, std::pair<ServerConfig *, Location *> config, const std::string& temp ) {
 	Response r;
 	std::string body = _getDefaultErrorBody(statusCode, config) + temp;
@@ -127,24 +133,24 @@ Response ResponseHandler::_createRedirectionResponse( int statusCode, const std:
 	return r;
 }
 
-Response ResponseHandler::_createFileResponse( const std::string& filePath ) {
+Response ResponseHandler::_createFileResponse( const std::string& filePath, std::pair<ServerConfig *, Location *> config ) {
 	Response r;
-	std::string body = FileHandler::readFile(filePath);
 
+	// setup file for reading
+	r.setFilePath(filePath);
+	if (!r.setupFile())
+		return _createErrorResponse(InternalServerError, config, "");
+	r.setChunked(true);
 	r.setVersion("HTTP/1.1");
 	r.setStatusCode(OK);
 	r.setStatus(getReason(OK));
 	r.addHeader("Server", SERVER_VERSION);
 	r.addHeader("Date", getCurrentDate());
-
 	std::string _mime = getMimeType(FileHandler::getFileExtension(filePath));
 	if (!_mime.empty())
 		r.addHeader("Content-Type", _mime);
-
-	r.addHeader("Content-Length", toString<size_t>(body.length()));
+	r.addHeader("Content-Length", toString<size_t>(FileHandler::getFileSize(filePath)));
 	r.addHeader("Connection", "keep-alive");
-
-	r.setBody(body);
 	return r;
 }
 
@@ -213,60 +219,40 @@ Response ResponseHandler::_createFileCGIResponse( Request req, ServerConfig *con
 	return r;
 }
 
-Response ResponseHandler::handleGETFile( Request req, std::pair<ServerConfig *, Location *> config, const std::string& requestPath  ) {
-	ServerConfig* _conf = config.first;
-	Location* _loc = config.second;
+/*
+** CONFIG/ERRORS HANDLERS
+*/
+std::pair<ServerConfig *, Location *> ResponseHandler::_getMatchingConfig( Request req, std::vector<ServerConfig *> servers ) {
+	std::vector<ServerConfig *>::iterator it = servers.begin();
 
-	// cgi
-	if (FileHandler::requiresCGI(requestPath)) {
-		return _createFileCGIResponse(req, _conf, _loc, requestPath);
+	// match Server & Location with same HOST & PATH
+	while (it != servers.end())
+	{
+		if ((*it)->getServerIp() == req.getHost() && (*it)->getPort() == req.getPort()) {
+			std::vector<Location *> _locations = (*it)->getLocations();
+			Location* _l = matchLocation(_locations, req.getPath());
+			if (_l != NULL) return std::make_pair(*it, _l);
+		}
+		++it;
 	}
 
-	// serve file as is
-	return _createFileResponse(requestPath);
-	
+	// match Server & Location with same SERVERNAME & PATH
+	it = servers.begin();
+	while (it != servers.end())
+	{
+		if ((*it)->getServerName() == req.getHost() && (*it)->getPort() == req.getPort()) {
+			std::vector<Location *> _locations = (*it)->getLocations();
+			Location* _l = matchLocation(_locations, req.getPath());
+			if (_l != NULL) return std::make_pair(*it, _l);
+		}
+		++it;
+	}
+
+	// no match has been found :(
+	return std::make_pair((ServerConfig *)NULL, (Location *)NULL);
 }
 
-Response ResponseHandler::handleGETDirectory( Request req, std::pair<ServerConfig *, Location *> config, const std::string& requestPath ) {
-	ServerConfig* _conf = config.first;
-	Location* _loc = config.second;
-
-	// Select default configs
-	std::string _root = !_loc->_root.empty() ? _loc->_root : _conf->getRoot();
-	bool _autoIndexing = _loc->_autoindex ? _loc->_autoindex : _conf->getAutoIndex();
-	std::vector<std::string> _indexFiles = !_loc->_index_file.empty() ? _loc->_index_file : _conf->getIndexFiles();
-
-	// check redir
-	if (requestPath.back() != '/') {
-		return _createRedirectionResponse(MovedPermanently, FileHandler::disconnectPath(_root, requestPath) + "/");
-	}
-
-	// check for index files
-	std::string _indexPath = FileHandler::searchIndexes(requestPath, _indexFiles);
-	if (_indexPath.empty() && !_autoIndexing) {
-		return _createErrorResponse(Forbidden, config, "INDEXS EMPTY & AUTOINDEX OFF\n");
-	}
-
-	if (_indexPath.empty() && _autoIndexing) {
-		std::string _uri = _conf->getServerIp() + ":" + toString<int>(_conf->getPort());
-		return _createDirListingResponse(_uri, _root, requestPath);
-	}
-
-	// if index readable
-	if (!FileHandler::isPathReadable(_indexPath)) {
-		return _createErrorResponse(Forbidden, config, "DIR: PATH NOT READABLE\n");
-	}
-
-	// if index not empty
-	if (FileHandler::requiresCGI(_indexPath)) {
-		return _createFileCGIResponse(req, _conf, _loc, _indexPath);
-	}
-
-	// serve file as is
-	return _createFileResponse(_indexPath);
-}
-
-std::pair<bool, Response> ResponseHandler::handleRequestErrors( Request req, std::pair<ServerConfig *, Location *> config ) {
+std::pair<bool, Response> ResponseHandler::_handleRequestErrors( Request req, std::pair<ServerConfig *, Location *> config ) {
 	ServerConfig* _conf = config.first;
 	Location* _loc = config.second;
 	std::vector<std::string> _allowedMethods = !_loc->_allow_methods.empty() ? _loc->_allow_methods : _conf->getAllowMethods();
@@ -340,43 +326,69 @@ std::pair<bool, Response> ResponseHandler::handleRequestErrors( Request req, std
 	return std::make_pair(false, Response());
 }
 
-std::pair<ServerConfig *, Location *> ResponseHandler::getMatchingConfig( Request req, std::vector<ServerConfig *> servers ) {
-	std::vector<ServerConfig *>::iterator it = servers.begin();
+/*
+** REQUEST HANDLERS
+*/
+Response ResponseHandler::_handleGETFile( Request req, std::pair<ServerConfig *, Location *> config, const std::string& requestPath  ) {
+	ServerConfig* _conf = config.first;
+	Location* _loc = config.second;
 
-	// match Server & Location with same HOST & PATH
-	while (it != servers.end())
-	{
-		if ((*it)->getServerIp() == req.getHost() && (*it)->getPort() == req.getPort()) {
-			std::vector<Location *> _locations = (*it)->getLocations();
-			Location* _l = matchLocation(_locations, req.getPath());
-			if (_l != NULL) return std::make_pair(*it, _l);
-		}
-		++it;
+	// cgi
+	if (FileHandler::requiresCGI(requestPath)) {
+		return _createFileCGIResponse(req, _conf, _loc, requestPath);
 	}
 
-	// match Server & Location with same SERVERNAME & PATH
-	it = servers.begin();
-	while (it != servers.end())
-	{
-		if ((*it)->getServerName() == req.getHost() && (*it)->getPort() == req.getPort()) {
-			std::vector<Location *> _locations = (*it)->getLocations();
-			Location* _l = matchLocation(_locations, req.getPath());
-			if (_l != NULL) return std::make_pair(*it, _l);
-		}
-		++it;
+	// serve file as is
+	return _createFileResponse(requestPath, config);
+	
+}
+
+Response ResponseHandler::_handleGETDirectory( Request req, std::pair<ServerConfig *, Location *> config, const std::string& requestPath ) {
+	ServerConfig* _conf = config.first;
+	Location* _loc = config.second;
+
+	// Select default configs
+	std::string _root = !_loc->_root.empty() ? _loc->_root : _conf->getRoot();
+	bool _autoIndexing = _loc->_autoindex ? _loc->_autoindex : _conf->getAutoIndex();
+	std::vector<std::string> _indexFiles = !_loc->_index_file.empty() ? _loc->_index_file : _conf->getIndexFiles();
+
+	// check redir
+	if (requestPath.back() != '/') {
+		return _createRedirectionResponse(MovedPermanently, FileHandler::disconnectPath(_root, requestPath) + "/");
 	}
 
-	// no match has been found :(
-	return std::make_pair((ServerConfig *)NULL, (Location *)NULL);
+	// check for index files
+	std::string _indexPath = FileHandler::searchIndexes(requestPath, _indexFiles);
+	if (_indexPath.empty() && !_autoIndexing) {
+		return _createErrorResponse(Forbidden, config, "INDEXS EMPTY & AUTOINDEX OFF\n");
+	}
+
+	if (_indexPath.empty() && _autoIndexing) {
+		std::string _uri = _conf->getServerIp() + ":" + toString<int>(_conf->getPort());
+		return _createDirListingResponse(_uri, _root, requestPath);
+	}
+
+	// if index readable
+	if (!FileHandler::isPathReadable(_indexPath)) {
+		return _createErrorResponse(Forbidden, config, "DIR: PATH NOT READABLE\n");
+	}
+
+	// if index not empty
+	if (FileHandler::requiresCGI(_indexPath)) {
+		return _createFileCGIResponse(req, _conf, _loc, _indexPath);
+	}
+
+	// serve file as is
+	return _createFileResponse(_indexPath, config);
 }
 
 Response ResponseHandler::handleRequests( Request req, std::vector<ServerConfig *> servers) {
-	std::pair<ServerConfig *, Location *> config = getMatchingConfig(req, servers);
+	std::pair<ServerConfig *, Location *> config = _getMatchingConfig(req, servers);
 	ServerConfig* _conf = config.first;
 	Location* _loc = config.second;
 	std::string _root = !_loc->_root.empty() ? _loc->_root : _conf->getRoot();
 	// check for request errors
-	std::pair<bool, Response> _res = handleRequestErrors(req, config);
+	std::pair<bool, Response> _res = _handleRequestErrors(req, config);
 	if (_res.first) return _res.second;
 
 	// loc has redirection
@@ -432,11 +444,11 @@ Response ResponseHandler::handleGETRequest( Request req, std::pair<ServerConfig 
 
 	// check if path is file or dir
 	if (_type == T_DIR) {
-		return handleGETDirectory(req, config, _requestPath);
+		return _handleGETDirectory(req, config, _requestPath);
 	}
 
 	if (_type == T_FILE) {
-		return handleGETFile(req, config, _requestPath);
+		return _handleGETFile(req, config, _requestPath);
 	}
 
 	// this shouldn't happen
@@ -475,3 +487,7 @@ Response ResponseHandler::handleDELETERequest( Request req, std::pair<ServerConf
 	return _createErrorResponse(InternalServerError, config, strerror(errno));
 }
 
+Response ResponseHandler::handlePOSTRequest( Request req, std::pair<ServerConfig *, Location *> config ) {
+	// TODO: finish
+	return Response();
+}
