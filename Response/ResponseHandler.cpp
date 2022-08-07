@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ResponseHandler.cpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/01 22:24:39 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/07 23:13:00 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/08/07 23:27:44 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -269,11 +269,11 @@ std::pair<bool, Response> ResponseHandler::_handleRequestErrors( Request req, st
 	}
 
 	// If both Transfer-Encoding & Content-Length not present
-	// TODO: make sure this is right, it doesn't seem right.
-	// if (req.getHeader(H_TRANSFER_ENCODING).empty() && req.getHeader(H_CONTENT_LENGTH).empty()) {
-	// 	Response r = _createErrorResponse(BadRequest, config, "TRANS-ENC = \"\" & CONT-LEN = \"\"\n"); // 400
-	// 	return std::make_pair(true, r);
-	// }
+	if (trim(toUpperCase(req.getMethod())) == POST 
+		&& req.getHeader(H_TRANSFER_ENCODING).empty() && req.getHeader(H_CONTENT_LENGTH).empty()) {
+		Response r = _createErrorResponse(BadRequest, config, "TRANS-ENC = \"\" & CONT-LEN = \"\"\n"); // 400
+		return std::make_pair(true, r);
+	}
 
 	// If request PATH too long
 	if (req.getPath().length() > 2048) {
