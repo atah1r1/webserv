@@ -14,7 +14,7 @@ const char *getLevelStr(Level l) {
 	}
 }
 
-inline void debugPrint(Level level, const char *file, const int line, const std::string& message) {
+void debugPrint(Level level, const char *file, const int line, const std::string& message) {
 	#if defined(ALLOW_DEBUG)
 		std::cerr << getLevelStr(level) << file << ": " << line << ": " << message << C_RESET << std::endl;
 	#endif

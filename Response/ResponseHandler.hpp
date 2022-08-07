@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/26 14:35:35 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/07 00:49:34 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/07 18:08:12 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,16 +33,18 @@ private:
 	static Response _createBodylessErrorResponse( int statusCode, std::pair<ServerConfig *, Location *> config, const std::string& temp );
 	static Response _createDirListingResponse( const std::string& uri, const std::string& root, const std::string& dirPath );
 	static Response _createRedirectionResponse( int statusCode, const std::string& dirPath );
-	static Response _createFileResponse( const std::string& filePath );
+	static Response _createFileResponse( const std::string& filePath, std::pair<ServerConfig *, Location *> config );
 	static Response _createFileCGIResponse( Request req, ServerConfig *conf, Location * loc, const std::string& filePath );
-	static Response handleGETFile( Request req, std::pair<ServerConfig *, Location *> config, const std::string& requestPath  );
-	static Response handleGETDirectory( Request req, std::pair<ServerConfig *, Location *> config, const std::string& requestPath );
-	static std::pair<bool, Response> handleRequestErrors(Request req, std::pair<ServerConfig *, Location *> config);
+	static Response _handleGETFile( Request req, std::pair<ServerConfig *, Location *> config, const std::string& requestPath  );
+	static Response _handleGETDirectory( Request req, std::pair<ServerConfig *, Location *> config, const std::string& requestPath );
+	static std::pair<bool, Response> _handleRequestErrors(Request req, std::pair<ServerConfig *, Location *> config);
+	static std::pair<ServerConfig *, Location *> _getMatchingConfig(Request req, std::vector<ServerConfig *> servers);
 public:
-	static std::pair<ServerConfig *, Location *> getMatchingConfig(Request req, std::vector<ServerConfig *> servers);
+
 	static Response handleRequests( Request req, std::vector<ServerConfig *> servers);
 	static Response handleGETRequest( Request req, std::pair<ServerConfig *, Location *> config );
 	static Response handleDELETERequest( Request req, std::pair<ServerConfig *, Location *> config );
+	static Response handlePOSTRequest( Request req, std::pair<ServerConfig *, Location *> config );
 };
 
 #endif // __RESPONSE_HANDLER_HPP__

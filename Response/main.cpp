@@ -2,7 +2,8 @@
 // #include "ResponseHandler.hpp"
 // #include "../Request/Request.hpp"
 // #include "../Config/ServerConfig.hpp"
-//#include "../Utils/FileHandler.hpp"
+#include "../Utils/FileHandler.hpp"
+#include "../Utils/Utils.hpp"
 #include <unistd.h>
 #include <iostream>
 #include <dirent.h>
@@ -21,46 +22,39 @@ Connection: Keep-Alive
 licenseID=string&content=string&/paramsXML=string
 */
 
-void explore(const char *dir_name, const std::string& indent, const std::string& ext){
-    DIR *dir; // pointer to directory
-    struct dirent *entry; // all stuff in the directory
-    struct stat info; // info about each entry
+#define BUFFER_SIZE 1024
 
-    dir = opendir(dir_name);
+bool getNextChunk(std::fstream& _file, char *buffer) {
 
-    if (!dir)
-    {
-        std::cout << "Directory not found" << std::endl;
-        return;
-    }
-
-    while ((entry = readdir(dir)) != NULL)
-    {
-        if (entry->d_name[0] != '.')
-        {
-            std::string path = std::string(dir_name) + "/" + std::string(entry->d_name);
-			stat(path.c_str() ,&info);
-
-			// if (FileHandler::getFileExtension(path) == ext)
-            // 	std::cout << path << std::endl;
-
-            if (S_ISDIR(info.st_mode) && !S_ISLNK(info.st_mode))
-                explore(path.c_str(), indent + "    ", ext);
-        }
-    }
-    closedir(dir);
-}
-
-inline bool fileExists( const std::string& path ) {
-	return ( access( path.c_str(), F_OK ) != -1 );
+	// char buff[BUFFER_SIZE] = {0};
+	if (_file.good()) {
+		debugPrint(_ERROR, __FILE__, __LINE__, "Reponse: getChunk: _file is bad");
+		return false;
+	}
+	if (_file.eof()) return false;
+	_file.read(buffer, BUFFER_SIZE - 1);
+	return true;
 }
 
 int main(int ac, char **av) {
 
-	std::cout << std::boolalpha;
+	std::fstream _file;
 
-	std::cout << fileExists(std::string(av[1])) <<std::endl;
+	_file.open(av[1], std::fstream::binary );
 
+	if (!_file.is_open()) {
+		std::cerr << "Error opening file" << std::endl;
+	}
+
+	char buffer[BUFFER_SIZE] = {0};
+
+	while(getNextChunk(_file, buffer)) {
+		std::cerr << "============= CHUNK BEGIN" << std::endl;
+		std::cerr << buffer << std::endl;
+		std::cerr << "============= CHUNK END" << std::endl;
+	}
+
+	_file.close();
 	//explore(av[1], "", av[2]);
 
 	// Request r;

@@ -17,6 +17,6 @@ enum Level {
 
 const char *getLevelStr(Level l);
 
-inline void debugPrint(Level level, const char *file, const int line, const std::string& message);
+void debugPrint(Level level, const char *file, const int line, const std::string& message);
 
 #endif

@@ -98,19 +98,60 @@ void FILE_HANDLER_TEST(int ac, char **av) {
 // 13 Permission denied
 // 62 Too many levels of symbolic links
 
+#define BUFFER_SIZE (1024 * 5)
+
+bool getNextChunk(std::fstream* _file, char *buffer) {
+	if (!_file->good()) {
+		return false;
+	}
+	_file->read(buffer, BUFFER_SIZE - 1);
+	return true;
+}
+
+void READ_TEST(int ac, char **av) {
+
+	std::fstream* _file = new std::fstream();
+
+	_file->open(av[1], std::fstream::binary | std::fstream::in );
+
+	if (!_file->is_open()) {
+		std::cerr << "Error opening file" << std::endl;
+	}
+
+	char buffer[BUFFER_SIZE] = {0};
+
+	size_t s = 0;
+
+	while(getNextChunk(_file, buffer)) {
+		//std::cerr << "============= CHUNK BEGIN" << std::endl;
+		size_t ss = _file->gcount();
+		s += ss;
+		std::cout << std::endl << ss << " bytes" << std::endl;
+		std::cout << buffer;// << std::endl;
+		bzero(buffer, BUFFER_SIZE);
+		//std::cerr << "============= CHUNK END" << std::endl;
+		usleep(200000);
+	}
+
+	std::cout << "CALC FILESIZE: " << s << " bytes" << std::endl;
+	std::cout << "FILESIZE: " << FileHandler::getFileSize(av[1]) << " bytes" << std::endl;
+
+	_file->close();
+}
 
 int main(int ac, char **av) {
 
 	//UTILS_TEST(ac, av);
 	//FILE_HANDLER_TEST(ac, av);
+	READ_TEST(ac, av);
 
-	std::string path = std::string("./Test_delete/") + av[1];
+	// std::string path = std::string("./Test_delete/") + av[1];
 
-	//OUT << "PATH: " << path << EN;
+	// //OUT << "PATH: " << path << EN;
 
-	bool b = FileHandler::removeAll(path);
+	// bool b = FileHandler::removeAll(path);
 
-	if (!b) std::cerr << "END: " << strerror(errno) << std::endl;
+	// if (!b) std::cerr << "END: " << strerror(errno) << std::endl;
 
 	// Location l;
 	// l._location = "/wordpress/config";

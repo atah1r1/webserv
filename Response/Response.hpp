@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/26 01:23:28 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/07 02:48:28 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/07 18:13:59 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ private:
 	std::string _body;
 	bool _isChunked;
 	bool _isFromCGI;
-	std::fstream _file;
+	std::fstream* _file;
 	std::string _filePath;
 	std::map<std::string, std::string> _headers;
 	static std::vector<std::string> _parseMetaData(const std::string& line);
@@ -61,9 +61,11 @@ public:
 	void setChunked( bool isChunked );
 	bool isFromCGI( void ) const;
 	void setFromCGI( bool isfromCGI );
-	std::fstream getFile( void ) const;
+	std::fstream* getFile( void ) const;
+	bool setupFile( void );
 	void setFilePath( const std::string& path );
 	std::string getFilePath( void ) const;
+	bool getNextChunk(char *buffer);
 
 	void clearAll( void );
 	std::string toString( void );
