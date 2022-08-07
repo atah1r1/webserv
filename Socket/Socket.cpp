@@ -3,16 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   Socket.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aes-salm <aes-salm@student.42.fr>          +#+  +:+       +#+        */
+/*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/12 15:40:19 by atahiri           #+#    #+#             */
-/*   Updated: 2022/07/20 13:19:33 by aes-salm         ###   ########.fr       */
+/*   Updated: 2022/08/07 23:13:36 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Socket.hpp"
 #include "../Request/Request.hpp"
 #include "../Request/Utils.hpp"
+#include "../Response/ResponseHandler.hpp"
 
 Socket::Socket(std::vector<ServerConfig> servers) : address_len(sizeof(address))
 {
@@ -101,9 +102,9 @@ void Socket::_accept()
 	}
 }
 
-void Socket::_send(int my_socket, std::string msg)
+void Socket::_send(int my_socket, const char * msg, size_t length)
 {
-	if (send(my_socket, msg.c_str(), msg.length(), 0) < 0)
+	if (send(my_socket, msg, length, 0) < 0)
 	{
 		std::cout << "send failed" << std::endl;
 		exit(EXIT_FAILURE);
@@ -145,6 +146,33 @@ bool Socket::handleConnection(ServerConfig server_setup, int new_socket)
 	(void)server_setup;
 	// ---------------------- Reading Request --------------------------- //
 	Request request = receiveRequest(new_socket);
+
+	//std::cerr << "RECV REQ SUCC" << std::endl;
+
+	Response r = ResponseHandler::handleRequests(request, server_setup);
+
+	//std::cerr << "HANDLE REQ SUCC" << std::endl;
+
+	std::string _res = r.toString();
+
+	//std::cerr << "REQ -> STRING SUCC" << std::endl;
+
+	_send(new_socket, _res.c_str(), _res.length());
+
+	//std::cerr << "SEND HEADERS SUCC" << std::endl;
+
+	char buffer[BUFFER_SIZE] = {0};
+
+	if (r.isChunked()) {
+		while (size_t len = r.getNextChunk(buffer) > 0) {
+			_send(new_socket, buffer, len);
+			bzero(buffer, BUFFER_SIZE);
+		}
+	}
+
+	_send(new_socket, CRLF, 2);
+
+	r.clearAll();
 	// --------------------- Parsing The Request ------------------------- //
 	// if (!request.isCompleted()) // if the request is not completed, we return false
 	//     return false;

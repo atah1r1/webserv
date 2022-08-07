@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ResponseHandler.cpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
+/*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/01 22:24:39 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/07 19:05:39 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/07 23:13:00 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,11 @@
 std::string ResponseHandler::_getDefaultErrorBody( int statusCode, std::pair<ServerConfig *, Location *> config ) {
 	ServerConfig* _conf = config.first;
 	Location* _loc = config.second;
+
+	if (_conf == NULL || _loc == NULL) {
+		return _getStandardErrorBody(statusCode);
+	}
+
 	std::string _root = !_loc->_root.empty() ? _loc->_root : _conf->getRoot();
 
 	std::string _errorPage = _conf->getErrorPage(statusCode);
@@ -74,6 +79,7 @@ std::string ResponseHandler::_getDirListingBody( const std::string& uri, const s
 */
 Response ResponseHandler::_createErrorResponse( int statusCode, std::pair<ServerConfig *, Location *> config, const std::string& temp ) {
 	Response r;
+
 	std::string body = _getDefaultErrorBody(statusCode, config) + temp;
 
 	r.setVersion("HTTP/1.1");
@@ -92,6 +98,9 @@ Response ResponseHandler::_createErrorResponse( int statusCode, std::pair<Server
 
 Response ResponseHandler::_createBodylessErrorResponse( int statusCode, std::pair<ServerConfig *, Location *> config, const std::string& temp ) {
 	Response r;
+
+	(void)config;
+	(void)temp;
 
 	r.setVersion("HTTP/1.1");
 	r.setStatusCode(statusCode);
@@ -222,40 +231,30 @@ Response ResponseHandler::_createFileCGIResponse( Request req, ServerConfig *con
 /*
 ** CONFIG/ERRORS HANDLERS
 */
-std::pair<ServerConfig *, Location *> ResponseHandler::_getMatchingConfig( Request req, std::vector<ServerConfig *> servers ) {
-	std::vector<ServerConfig *>::iterator it = servers.begin();
+std::pair<ServerConfig *, Location *> ResponseHandler::_getMatchingConfig( Request req, ServerConfig serverConfig ) {
+	//std::vector<ServerConfig *>::iterator it = servers.begin();
 
 	// match Server & Location with same HOST & PATH
-	while (it != servers.end())
-	{
-		if ((*it)->getServerIp() == req.getHost() && (*it)->getPort() == req.getPort()) {
-			std::vector<Location *> _locations = (*it)->getLocations();
-			Location* _l = matchLocation(_locations, req.getPath());
-			if (_l != NULL) return std::make_pair(*it, _l);
-		}
-		++it;
+	if (serverConfig.getServerIp() == req.getHost() && serverConfig.getPort() == req.getPort()) {
+		std::vector<Location *> _locations = serverConfig.getLocations();
+		Location* _l = matchLocation(_locations, req.getPath());
+		if (_l != NULL) return std::make_pair(&serverConfig, _l);
 	}
 
 	// match Server & Location with same SERVERNAME & PATH
-	it = servers.begin();
-	while (it != servers.end())
-	{
-		if ((*it)->getServerName() == req.getHost() && (*it)->getPort() == req.getPort()) {
-			std::vector<Location *> _locations = (*it)->getLocations();
-			Location* _l = matchLocation(_locations, req.getPath());
-			if (_l != NULL) return std::make_pair(*it, _l);
-		}
-		++it;
+	if (serverConfig.getServerName() == req.getHost() && serverConfig.getPort() == req.getPort()) {
+		std::vector<Location *> _locations = serverConfig.getLocations();
+		Location* _l = matchLocation(_locations, req.getPath());
+		if (_l != NULL) return std::make_pair(&serverConfig, _l);
 	}
 
 	// no match has been found :(
-	return std::make_pair((ServerConfig *)NULL, (Location *)NULL);
+	return std::make_pair(&serverConfig, (Location *)NULL);
 }
 
 std::pair<bool, Response> ResponseHandler::_handleRequestErrors( Request req, std::pair<ServerConfig *, Location *> config ) {
 	ServerConfig* _conf = config.first;
 	Location* _loc = config.second;
-	std::vector<std::string> _allowedMethods = !_loc->_allow_methods.empty() ? _loc->_allow_methods : _conf->getAllowMethods();
 
 	// If Request is not valid
 	if (false /* TODO: check if req.statusCode is not 0 */) {
@@ -270,10 +269,11 @@ std::pair<bool, Response> ResponseHandler::_handleRequestErrors( Request req, st
 	}
 
 	// If both Transfer-Encoding & Content-Length not present
-	if (req.getHeader(H_TRANSFER_ENCODING).empty() && req.getHeader(H_CONTENT_LENGTH).empty()) {
-		Response r = _createErrorResponse(BadRequest, config, "TRANS-ENC = "" & CONT-LEN = ""\n"); // 400
-		return std::make_pair(true, r);
-	}
+	// TODO: make sure this is right, it doesn't seem right.
+	// if (req.getHeader(H_TRANSFER_ENCODING).empty() && req.getHeader(H_CONTENT_LENGTH).empty()) {
+	// 	Response r = _createErrorResponse(BadRequest, config, "TRANS-ENC = \"\" & CONT-LEN = \"\"\n"); // 400
+	// 	return std::make_pair(true, r);
+	// }
 
 	// If request PATH too long
 	if (req.getPath().length() > 2048) {
@@ -290,21 +290,13 @@ std::pair<bool, Response> ResponseHandler::_handleRequestErrors( Request req, st
 	// }
 
 	// If no location matches request
-	if (_loc == NULL) {
+	if (_conf == NULL || _loc == NULL) {
 		Response r = _createErrorResponse(NotFound, config, "LOC NO MATCH\n"); // 404
 		return std::make_pair(true, r);
 	}
 
-	// If location has redirection !Not an error but :)
-	if (!_loc->_redirection_path.empty()) {
-		// check if redir path start with /, else add it
-		if (_loc->_redirection_path.front() != '/')
-			_loc->_redirection_path.insert(_loc->_redirection_path.begin(), '/');
-		Response r = _createRedirectionResponse(MovedPermanently, _loc->_redirection_path);
-		return std::make_pair(true, r);
-	}
-
 	// Check if method is allowed
+	std::vector<std::string> _allowedMethods = !_loc->_allow_methods.empty() ? _loc->_allow_methods : _conf->getAllowMethods();
 	if (!_allowedMethods.empty() && !isMethodAllowed(_allowedMethods, req.getMethod())) {
 		Response r = _createErrorResponse(MethodNotAllowed, config, "METH NOT ALLOWED\n"); // 405
 		return std::make_pair(true, r);
@@ -382,14 +374,16 @@ Response ResponseHandler::_handleGETDirectory( Request req, std::pair<ServerConf
 	return _createFileResponse(_indexPath, config);
 }
 
-Response ResponseHandler::handleRequests( Request req, std::vector<ServerConfig *> servers) {
-	std::pair<ServerConfig *, Location *> config = _getMatchingConfig(req, servers);
-	ServerConfig* _conf = config.first;
-	Location* _loc = config.second;
-	std::string _root = !_loc->_root.empty() ? _loc->_root : _conf->getRoot();
+Response ResponseHandler::handleRequests( Request req, ServerConfig serverConfig) {
+	std::pair<ServerConfig *, Location *> config = _getMatchingConfig(req, serverConfig);
+
 	// check for request errors
 	std::pair<bool, Response> _res = _handleRequestErrors(req, config);
 	if (_res.first) return _res.second;
+
+	ServerConfig* _conf = config.first;
+	Location* _loc = config.second;
+	std::string _root = !_loc->_root.empty() ? _loc->_root : _conf->getRoot();
 
 	// loc has redirection
 	if (!_loc->_redirection_path.empty()) {
@@ -489,5 +483,6 @@ Response ResponseHandler::handleDELETERequest( Request req, std::pair<ServerConf
 
 Response ResponseHandler::handlePOSTRequest( Request req, std::pair<ServerConfig *, Location *> config ) {
 	// TODO: finish
+	(void)req; (void)config;
 	return Response();
 }
