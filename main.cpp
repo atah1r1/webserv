@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 17:17:03 by atahiri           #+#    #+#             */
-/*   Updated: 2022/08/01 17:56:40 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/08/07 02:45:50 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,7 +78,7 @@ void start(std::vector<ServerConfig> servers)
             //         if (socket.handleConnection(*server_it, i) == true)
             //         {
             //             std::cout << "handleConnection" << std::endl;
-            //             socket._send(i, "HTTP/1.1 200 OK\nContent-Type:text/html\nContent-Length: 16\n\n<h1>testing</h1>");
+                        socket._send(i, "HTTP/1.1 200 OK\nContent-Type:text/html\nContent-Length: 16\n\n<h1>testing</h1>");
             //             FD_CLR(i, &SocketsWrite);
             //             close(i);
             //         }

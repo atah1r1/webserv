@@ -6,13 +6,24 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/26 03:00:15 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/02 17:17:55 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/07 02:51:39 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Response.hpp"
 
-Response::Response( void ) { }
+Response::Response( void ) {
+	// TODO: move this to some new function
+	// _file.open(_filePath.c_str(), std::fstream::in);
+
+	// char *buffer = {0};
+
+	// if (_file.is_open()) {
+
+	// 	while(!_file.eof())
+	// 		_file.read(buffer, BUFFER_SIZE);
+	// }
+}
 
 Response::Response( const Response& rhs )  {
 	*this = rhs;
@@ -24,10 +35,15 @@ Response& Response::operator= ( const Response& rhs )  {
 	this->_status_code = rhs.getStatusCode();
 	this->_body = rhs.getBody();
 	this->_headers = rhs.getHeaders();
+	this->_isChunked = rhs.isChunked();
+	this->_isFromCGI = rhs.isFromCGI();
+	this->_file = rhs.getFile();
 	return *this;
 }
 
-Response::~Response()  { }
+Response::~Response()  {
+	clearAll();
+}
 
 std::string Response::getVersion( void ) const  {
 	return this->_version;
@@ -89,12 +105,47 @@ void Response::removeHeader( const std::pair<std::string, std::string>& header )
 	this->_headers.erase(header.first);
 }
 
+bool Response::isChunked( void ) const {
+	return this->_isChunked;
+}
+
+void Response::setChunked( bool isChunked ) {
+	this->_isChunked = isChunked;
+}
+
+bool Response::isFromCGI( void ) const {
+	return this->_isFromCGI;
+}
+
+void Response::setFromCGI( bool isFromCGI ) {
+	this->_isFromCGI = isFromCGI;
+}
+
+std::fstream Response::getFile( void ) const {
+	return this->_file;
+}
+
+void Response::setFilePath( const std::string& path ) {
+	this->_filePath = path;
+}
+
+std::string Response::getFilePath( void ) const {
+	return this->_filePath;
+}
+
 void Response::clearAll( void )  {
+	if (this->_file.is_open())
+		this->_file.close();
+	if (this->_isFromCGI && !this->_filePath.empty())
+		remove(this->_filePath.c_str());
 	this->_version = "";
 	this->_status = "";
 	this->_status_code = 0;
 	this->_body = "";
+	this->_filePath = "";
 	this->_headers.clear();
+	this->_isChunked = false;
+	this->_isFromCGI = false;
 }
 
 std::string Response::toString( void ) {
@@ -163,35 +214,26 @@ Response Response::parseFrom(const std::string& response) {
 
 	const std::string _resp = trim(response);
 
-	r.setVersion("HTTP/12.1");
+	r.setVersion("HTTP/1.1");
 	r.setStatusCode(OK);
 	r.setStatus(getReason(OK));
-
-	// metadata
-	_ret = nextLine(_resp, _beg);
-	_beg = _ret.first;
-	_line = _ret.second;
-	if (beginsWith(trim(_line), "HTTP/")) {
-		std::vector<std::string> _meta = _parseMetaData(_line);
-		r.setVersion(_meta[0]);
-		r.setStatusCode(toNumber<int>(_meta[1]));
-		r.setStatus(_meta[2]);
-	} else if (!_line.empty()) {
-		std::pair<std::string, std::string> _h = _parseHeader(_line);
-		r.addHeader(_h);
-	}
-
-	//std::cout << "LINE1: " << _line << std::endl;
 
 	// headers
 	while (_beg < _resp.length()) {
 		_ret = nextLine(_resp, _beg);
 		_beg = _ret.first;
 		_line = _ret.second;
-		//std::cout << "LINE2: " << _line << std::endl;
 		if (_beg >= _resp.length() || _line.empty()) break;
 		std::pair<std::string, std::string> _h = _parseHeader(_line);
 		r.addHeader(_h);
+	}
+
+	// set status based on Status header.
+	std::string code = r.getHeader("Status");
+	if (!code.empty()) {
+		int codeInt = toNumber<int>(code);
+		r.setStatusCode(codeInt);
+		r.setStatus(getReason(codeInt));
 	}
 
 	// body
@@ -201,3 +243,4 @@ Response Response::parseFrom(const std::string& response) {
 
 	return r;
 }
+

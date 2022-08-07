@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/01 22:24:39 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/02 17:22:30 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/07 00:52:57 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,6 +80,19 @@ Response ResponseHandler::_createErrorResponse( int statusCode, std::pair<Server
 	r.addHeader("Connection", "keep-alive");
 
 	r.setBody(body);
+
+	return r;
+}
+
+Response ResponseHandler::_createBodylessErrorResponse( int statusCode, std::pair<ServerConfig *, Location *> config, const std::string& temp ) {
+	Response r;
+
+	r.setVersion("HTTP/1.1");
+	r.setStatusCode(statusCode);
+	r.setStatus(getReason(statusCode));
+	r.addHeader("Server", SERVER_VERSION);
+	r.addHeader("Date", getCurrentDate());
+	r.addHeader("Connection", "keep-alive");
 
 	return r;
 }
@@ -359,10 +372,26 @@ std::pair<ServerConfig *, Location *> ResponseHandler::getMatchingConfig( Reques
 
 Response ResponseHandler::handleRequests( Request req, std::vector<ServerConfig *> servers) {
 	std::pair<ServerConfig *, Location *> config = getMatchingConfig(req, servers);
-	
+	ServerConfig* _conf = config.first;
+	Location* _loc = config.second;
+	std::string _root = !_loc->_root.empty() ? _loc->_root : _conf->getRoot();
 	// check for request errors
 	std::pair<bool, Response> _res = handleRequestErrors(req, config);
 	if (_res.first) return _res.second;
+
+	// loc has redirection
+	if (!_loc->_redirection_path.empty()) {
+		std::string _redir = trim(_loc->_redirection_path);
+		if (beginsWith(_redir, "https://") || beginsWith(_redir, "http://")) {
+			return _createRedirectionResponse(MovedPermanently, _redir);
+		} else if (_redir.front() == '/') {
+			_redir = FileHandler::getFullPath(_root, _redir);
+			return _createRedirectionResponse(MovedPermanently, _redir);
+		} else {
+			_redir = FileHandler::getFullPath(_loc->_location, _redir);
+			return _createRedirectionResponse(MovedPermanently, _redir);
+		}
+	}
 
 	// no errors / redirections
 	std::string _m = toUpperCase(trim(req.getMethod()));
@@ -372,17 +401,13 @@ Response ResponseHandler::handleRequests( Request req, std::vector<ServerConfig 
 	} else if (_m == POST) {
 		// TODO: handle POST
 	} else if (_m == DELETE) {
-		// TODO: handle DELETE
+		return handleDELETERequest(req, config);
 	}
 	// normally it shouldn't get here but if so:
 	return _createErrorResponse(MethodNotAllowed, config, "IT SHOULD'T GET HERE\n"); 
 }
 
 Response ResponseHandler::handleGETRequest( Request req, std::pair<ServerConfig *, Location *> config ) {
-	// check for request errors
-	std::pair<bool, Response> _res = handleRequestErrors(req, config);
-	if (_res.first) return _res.second;
-
 	ServerConfig* _conf = config.first;
 	Location* _loc = config.second;
 	std::string _root = !_loc->_root.empty() ? _loc->_root : _conf->getRoot();
@@ -416,5 +441,37 @@ Response ResponseHandler::handleGETRequest( Request req, std::pair<ServerConfig 
 
 	// this shouldn't happen
 	return _createErrorResponse(InternalServerError, config, "SHOUDN'T HAPPEN TOO\n");
+}
+
+Response ResponseHandler::handleDELETERequest( Request req, std::pair<ServerConfig *, Location *> config ) {
+	ServerConfig* _conf = config.first;
+	Location* _loc = config.second;
+	std::string _root = !_loc->_root.empty() ? _loc->_root : _conf->getRoot();
+
+	std::string _requestPath = FileHandler::getFullPath(_root, req.getPath());
+
+	// check if path 
+	FileType _type = FileHandler::getTypeS(_requestPath);
+
+	if (_type == T_ERROR && errno == ENOENT) {
+		return _createErrorResponse(NotFound, config, "PATH NOT EXIST\n");
+	}
+
+	if ((_type == T_DIR && _requestPath.back() != '/') ||
+		(_type == T_FILE && _requestPath.back() == '/')) {
+		return _createErrorResponse(Conflict, config, "(FILE + /) or (DIR - /)\n");
+	}
+
+	// check if path is file or dir
+	if (_type == T_FILE && FileHandler::requiresCGI(_requestPath)) {
+		return _createFileCGIResponse(req, _conf, _loc, _requestPath);
+	}
+
+	bool _removed = FileHandler::removeAll(_requestPath);
+
+	if (_removed)
+		return _createBodylessErrorResponse(NoContent, config, "GOOD");
+
+	return _createErrorResponse(InternalServerError, config, strerror(errno));
 }
 
