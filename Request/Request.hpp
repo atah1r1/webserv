@@ -6,7 +6,7 @@
 /*   By: aes-salm <aes-salm@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/23 15:55:34 by aes-salm          #+#    #+#             */
-/*   Updated: 2022/08/02 12:05:44 by aes-salm         ###   ########.fr       */
+/*   Updated: 2022/08/05 11:47:09 by aes-salm         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 #define REQUEST_HPP
 
 #include "../Includes/Webserv.hpp"
+#include "../Utils/Utils.hpp"
 
 class Request
 {
