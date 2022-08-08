@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/12 15:40:19 by atahiri           #+#    #+#             */
-/*   Updated: 2022/08/08 11:48:54 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/08 13:30:34 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -144,22 +144,24 @@ int Socket::acceptNewConnection(std::pair<int, size_t> pair)
 bool Socket::handleConnection(ServerConfig server_setup, int new_socket)
 {
 	// ---------------------- Reading Request --------------------------- //
+	std::cerr << "RECVING REQUEST..." << std::endl;
+
 	Request request = receiveRequest(new_socket);
 
-	std::cerr << "HOST: " << request.getHost() << std::endl;
-	std::cerr << "METH: " << request.getMethod() << std::endl;
-	std::cerr << "PATH: " << request.getPath() << std::endl;
-	std::cerr << "PORT: " << request.getPort() << std::endl;
-	std::cerr << "CODE: " << request.getStatusCode() << std::endl;
+	std::cerr << "HANDLING REQUEST..." << std::endl;
 
 	Response r = ResponseHandler::handleRequests(request, server_setup);
 
 	std::string _res = r.toString();
 
+	std::cerr << "SENDING HEADERS..." << std::endl;
+
 	this->_send(new_socket, _res.c_str(), _res.length());
 
 	char buffer[BUFFER_SIZE] = {0};
 	size_t len = 0;
+
+	std::cerr << "SENDING CUNKS..." << std::endl;
 
 	if (r.isChunked()) {
 		while ((len = r.getNextChunk(buffer)) > 0) {
@@ -168,7 +170,7 @@ bool Socket::handleConnection(ServerConfig server_setup, int new_socket)
 		}
 	}
 
-	this->_send(new_socket, CRLF, 2);
+	std::cerr << "SENT EVERYTHING..." << std::endl;
 
 	r.clearAll();
 	// --------------------- Parsing The Request ------------------------- //
