@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 16:04:34 by atahiri           #+#    #+#             */
-/*   Updated: 2022/08/04 22:01:10 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/08/08 02:27:30 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,17 +113,7 @@ void Config::checkErrors(std::vector<ServerConfig> config)
         }
         for (std::vector<ServerConfig>::iterator it = config.begin(); it != config.end(); ++it)
         {
-            // sort locations
             std::vector<Location *> _locations = it->getLocations();
-            for (std::vector<Location *>::iterator itl = _locations.begin(); itl != _locations.end(); ++itl)
-            {
-                std::string _location = (*itl)->_location;
-                if (_location[0] == '/')
-                {
-                    _location = _location.substr(1);
-                }
-                (*itl)->_location = _location;
-            }
             // check duplicated locations
             for (std::vector<Location *>::iterator itl = _locations.begin(); itl != _locations.end(); ++itl)
             {
