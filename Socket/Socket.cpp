@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Socket.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
+/*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/12 15:40:19 by atahiri           #+#    #+#             */
-/*   Updated: 2022/08/08 13:30:34 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/08 16:54:00 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include "../Request/Request.hpp"
 #include "../Request/Utils.hpp"
 #include "../Response/ResponseHandler.hpp"
+#include <netinet/tcp.h>
 
 Socket::Socket(std::vector<ServerConfig> servers) : address_len(sizeof(address))
 {
@@ -102,13 +103,18 @@ void Socket::_accept()
 	}
 }
 
-void Socket::_send(int my_socket, const char * msg, size_t length)
+void Socket::_send(int my_socket, const char *msg, size_t length)
 {
 	if (send(my_socket, msg, length, 0) < 0)
 	{
-		std::cout << "send failed" << std::endl;
-		exit(EXIT_FAILURE);
+		std::cerr << "send failed: ";
+		std::cerr << strerror(errno) << std::endl;
+		std::cerr << "retry sending..." << std::endl;
+		usleep(700000);
+		_send(my_socket, msg, length);
+		//exit(EXIT_FAILURE);
 	}
+	std::cerr << "send successful" << std::endl;
 }
 
 void Socket::_recv()
@@ -163,26 +169,21 @@ bool Socket::handleConnection(ServerConfig server_setup, int new_socket)
 
 	std::cerr << "SENDING CUNKS..." << std::endl;
 
-	if (r.isChunked()) {
-		while ((len = r.getNextChunk(buffer)) > 0) {
+	if (r.isChunked())
+	{
+		size_t s = 0;
+		while ((len = r.getNextChunk(buffer)) > 0)
+		{
 			this->_send(new_socket, buffer, len);
 			bzero(buffer, BUFFER_SIZE);
+			s += len;
 		}
+		std::cerr << "==== SIZE: " << s << std::endl;
 	}
 
 	std::cerr << "SENT EVERYTHING..." << std::endl;
 
 	r.clearAll();
-	// --------------------- Parsing The Request ------------------------- //
-	// if (!request.isCompleted()) // if the request is not completed, we return false
-	//     return false;
-	// else if (request.getBuffer() == "error")
-	// {
-	//     std::cerr << "Error in request" << std::endl;
-	//     close(new_socket);
-	//     this->requests.erase(new_socket); // request completed
-	//     return true;
-	// }
 	return true;
 }
 

@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/26 01:23:28 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/07 21:56:33 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/08/08 16:32:00 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@
 #include "../Utils/StatusCodes.hpp"
 #include "../Utils/Utils.hpp"
 
-#define BUFFER_SIZE (1024 * 16)
+#define BUFFER_SIZE (1024)
 
 class Response {
 private:
