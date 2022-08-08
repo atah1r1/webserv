@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ResponseHandler.cpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
+/*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/01 22:24:39 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/08 13:30:17 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/08 16:39:59 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -156,6 +156,7 @@ Response ResponseHandler::_createFileResponse( const std::string& filePath, cons
 	std::cerr << "SHIT IS CHUNKED BABY..." << std::endl;
 	// setup file for reading
 	r.setFilePath(filePath);
+	std::cerr << "==== FILE SIZE: " << FileHandler::getFileSize(filePath) << std::endl;
 	if (!r.setupFile())
 		return _createErrorResponse(InternalServerError, config, "");
 	r.setChunked(true);

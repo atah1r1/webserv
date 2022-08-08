@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 17:17:03 by atahiri           #+#    #+#             */
-/*   Updated: 2022/08/08 02:27:18 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/08/08 15:56:12 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,9 +56,12 @@ void start(std::vector<ServerConfig> servers)
                     if (!socket.isThisRequestExist(i))
 						socket.pushNewRequest(i);
                     if (socket.handleConnection(*server_it, i) == true)
+                    {
                         FD_CLR(i, &SocketsRead);
+                        // close(i);
+
+                    }
                     //socket._send(i, "HTTP/1.1 200 OK\nContent-Type:text/html\nContent-Length: 16\n\n<h1>testing</h1>");
-                        //close(i);
                     // std::cout << "ELSE" << std::endl;
                 }
             }
@@ -75,13 +78,15 @@ void start(std::vector<ServerConfig> servers)
             //     }
             //     else
             //     {
+            //         if (!socket.isThisRequestExist(i))
+			// 			socket.pushNewRequest(i);
             //         if (socket.handleConnection(*server_it, i) == true)
             //         {
-            //             std::cout << "handleConnection" << std::endl;
-                        // socket._send(i, "HTTP/1.1 200 OK\nContent-Type:text/html\nContent-Length: 16\n\n<h1>testing</h1>");
             //             FD_CLR(i, &SocketsWrite);
             //             close(i);
+
             //         }
+            //         //socket._send(i, "HTTP/1.1 200 OK\nContent-Type:text/html\nContent-Length: 16\n\n<h1>testing</h1>");
             //         // std::cout << "ELSE" << std::endl;
             //     }
             // }

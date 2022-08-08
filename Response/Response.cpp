@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/26 03:00:15 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/07 22:52:38 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/08/08 16:38:50 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -133,6 +133,7 @@ bool Response::setupFile( void ) {
 		debugPrint(_ERROR, __FILE__, __LINE__, "Response: setupFile failure: _filePath is empty");
 		return false;
 	}
+
 	this->_file->open( this->_filePath, std::fstream::in | std::fstream::binary );
 	if (!this->_file->is_open()) {
 		debugPrint(_ERROR, __FILE__, __LINE__, "Response: open failure: ");
