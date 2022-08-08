@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ResponseHandler.cpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
+/*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/01 22:24:39 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/07 23:27:44 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/08 02:55:22 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -375,7 +375,10 @@ Response ResponseHandler::_handleGETDirectory( Request req, std::pair<ServerConf
 }
 
 Response ResponseHandler::handleRequests( Request req, ServerConfig serverConfig) {
+
+	std::cout << "BEFORE: " <<serverConfig.getLocations().back()->_location << std::endl;
 	std::pair<ServerConfig *, Location *> config = _getMatchingConfig(req, serverConfig);
+	std::cout << "AFTER: " << config.first->getLocations().front()->_location << std::endl;
 
 	// check for request errors
 	std::pair<bool, Response> _res = _handleRequestErrors(req, config);
