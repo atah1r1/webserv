@@ -6,7 +6,7 @@
 /*   By: aes-salm <aes-salm@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/23 15:55:34 by aes-salm          #+#    #+#             */
-/*   Updated: 2022/08/05 11:47:09 by aes-salm         ###   ########.fr       */
+/*   Updated: 2022/08/08 11:39:14 by aes-salm         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,8 @@ class Request
 public:
 	Request(/* args */);
 	~Request();
+	Request(const Request &);
+	Request &operator=(const Request &);
 
 	// ENUM
 	enum state

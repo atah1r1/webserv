@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/01 22:24:39 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/08 02:55:22 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/08/08 15:03:46 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 /*
 ** BODY GENERATORS
 */
-std::string ResponseHandler::_getDefaultErrorBody( int statusCode, std::pair<ServerConfig *, Location *> config ) {
+std::string ResponseHandler::_getDefaultErrorBody( int statusCode, const std::pair<ServerConfig *, Location *>& config ) {
 	ServerConfig* _conf = config.first;
 	Location* _loc = config.second;
 
@@ -77,7 +77,7 @@ std::string ResponseHandler::_getDirListingBody( const std::string& uri, const s
 /*
 ** RESPONSE GENERATORS
 */
-Response ResponseHandler::_createErrorResponse( int statusCode, std::pair<ServerConfig *, Location *> config, const std::string& temp ) {
+Response ResponseHandler::_createErrorResponse( int statusCode, const std::pair<ServerConfig *, Location *>& config, const std::string& temp ) {
 	Response r;
 
 	std::string body = _getDefaultErrorBody(statusCode, config) + temp;
@@ -85,18 +85,18 @@ Response ResponseHandler::_createErrorResponse( int statusCode, std::pair<Server
 	r.setVersion("HTTP/1.1");
 	r.setStatusCode(statusCode);
 	r.setStatus(getReason(statusCode));
-	r.addHeader("Server", SERVER_VERSION);
-	r.addHeader("Date", getCurrentDate());
-	r.addHeader("Content-Type", "text/html");
-	r.addHeader("Content-Length", toString<size_t>(body.length()));
-	r.addHeader("Connection", "keep-alive");
+	r.addHeader(H_SERVER, SERVER_VERSION);
+	r.addHeader(H_DATE, getCurrentDate());
+	r.addHeader(H_CONTENT_TYPE, "text/html");
+	r.addHeader(H_CONTENT_LENGTH, toString<size_t>(body.length()));
+	r.addHeader(H_CONNECTION, "keep-alive");
 
 	r.setBody(body);
 
 	return r;
 }
 
-Response ResponseHandler::_createBodylessErrorResponse( int statusCode, std::pair<ServerConfig *, Location *> config, const std::string& temp ) {
+Response ResponseHandler::_createBodylessErrorResponse( int statusCode, const std::pair<ServerConfig *, Location *>& config, const std::string& temp ) {
 	Response r;
 
 	(void)config;
@@ -105,9 +105,9 @@ Response ResponseHandler::_createBodylessErrorResponse( int statusCode, std::pai
 	r.setVersion("HTTP/1.1");
 	r.setStatusCode(statusCode);
 	r.setStatus(getReason(statusCode));
-	r.addHeader("Server", SERVER_VERSION);
-	r.addHeader("Date", getCurrentDate());
-	r.addHeader("Connection", "keep-alive");
+	r.addHeader(H_SERVER, SERVER_VERSION);
+	r.addHeader(H_DATE, getCurrentDate());
+	r.addHeader(H_CONNECTION, "keep-alive");
 
 	return r;
 }
@@ -119,32 +119,41 @@ Response ResponseHandler::_createDirListingResponse( const std::string& uri, con
 	r.setVersion("HTTP/1.1");
 	r.setStatusCode(OK);
 	r.setStatus(getReason(OK));
-	r.addHeader("Server", SERVER_VERSION);
-	r.addHeader("Date", getCurrentDate());
-	r.addHeader("Content-Type", "text/html");
-	r.addHeader("Content-Length", toString<size_t>(body.length()));
-	r.addHeader("Connection", "keep-alive");
+	r.addHeader(H_SERVER, SERVER_VERSION);
+	r.addHeader(H_DATE, getCurrentDate());
+	r.addHeader(H_CONTENT_TYPE, "text/html");
+	r.addHeader(H_CONTENT_LENGTH, toString<size_t>(body.length()));
+	r.addHeader(H_CONNECTION, "keep-alive");
 
 	r.setBody(body);
 
 	return r;
 }
 
-Response ResponseHandler::_createRedirectionResponse( int statusCode, const std::string& dirPath ) {
+Response ResponseHandler::_createRedirectionResponse( int statusCode, const std::pair<ServerConfig *, Location *>& config, const std::string& dirPath ) {
 	Response r;
+	std::string body = _getDefaultErrorBody(statusCode,  config);
 
 	r.setVersion("HTTP/1.1");
 	r.setStatusCode(statusCode);
 	r.setStatus(getReason(statusCode));
+
 	r.addHeader("Server", SERVER_VERSION);
+	r.addHeader(H_DATE, getCurrentDate());
 	r.addHeader(H_LOCATION,  dirPath);
+	r.addHeader(H_CONTENT_TYPE, "text/html");
+	r.addHeader(H_CONTENT_LENGTH, toString<size_t>(body.length()));
+	r.addHeader(H_CONNECTION, "keep-alive");
+
+	r.setBody(body);
 
 	return r;
 }
 
-Response ResponseHandler::_createFileResponse( const std::string& filePath, std::pair<ServerConfig *, Location *> config ) {
+Response ResponseHandler::_createFileResponse( const std::string& filePath, const std::pair<ServerConfig *, Location *>& config ) {
 	Response r;
 
+	std::cerr << "SHIT IS CHUNKED BABY..." << std::endl;
 	// setup file for reading
 	r.setFilePath(filePath);
 	if (!r.setupFile())
@@ -153,17 +162,17 @@ Response ResponseHandler::_createFileResponse( const std::string& filePath, std:
 	r.setVersion("HTTP/1.1");
 	r.setStatusCode(OK);
 	r.setStatus(getReason(OK));
-	r.addHeader("Server", SERVER_VERSION);
-	r.addHeader("Date", getCurrentDate());
+	r.addHeader(H_SERVER, SERVER_VERSION);
+	r.addHeader(H_DATE, getCurrentDate());
 	std::string _mime = getMimeType(FileHandler::getFileExtension(filePath));
 	if (!_mime.empty())
-		r.addHeader("Content-Type", _mime);
-	r.addHeader("Content-Length", toString<size_t>(FileHandler::getFileSize(filePath)));
-	r.addHeader("Connection", "keep-alive");
+		r.addHeader(H_CONTENT_TYPE, _mime);
+	r.addHeader(H_CONTENT_LENGTH, toString<size_t>(FileHandler::getFileSize(filePath)));
+	r.addHeader(H_CONNECTION, "keep-alive");
 	return r;
 }
 
-Response ResponseHandler::_createFileCGIResponse( Request req, ServerConfig *conf, Location * loc, const std::string& filePath ) {
+Response ResponseHandler::_createFileCGIResponse( const Request& req, ServerConfig *conf, Location * loc, const std::string& filePath ) {
 	char buff[1024] = {0};
 	std::string _root = !loc->_root.empty() ? loc->_root : conf->getRoot();
 
@@ -212,29 +221,20 @@ Response ResponseHandler::_createFileCGIResponse( Request req, ServerConfig *con
 
 	r.addHeader("Server", SERVER_VERSION);
 
-	// Response r;
-	// std::string body = "CGI STUFF YAAAY" CRLF;
-
-	// r.setVersion("HTTP/1.1");
-	// r.setStatusCode(OK);
-	// r.setStatus(getReason(OK));
-	// r.addHeader("Server", SERVER_VERSION);
-	// r.addHeader("Date", getCurrentDate());
-	// r.addHeader("Content-Type", "text/html");
-	// r.addHeader("Content-Length", toString<size_t>(body.length()));
-	// r.addHeader("Connection", "keep-alive");
-	//r.setBody(body);
-
 	return r;
 }
 
 /*
 ** CONFIG/ERRORS HANDLERS
 */
-std::pair<ServerConfig *, Location *> ResponseHandler::_getMatchingConfig( Request req, ServerConfig serverConfig ) {
-	//std::vector<ServerConfig *>::iterator it = servers.begin();
+std::pair<ServerConfig *, Location *> ResponseHandler::_getMatchingConfig( const Request& req, ServerConfig& serverConfig ) {
 
 	// match Server & Location with same HOST & PATH
+	// std::cerr << "CONF IP: |" << serverConfig.getServerIp() << "|" << std::endl;
+	// std::cerr << "REQ  IP: |" << req.getHost() << "|" << std::endl;
+	// std::cerr << "CONF PORT: |" << serverConfig.getPort() << "|" << std::endl;
+	// std::cerr << "REQ  PORT: |" << req.getPort() << "|" << std::endl;
+
 	if (serverConfig.getServerIp() == req.getHost() && serverConfig.getPort() == req.getPort()) {
 		std::vector<Location *> _locations = serverConfig.getLocations();
 		Location* _l = matchLocation(_locations, req.getPath());
@@ -252,7 +252,7 @@ std::pair<ServerConfig *, Location *> ResponseHandler::_getMatchingConfig( Reque
 	return std::make_pair(&serverConfig, (Location *)NULL);
 }
 
-std::pair<bool, Response> ResponseHandler::_handleRequestErrors( Request req, std::pair<ServerConfig *, Location *> config ) {
+std::pair<bool, Response> ResponseHandler::_handleRequestErrors( const Request& req, const std::pair<ServerConfig *, Location *>& config ) {
 	ServerConfig* _conf = config.first;
 	Location* _loc = config.second;
 
@@ -321,7 +321,7 @@ std::pair<bool, Response> ResponseHandler::_handleRequestErrors( Request req, st
 /*
 ** REQUEST HANDLERS
 */
-Response ResponseHandler::_handleGETFile( Request req, std::pair<ServerConfig *, Location *> config, const std::string& requestPath  ) {
+Response ResponseHandler::_handleGETFile( const Request& req, const std::pair<ServerConfig *, Location *>& config, const std::string& requestPath  ) {
 	ServerConfig* _conf = config.first;
 	Location* _loc = config.second;
 
@@ -335,7 +335,7 @@ Response ResponseHandler::_handleGETFile( Request req, std::pair<ServerConfig *,
 	
 }
 
-Response ResponseHandler::_handleGETDirectory( Request req, std::pair<ServerConfig *, Location *> config, const std::string& requestPath ) {
+Response ResponseHandler::_handleGETDirectory( const Request& req, const std::pair<ServerConfig *, Location *>& config, const std::string& requestPath ) {
 	ServerConfig* _conf = config.first;
 	Location* _loc = config.second;
 
@@ -346,7 +346,7 @@ Response ResponseHandler::_handleGETDirectory( Request req, std::pair<ServerConf
 
 	// check redir
 	if (requestPath.back() != '/') {
-		return _createRedirectionResponse(MovedPermanently, FileHandler::disconnectPath(_root, requestPath) + "/");
+		return _createRedirectionResponse(MovedPermanently, config, FileHandler::disconnectPath(_root, requestPath) + "/");
 	}
 
 	// check for index files
@@ -374,11 +374,8 @@ Response ResponseHandler::_handleGETDirectory( Request req, std::pair<ServerConf
 	return _createFileResponse(_indexPath, config);
 }
 
-Response ResponseHandler::handleRequests( Request req, ServerConfig serverConfig) {
-
-	std::cout << "BEFORE: " <<serverConfig.getLocations().back()->_location << std::endl;
+Response ResponseHandler::handleRequests( const Request& req, ServerConfig& serverConfig ) {
 	std::pair<ServerConfig *, Location *> config = _getMatchingConfig(req, serverConfig);
-	std::cout << "AFTER: " << config.first->getLocations().front()->_location << std::endl;
 
 	// check for request errors
 	std::pair<bool, Response> _res = _handleRequestErrors(req, config);
@@ -392,13 +389,13 @@ Response ResponseHandler::handleRequests( Request req, ServerConfig serverConfig
 	if (!_loc->_redirection_path.empty()) {
 		std::string _redir = trim(_loc->_redirection_path);
 		if (beginsWith(_redir, "https://") || beginsWith(_redir, "http://")) {
-			return _createRedirectionResponse(MovedPermanently, _redir);
+			return _createRedirectionResponse(MovedPermanently, config, _redir);
 		} else if (_redir.front() == '/') {
 			_redir = FileHandler::getFullPath(_root, _redir);
-			return _createRedirectionResponse(MovedPermanently, _redir);
+			return _createRedirectionResponse(MovedPermanently,config, _redir);
 		} else {
 			_redir = FileHandler::getFullPath(_loc->_location, _redir);
-			return _createRedirectionResponse(MovedPermanently, _redir);
+			return _createRedirectionResponse(MovedPermanently, config, _redir);
 		}
 	}
 
@@ -416,7 +413,7 @@ Response ResponseHandler::handleRequests( Request req, ServerConfig serverConfig
 	return _createErrorResponse(MethodNotAllowed, config, "IT SHOULD'T GET HERE\n"); 
 }
 
-Response ResponseHandler::handleGETRequest( Request req, std::pair<ServerConfig *, Location *> config ) {
+Response ResponseHandler::handleGETRequest( const Request& req, const std::pair<ServerConfig *, Location *>& config ) {
 	ServerConfig* _conf = config.first;
 	Location* _loc = config.second;
 	std::string _root = !_loc->_root.empty() ? _loc->_root : _conf->getRoot();
@@ -452,7 +449,7 @@ Response ResponseHandler::handleGETRequest( Request req, std::pair<ServerConfig 
 	return _createErrorResponse(InternalServerError, config, "SHOUDN'T HAPPEN TOO\n");
 }
 
-Response ResponseHandler::handleDELETERequest( Request req, std::pair<ServerConfig *, Location *> config ) {
+Response ResponseHandler::handleDELETERequest( const Request& req, const std::pair<ServerConfig *, Location *>& config ) {
 	ServerConfig* _conf = config.first;
 	Location* _loc = config.second;
 	std::string _root = !_loc->_root.empty() ? _loc->_root : _conf->getRoot();
@@ -484,7 +481,7 @@ Response ResponseHandler::handleDELETERequest( Request req, std::pair<ServerConf
 	return _createErrorResponse(InternalServerError, config, strerror(errno));
 }
 
-Response ResponseHandler::handlePOSTRequest( Request req, std::pair<ServerConfig *, Location *> config ) {
+Response ResponseHandler::handlePOSTRequest( const Request& req, const std::pair<ServerConfig *, Location *>& config ) {
 	// TODO: finish
 	(void)req; (void)config;
 	return Response();

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Utils.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
+/*   By: aes-salm <aes-salm@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/24 12:22:25 by aes-salm          #+#    #+#             */
-/*   Updated: 2022/08/07 22:17:16 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/08/08 12:03:37 by aes-salm         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,7 +99,7 @@ void parseBody(std::string line, Request *request)
 	std::cout << "Body: " << line << std::endl;
 }
 
-void parseRequest(Request request, std::string buffer)
+void parseRequest(Request &request, std::string buffer)
 {
 	std::istringstream is(buffer);
 	std::string line;
