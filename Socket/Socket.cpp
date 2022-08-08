@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/12 15:40:19 by atahiri           #+#    #+#             */
-/*   Updated: 2022/08/08 16:54:00 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/08/08 23:46:41 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -112,7 +112,7 @@ void Socket::_send(int my_socket, const char *msg, size_t length)
 		std::cerr << "retry sending..." << std::endl;
 		usleep(700000);
 		_send(my_socket, msg, length);
-		//exit(EXIT_FAILURE);
+		// exit(EXIT_FAILURE);
 	}
 	std::cerr << "send successful" << std::endl;
 }
@@ -179,6 +179,12 @@ bool Socket::handleConnection(ServerConfig server_setup, int new_socket)
 			s += len;
 		}
 		std::cerr << "==== SIZE: " << s << std::endl;
+	}
+	// check if request is completed
+	if (request.getState() == Request::COMPLETED)
+	{
+		close(new_socket);
+		return false;
 	}
 
 	std::cerr << "SENT EVERYTHING..." << std::endl;
