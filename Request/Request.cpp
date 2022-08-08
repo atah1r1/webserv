@@ -6,7 +6,7 @@
 /*   By: aes-salm <aes-salm@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/23 15:57:03 by aes-salm          #+#    #+#             */
-/*   Updated: 2022/08/02 11:29:41 by aes-salm         ###   ########.fr       */
+/*   Updated: 2022/08/08 11:39:44 by aes-salm         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,28 @@ Request::Request(/* args */)
 
 Request::~Request()
 {
+}
+
+Request::Request(const Request &other)
+{
+	*this = other;
+}
+
+Request &Request::operator=(const Request &other)
+{
+	if (this != &other)
+	{
+		_state = other._state;
+		_statusCode = other._statusCode;
+		_method = other._method;
+		_path = other._path;
+		_queries = other._queries;
+		_version = other._version;
+		_host = other._host;
+		_port = other._port;
+		_headers = other._headers;
+	}
+	return *this;
 }
 
 // GETTERS
