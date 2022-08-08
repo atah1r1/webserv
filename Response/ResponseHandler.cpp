@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/01 22:24:39 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/07 23:27:44 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/08 11:43:53 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 /*
 ** BODY GENERATORS
 */
-std::string ResponseHandler::_getDefaultErrorBody( int statusCode, std::pair<ServerConfig *, Location *> config ) {
+std::string ResponseHandler::_getDefaultErrorBody( int statusCode, const std::pair<ServerConfig *, Location *>& config ) {
 	ServerConfig* _conf = config.first;
 	Location* _loc = config.second;
 
@@ -77,7 +77,7 @@ std::string ResponseHandler::_getDirListingBody( const std::string& uri, const s
 /*
 ** RESPONSE GENERATORS
 */
-Response ResponseHandler::_createErrorResponse( int statusCode, std::pair<ServerConfig *, Location *> config, const std::string& temp ) {
+Response ResponseHandler::_createErrorResponse( int statusCode, const std::pair<ServerConfig *, Location *>& config, const std::string& temp ) {
 	Response r;
 
 	std::string body = _getDefaultErrorBody(statusCode, config) + temp;
@@ -96,7 +96,7 @@ Response ResponseHandler::_createErrorResponse( int statusCode, std::pair<Server
 	return r;
 }
 
-Response ResponseHandler::_createBodylessErrorResponse( int statusCode, std::pair<ServerConfig *, Location *> config, const std::string& temp ) {
+Response ResponseHandler::_createBodylessErrorResponse( int statusCode, const std::pair<ServerConfig *, Location *>& config, const std::string& temp ) {
 	Response r;
 
 	(void)config;
@@ -142,7 +142,7 @@ Response ResponseHandler::_createRedirectionResponse( int statusCode, const std:
 	return r;
 }
 
-Response ResponseHandler::_createFileResponse( const std::string& filePath, std::pair<ServerConfig *, Location *> config ) {
+Response ResponseHandler::_createFileResponse( const std::string& filePath, const std::pair<ServerConfig *, Location *>& config ) {
 	Response r;
 
 	// setup file for reading
@@ -163,7 +163,7 @@ Response ResponseHandler::_createFileResponse( const std::string& filePath, std:
 	return r;
 }
 
-Response ResponseHandler::_createFileCGIResponse( Request req, ServerConfig *conf, Location * loc, const std::string& filePath ) {
+Response ResponseHandler::_createFileCGIResponse( const Request& req, ServerConfig *conf, Location * loc, const std::string& filePath ) {
 	char buff[1024] = {0};
 	std::string _root = !loc->_root.empty() ? loc->_root : conf->getRoot();
 
@@ -231,10 +231,15 @@ Response ResponseHandler::_createFileCGIResponse( Request req, ServerConfig *con
 /*
 ** CONFIG/ERRORS HANDLERS
 */
-std::pair<ServerConfig *, Location *> ResponseHandler::_getMatchingConfig( Request req, ServerConfig serverConfig ) {
+std::pair<ServerConfig *, Location *> ResponseHandler::_getMatchingConfig( const Request& req, ServerConfig& serverConfig ) {
 	//std::vector<ServerConfig *>::iterator it = servers.begin();
 
 	// match Server & Location with same HOST & PATH
+	std::cerr << "CONF IP: |" << serverConfig.getServerIp() << "|" << std::endl;
+	std::cerr << "REQ  IP: |" << req.getHost() << "|" << std::endl;
+	std::cerr << "CONF PORT: |" << serverConfig.getPort() << "|" << std::endl;
+	std::cerr << "REQ  PORT: |" << req.getPort() << "|" << std::endl;
+
 	if (serverConfig.getServerIp() == req.getHost() && serverConfig.getPort() == req.getPort()) {
 		std::vector<Location *> _locations = serverConfig.getLocations();
 		Location* _l = matchLocation(_locations, req.getPath());
@@ -248,11 +253,13 @@ std::pair<ServerConfig *, Location *> ResponseHandler::_getMatchingConfig( Reque
 		if (_l != NULL) return std::make_pair(&serverConfig, _l);
 	}
 
+	std::cerr << "SHOULDN'T GET HERE :(" << std::endl;
+
 	// no match has been found :(
 	return std::make_pair(&serverConfig, (Location *)NULL);
 }
 
-std::pair<bool, Response> ResponseHandler::_handleRequestErrors( Request req, std::pair<ServerConfig *, Location *> config ) {
+std::pair<bool, Response> ResponseHandler::_handleRequestErrors( const Request& req, const std::pair<ServerConfig *, Location *>& config ) {
 	ServerConfig* _conf = config.first;
 	Location* _loc = config.second;
 
@@ -321,7 +328,7 @@ std::pair<bool, Response> ResponseHandler::_handleRequestErrors( Request req, st
 /*
 ** REQUEST HANDLERS
 */
-Response ResponseHandler::_handleGETFile( Request req, std::pair<ServerConfig *, Location *> config, const std::string& requestPath  ) {
+Response ResponseHandler::_handleGETFile( const Request& req, const std::pair<ServerConfig *, Location *>& config, const std::string& requestPath  ) {
 	ServerConfig* _conf = config.first;
 	Location* _loc = config.second;
 
@@ -335,7 +342,7 @@ Response ResponseHandler::_handleGETFile( Request req, std::pair<ServerConfig *,
 	
 }
 
-Response ResponseHandler::_handleGETDirectory( Request req, std::pair<ServerConfig *, Location *> config, const std::string& requestPath ) {
+Response ResponseHandler::_handleGETDirectory( const Request& req, const std::pair<ServerConfig *, Location *>& config, const std::string& requestPath ) {
 	ServerConfig* _conf = config.first;
 	Location* _loc = config.second;
 
@@ -374,7 +381,7 @@ Response ResponseHandler::_handleGETDirectory( Request req, std::pair<ServerConf
 	return _createFileResponse(_indexPath, config);
 }
 
-Response ResponseHandler::handleRequests( Request req, ServerConfig serverConfig) {
+Response ResponseHandler::handleRequests( const Request& req, ServerConfig& serverConfig ) {
 	std::pair<ServerConfig *, Location *> config = _getMatchingConfig(req, serverConfig);
 
 	// check for request errors
@@ -413,7 +420,7 @@ Response ResponseHandler::handleRequests( Request req, ServerConfig serverConfig
 	return _createErrorResponse(MethodNotAllowed, config, "IT SHOULD'T GET HERE\n"); 
 }
 
-Response ResponseHandler::handleGETRequest( Request req, std::pair<ServerConfig *, Location *> config ) {
+Response ResponseHandler::handleGETRequest( const Request& req, const std::pair<ServerConfig *, Location *>& config ) {
 	ServerConfig* _conf = config.first;
 	Location* _loc = config.second;
 	std::string _root = !_loc->_root.empty() ? _loc->_root : _conf->getRoot();
@@ -449,7 +456,7 @@ Response ResponseHandler::handleGETRequest( Request req, std::pair<ServerConfig 
 	return _createErrorResponse(InternalServerError, config, "SHOUDN'T HAPPEN TOO\n");
 }
 
-Response ResponseHandler::handleDELETERequest( Request req, std::pair<ServerConfig *, Location *> config ) {
+Response ResponseHandler::handleDELETERequest( const Request& req, const std::pair<ServerConfig *, Location *>& config ) {
 	ServerConfig* _conf = config.first;
 	Location* _loc = config.second;
 	std::string _root = !_loc->_root.empty() ? _loc->_root : _conf->getRoot();
@@ -481,7 +488,7 @@ Response ResponseHandler::handleDELETERequest( Request req, std::pair<ServerConf
 	return _createErrorResponse(InternalServerError, config, strerror(errno));
 }
 
-Response ResponseHandler::handlePOSTRequest( Request req, std::pair<ServerConfig *, Location *> config ) {
+Response ResponseHandler::handlePOSTRequest( const Request& req, const std::pair<ServerConfig *, Location *>& config ) {
 	// TODO: finish
 	(void)req; (void)config;
 	return Response();

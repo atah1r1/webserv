@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/12 15:40:19 by atahiri           #+#    #+#             */
-/*   Updated: 2022/08/07 23:38:06 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/08 11:48:54 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -145,6 +145,12 @@ bool Socket::handleConnection(ServerConfig server_setup, int new_socket)
 {
 	// ---------------------- Reading Request --------------------------- //
 	Request request = receiveRequest(new_socket);
+
+	std::cerr << "HOST: " << request.getHost() << std::endl;
+	std::cerr << "METH: " << request.getMethod() << std::endl;
+	std::cerr << "PATH: " << request.getPath() << std::endl;
+	std::cerr << "PORT: " << request.getPort() << std::endl;
+	std::cerr << "CODE: " << request.getStatusCode() << std::endl;
 
 	Response r = ResponseHandler::handleRequests(request, server_setup);
 
