@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/12 15:40:19 by atahiri           #+#    #+#             */
-/*   Updated: 2022/08/08 23:46:41 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/08/09 15:00:16 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,11 +31,11 @@ Socket::Socket(std::vector<ServerConfig> servers) : address_len(sizeof(address))
 		servers_fds.push_back(this->server_fd);
 		it++;
 		// set socket to non-blocking
-		if (fcntl(this->server_fd, F_SETFL, O_NONBLOCK) < 0)
-		{
-			std::cerr << "non_blocking error" << std::endl;
-			exit(EXIT_FAILURE);
-		}
+		// if (fcntl(this->server_fd, F_SETFL, O_NONBLOCK) < 0)
+		// {
+		// 	std::cerr << "non_blocking error" << std::endl;
+		// 	exit(EXIT_FAILURE);
+		// }
 		// set default socket options (reuse address)
 		if (setsockopt(this->server_fd, SOL_SOCKET, SO_REUSEADDR, &this->opt, sizeof(int)))
 		{
@@ -109,8 +109,8 @@ void Socket::_send(int my_socket, const char *msg, size_t length)
 	{
 		std::cerr << "send failed: ";
 		std::cerr << strerror(errno) << std::endl;
-		std::cerr << "retry sending..." << std::endl;
-		usleep(700000);
+		// std::cerr << "retry sending..." << std::endl;
+		// usleep(700000);
 		_send(my_socket, msg, length);
 		// exit(EXIT_FAILURE);
 	}
@@ -150,7 +150,7 @@ int Socket::acceptNewConnection(std::pair<int, size_t> pair)
 bool Socket::handleConnection(ServerConfig server_setup, int new_socket)
 {
 	// ---------------------- Reading Request --------------------------- //
-	std::cerr << "RECVING REQUEST..." << std::endl;
+	// std::cerr << "RECVING REQUEST..." << std::endl;
 
 	Request request = receiveRequest(new_socket);
 
@@ -175,17 +175,17 @@ bool Socket::handleConnection(ServerConfig server_setup, int new_socket)
 		while ((len = r.getNextChunk(buffer)) > 0)
 		{
 			this->_send(new_socket, buffer, len);
-			bzero(buffer, BUFFER_SIZE);
+			memset(buffer, 0, BUFFER_SIZE);
 			s += len;
 		}
 		std::cerr << "==== SIZE: " << s << std::endl;
 	}
 	// check if request is completed
-	if (request.getState() == Request::COMPLETED)
-	{
-		close(new_socket);
+	if (!(request.getState() == Request::COMPLETED))
 		return false;
-	}
+
+	requests.erase(new_socket);
+	close(new_socket);
 
 	std::cerr << "SENT EVERYTHING..." << std::endl;
 
@@ -211,13 +211,14 @@ void Socket::removeRequest(int fd)
 
 Request Socket::receiveRequest(int fd)
 {
-	char buffer[1024] = {0};
+	char buffer[BUFFER_SIZE] = {0};
 	long valread = 0;
 	valread = recv(fd, buffer, 1024, 0);
 	(void)valread;
 	// std::cout << buffer << std::endl;
 
 	parseRequest(requests[fd], buffer);
+	memset(buffer, 0, BUFFER_SIZE);
 	return requests[fd];
 }
 
