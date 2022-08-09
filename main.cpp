@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 17:17:03 by atahiri           #+#    #+#             */
-/*   Updated: 2022/08/09 23:21:51 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/08/09 23:25:20 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,10 +45,8 @@ void start(std::vector<ServerConfig> servers)
                 if ((search_fd = find_fd(i, socket.getServersFds())).first)
                 {
                     // this is a new connection
-                    // std::cout << "IF CONDITION" << std::endl;
                     int client_socket = socket.acceptNewConnection(search_fd.second);
                     server_it = it_b + (search_fd.second).second;
-                    // std::cout << "server_it: " << (*server_it).getPort() << std::endl;
                     FD_SET(client_socket, &SocketsRead);
                 }
                 else
@@ -56,13 +54,24 @@ void start(std::vector<ServerConfig> servers)
                     if (!socket.isThisRequestExist(i))
 						socket.pushNewRequest(i);
                     if (socket.handleConnection(*server_it, i) == true)
-                    {
                         FD_CLR(i, &SocketsRead);
-                        // close(i);
-
-                    }
-                    //socket._send(i, "HTTP/1.1 200 OK\nContent-Type:text/html\nContent-Length: 16\n\n<h1>testing</h1>");
-                    // std::cout << "ELSE" << std::endl;
+                }
+            }
+            if (FD_ISSET(i, &ReadyForWrite))
+            {
+                if ((search_fd = find_fd(i, socket.getServersFds())).first)
+                {
+                    // this is a new connection
+                    int client_socket = socket.acceptNewConnection(search_fd.second);
+                    server_it = it_b + (search_fd.second).second;
+                    FD_SET(client_socket, &SocketsWrite);
+                }
+                else
+                {
+                    if (!socket.isThisRequestExist(i))
+						socket.pushNewRequest(i);
+                    if (socket.handleConnection(*server_it, i) == true)
+                        FD_CLR(i, &SocketsWrite);
                 }
             }
         }
