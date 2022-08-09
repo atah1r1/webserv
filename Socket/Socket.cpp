@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/12 15:40:19 by atahiri           #+#    #+#             */
-/*   Updated: 2022/08/08 23:46:41 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/08/09 00:31:42 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -181,11 +181,12 @@ bool Socket::handleConnection(ServerConfig server_setup, int new_socket)
 		std::cerr << "==== SIZE: " << s << std::endl;
 	}
 	// check if request is completed
-	if (request.getState() == Request::COMPLETED)
-	{
-		close(new_socket);
-		return false;
-	}
+	// if (request.getState() == Request::COMPLETED)
+	// {
+	// 	std::cout << "ENTERED HERE" << std::endl;
+	// 	close(new_socket);
+	// 	return false;
+	// }
 
 	std::cerr << "SENT EVERYTHING..." << std::endl;
 
