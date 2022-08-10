@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/12 15:40:18 by atahiri           #+#    #+#             */
-/*   Updated: 2022/08/07 22:04:19 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/08/10 11:43:45 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,12 +27,10 @@ class Socket
 private:
     int server_fd;
     int new_socket;
-    int valread;
     bool opt;
-    char buffer[1024];
     std::string hello;
     struct sockaddr_in address;
-    int port;
+    //int port;
     std::string ip;
     std::vector<int> servers_fds;
     std::vector<struct sockaddr_in> vec_addresses;
@@ -45,15 +43,9 @@ public:
     // Socket(Socket const &rhs);
     // Socket &operator=(Socket const &rhs);
     std::vector<int> getServersFds();
-    void _init(std::string host, int port);
-    void _socket();
-    void _bind();
-    void _listen();
-    void _accept();
     int acceptNewConnection(std::pair<int, size_t> pair);
     void _send(int my_socket, const char * msg, size_t length);
     bool handleConnection(ServerConfig server_setup, int new_socket);
-    void _recv();
     void _close();
     bool isThisRequestExist(int fd);
     void pushNewRequest(int fd);

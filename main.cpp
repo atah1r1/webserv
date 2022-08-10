@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 17:17:03 by atahiri           #+#    #+#             */
-/*   Updated: 2022/08/09 23:25:20 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/08/10 12:39:30 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,8 +70,9 @@ void start(std::vector<ServerConfig> servers)
                 {
                     if (!socket.isThisRequestExist(i))
 						socket.pushNewRequest(i);
-                    if (socket.handleConnection(*server_it, i) == true)
+                    if (socket.handleConnection(*server_it, i) == true) {
                         FD_CLR(i, &SocketsWrite);
+                    }
                 }
             }
         }
@@ -87,7 +88,8 @@ int main(int argc, char *argv[])
     }
     Config *config = new Config();
     std::vector<ServerConfig> servers = config->getServers(argv[1]);
-    // signal(SIGPIPE, SIG_IGN); // fix problem with broken pipe signal (when client closes connection)
+    // broken pipe signal handler
+    signal(SIGPIPE, SIG_IGN);
     start(servers);
     return 0;
 }

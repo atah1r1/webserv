@@ -19,7 +19,7 @@ SRCS	= 	main.cpp\
 
 
 $(NAME) : 	$(SRCS)
-			@$(CC) $(FLAGS) $(SRCS) -o $(NAME) -D ALLOW_DEBUG
+			@$(CC) $(FLAGS) $(SRCS) -o $(NAME) -D ALLOW_DEBUG -g -fsanitize=address
 
 all		: 	$(NAME)
 			@rm -rf webserv.dSYM

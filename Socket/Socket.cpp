@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/12 15:40:19 by atahiri           #+#    #+#             */
-/*   Updated: 2022/08/09 23:36:23 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/08/10 14:22:31 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,37 +22,46 @@ Socket::Socket(std::vector<ServerConfig> servers) : address_len(sizeof(address))
 	size_t size = servers.size();
 	for (size_t i = 0; i < size; i++)
 	{
-		this->_init((*it).getServerIp(), (*it).getPort());
+		// this->_init((*it).getServerIp(), (*it).getPort());
 		if ((this->server_fd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
 		{
 			std::cout << "socket failed" << std::endl;
 			exit(EXIT_FAILURE);
 		}
 		servers_fds.push_back(this->server_fd);
+
+		memset(&this->address, 0, address_len);
+		this->address.sin_family = AF_INET;
+		this->address.sin_addr.s_addr = inet_addr((*it).getServerIp().c_str());
+		this->address.sin_port = htons((*it).getPort());
 		it++;
+
+		vec_addresses.push_back(this->address);
 		// set socket to non-blocking
-		// if (fcntl(this->server_fd, F_SETFL, O_NONBLOCK) < 0)
-		// {
-		// 	std::cerr << "non_blocking error" << std::endl;
-		// 	exit(EXIT_FAILURE);
-		// }
+		if (fcntl(this->server_fd, F_SETFL, O_NONBLOCK) < 0)
+		{
+			std::cerr << "non_blocking error" << std::endl;
+			exit(EXIT_FAILURE);
+		}
 		// set default socket options (reuse address)
 		if (setsockopt(this->server_fd, SOL_SOCKET, SO_REUSEADDR, &this->opt, sizeof(int)))
 		{
 			std::cout << "setsockopt error" << std::endl;
 			exit(EXIT_FAILURE);
 		}
-		this->_bind();
-		this->_listen();
+		// Forcefully attaching socket to the port 8080
+		if (bind(this->server_fd, (struct sockaddr *)&this->address, address_len) < 0)
+		{
+			std::cout << "bind failed" << std::endl;
+			exit(EXIT_FAILURE);
+		}
+		// listen to the socket
+		if (listen(this->server_fd, 128) < 0)
+		{
+			std::cout << "listen failed" << std::endl;
+			exit(EXIT_FAILURE);
+		}
 	}
-}
-
-void Socket::_init(std::string host, int port)
-{
-	this->opt = 1;
-	this->port = port;
-	this->ip = host;
-	this->hello = "HTTP/1.1 200 OK\nContent-Type:text/html\nContent-Length: 16\n\n<h1>testing</h1>";
 }
 
 // AF_INET ipv4
@@ -62,67 +71,19 @@ void Socket::_init(std::string host, int port)
 // set option for socket level SOL_SOCKET
 // SO_REUSEADDR allows the socket to be bound to the address even if it is already in use.
 
-void Socket::_socket()
-{
-}
-
-void Socket::_bind()
-{
-	memset(&this->address, 0, address_len);
-	this->address.sin_family = AF_INET;
-	this->address.sin_addr.s_addr = inet_addr(this->ip.c_str());
-	this->address.sin_port = htons(this->port);
-
-	vec_addresses.push_back(this->address);
-
-	// Forcefully attaching socket to the port 8080
-	if (bind(this->server_fd, (struct sockaddr *)&this->address, address_len) < 0)
-	{
-		std::cout << "bind failed" << std::endl;
-		exit(EXIT_FAILURE);
-	}
-}
-
-// 128 backlogs
-
-void Socket::_listen()
-{
-	if (listen(this->server_fd, 128) < 0)
-	{
-		std::cout << "listen failed" << std::endl;
-		exit(EXIT_FAILURE);
-	}
-}
-
-void Socket::_accept()
-{
-	if ((new_socket = accept(this->server_fd, (struct sockaddr *)&this->address, (socklen_t *)&(this->address))) < 0)
-	{
-		std::cout << "accept failed" << std::endl;
-		exit(EXIT_FAILURE);
-	}
-}
-
 void Socket::_send(int my_socket, const char *msg, size_t length)
 {
-	if (send(my_socket, msg, length, 0) < 0)
+	if (send(my_socket, msg, length, 0) <= 0)
 	{
 		std::cerr << "send failed: ";
 		std::cerr << strerror(errno) << std::endl;
 		// std::cerr << "retry sending..." << std::endl;
-		// usleep(700000);
+		usleep(1000);
 		_send(my_socket, msg, length);
 		// exit(EXIT_FAILURE);
 	}
+	memset((char *)msg, 0, length);
 	std::cerr << "send successful" << std::endl;
-}
-
-void Socket::_recv()
-{
-	memset(this->buffer, 0, 1024);
-	this->valread = read(this->new_socket, this->buffer, 1024);
-	std::cout << "How much line i read: " << valread << std::endl;
-	std::cout << this->buffer << std::endl;
 }
 
 void Socket::_close()
@@ -180,12 +141,18 @@ bool Socket::handleConnection(ServerConfig server_setup, int new_socket)
 		}
 		std::cerr << "==== SIZE: " << s << std::endl;
 	}
-	// check if request is completed
+	
 	if (!(request.getState() == Request::COMPLETED))
 		return false;
 
 	requests.erase(new_socket);
 	close(new_socket);
+
+	if (request.getHeaders().find("Connection") != request.getHeaders().end())
+    {
+        if (request.getHeaders()["Connection"] != "keep-alive")
+                close(new_socket);
+    }
 
 	std::cerr << "SENT EVERYTHING..." << std::endl;
 
@@ -213,8 +180,9 @@ Request Socket::receiveRequest(int fd)
 {
 	char buffer[BUFFER_SIZE] = {0};
 	long valread = 0;
-	valread = recv(fd, buffer, 1024, 0);
-	(void)valread;
+	valread = recv(fd, buffer, BUFFER_SIZE, 0);
+	if (valread <= 0)
+		close(fd);
 	// std::cout << buffer << std::endl;
 
 	parseRequest(requests[fd], buffer);
