@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/01 22:24:39 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/08 16:39:59 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/08/10 00:05:28 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -342,7 +342,7 @@ Response ResponseHandler::_handleGETDirectory( const Request& req, const std::pa
 
 	// Select default configs
 	std::string _root = !_loc->_root.empty() ? _loc->_root : _conf->getRoot();
-	bool _autoIndexing = _loc->_autoindex ? _loc->_autoindex : _conf->getAutoIndex();
+	bool _autoIndexing = _loc->_autoindex;
 	std::vector<std::string> _indexFiles = !_loc->_index_file.empty() ? _loc->_index_file : _conf->getIndexFiles();
 
 	// check redir
@@ -456,9 +456,11 @@ Response ResponseHandler::handleDELETERequest( const Request& req, const std::pa
 	std::string _root = !_loc->_root.empty() ? _loc->_root : _conf->getRoot();
 
 	std::string _requestPath = FileHandler::getFullPath(_root, req.getPath());
+	// incase of file with '/' at the end
+	std::string _temp = _requestPath.back() == '/' ? _requestPath.substr(0, _requestPath.size() - 1) : _requestPath;
 
 	// check if path 
-	FileType _type = FileHandler::getTypeS(_requestPath);
+	FileType _type = FileHandler::getTypeS(_temp);
 
 	if (_type == T_ERROR && errno == ENOENT) {
 		return _createErrorResponse(NotFound, config, "PATH NOT EXIST\n");
