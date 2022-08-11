@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/11 12:21:13 by atahiri           #+#    #+#             */
-/*   Updated: 2022/08/11 16:39:16 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/08/11 19:52:30 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,7 @@ void Socket::launchSock()
             exit(EXIT_FAILURE);
         }
         // assign  Ip, convert port to network byte order and assign local address
+        memset(&this->_serv_addr, 0, sizeof(this->_serv_addr));
         this->_serv_addr.sin_family = AF_INET;
         this->_serv_addr.sin_port = htons(this->_port);
         if (this->_host == "localhost")
@@ -45,7 +46,7 @@ void Socket::launchSock()
         // set socket to non-blocking
 		if (fcntl(this->_sockfd, F_SETFL, O_NONBLOCK) < 0)
 		{
-			std::cerr << "non_blocking error" << std::endl;
+			std::cerr << "non_blocking error" << strerror(errno) << std::endl;
 			exit(EXIT_FAILURE);
 		}
 		// set default socket options (reuse address)

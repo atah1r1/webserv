@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/11 12:24:52 by atahiri           #+#    #+#             */
-/*   Updated: 2022/08/11 17:06:13 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/08/11 19:48:16 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -120,6 +120,11 @@ void Server::acceptNewClient(Socket *sock)
     addToSet(client->getSockFd(), this->_readSet);
 }
 
+// void reset(int newClient)
+// {
+//     this->_clients.insert(std::make_pair(newClient, Request()));
+// }
+
 void Server::handleClient(Socket *client)
 {
     char buff[MAX_BUFFER_SIZE];
@@ -127,11 +132,10 @@ void Server::handleClient(Socket *client)
     // receive data from client
     int size = recv(client->getSockFd(), buff, MAX_BUFFER_SIZE, 0);
 
-    std::cout << "Received: " << size << " bytes" << std::endl;
-
     // if an error occured or when a stream socket peer has performed a shutdown.
     if (size == -1 || size == 0)
     {
+        std::cout << "ENTERED HERE: HANDLE CLIENT: " << client->getSockFd() << std::endl;
         deleteFromSet(client->getSockFd(), this->_readSet);
         deleteFromSet(client->getSockFd(), this->_writeSet);
         this->_clients.erase(client->getSockFd());
@@ -150,11 +154,12 @@ void Server::handleClient(Socket *client)
     {
         std::string newStr = std::string(buff, size);
         parseRequest(this->_clients[client->getSockFd()], newStr);
-        bool isComplete = this->_clients[client->getSockFd()].getState() == Request::COMPLETED;
-        if (isComplete)
+        bool isCompleted = this->_clients[client->getSockFd()].getState() == Request::COMPLETED;
+        if (isCompleted)
         {
             std::cout << "Request completed" << std::endl;
-            client->updateConnection(this->_clients[client->getSockFd()].getHeader("Connection") == "Keep-alive");
+            std::cout << "Connection: " << this->_clients[client->getSockFd()].getHeader("Connection") << std::endl;
+            client->updateConnection(this->_clients[client->getSockFd()].getHeader("Connection") == "keep-alive");
             deleteFromSet(client->getSockFd(), this->_readSet);
             addToSet(client->getSockFd(), this->_writeSet);
         }
@@ -166,47 +171,64 @@ void Server::sendResponse(Socket *client)
     Response r = ResponseHandler::handleRequests(this->_clients[client->getSockFd()], this->_servConf.front());
     // send(client->getSockFd(), hello.c_str(), strlen(hello.c_str()), 0);
     std::string response = r.toString();
-
-    if (!response.empty())
+    // send Headers to client
+    int size = send(client->getSockFd(), response.c_str(), response.size(), 0);
+    // send chunked body response chunked
+    char buffer[BUFFER_SIZE] = {0};
+    size_t len = 0;
+    if (r.isChunked())
     {
-        int size = send(client->getSockFd(), response.c_str(), response.size(), 0);
-        char buffer[BUFFER_SIZE] = {0};
-        size_t len = 0;
-        if (r.isChunked())
+        size_t s = 0;
+        while ((len = r.getNextChunk(buffer)) > 0)
         {
-            size_t s = 0;
-            while ((len = r.getNextChunk(buffer)) > 0)
-            {
-                send(client->getSockFd(), buffer, len, 0);
-                // memset(buffer, 0, BUFFER_SIZE);
-                s += len;
-            }
-            std::cerr << "==== SIZE: " << s << std::endl;
+            send(client->getSockFd(), buffer, len, 0);
+            s += len;
         }
-        if (size == -1)
+        std::cout << "Sent chunk " << s << " of size " << len << std::endl;
+    }
+    if (size == -1)
+    {
+        std::cout << "ENTERED" << std::endl;
+        deleteFromSet(client->getSockFd(), this->_readSet);
+        deleteFromSet(client->getSockFd(), this->_writeSet);
+        this->_clients.erase(client->getSockFd());
+        client->m_close();
+        std::vector<Socket *>::iterator position = std::find(this->_sockets.begin(), this->_sockets.end(), client);
+        if (position != this->_sockets.end())
         {
-            deleteFromSet(client->getSockFd(), this->_readSet);
-            deleteFromSet(client->getSockFd(), this->_writeSet);
-            this->_clients.erase(client->getSockFd());
-            client->m_close();
-            std::vector<Socket *>::iterator position = std::find(this->_sockets.begin(), this->_sockets.end(), client);
-            if (position != this->_sockets.end())
-            {
-                delete (*position);
-                this->_sockets.erase(position);
-            }
-            return;
+            delete (*position);
+            this->_sockets.erase(position);
+        }
+        return;
+    }
+    if (this->_clients[client->getSockFd()].getHeader("Connection") == "keep-alive")
+    {
+        this->_clients.insert(std::make_pair(client->getSockFd(), Request()));
+        deleteFromSet(client->getSockFd(), this->_writeSet);
+        addToSet(client->getSockFd(), this->_readSet);
+    }
+    else
+    {
+        deleteFromSet(client->getSockFd(), this->_writeSet);
+        deleteFromSet(client->getSockFd(), this->_readSet);
+        this->_clients.erase(client->getSockFd());
+        client->m_close();
+        std::vector<Socket *>::iterator position = std::find(this->_sockets.begin(), this->_sockets.end(), client);
+        if (position != this->_sockets.end())
+        {
+            delete (*position);
+            this->_sockets.erase(position);
         }
     }
-    deleteFromSet(client->getSockFd(), this->_writeSet);
-    this->_clients.erase(client->getSockFd());
-    client->m_close();
-    std::vector<Socket *>::iterator position = std::find(this->_sockets.begin(), this->_sockets.end(), client);
-    if (position != this->_sockets.end())
-    {
-        delete (*position);
-        this->_sockets.erase(position);
-    }
+    // deleteFromSet(client->getSockFd(), this->_writeSet);
+    // this->_clients.erase(client->getSockFd());
+    // client->m_close();
+    // std::vector<Socket *>::iterator position = std::find(this->_sockets.begin(), this->_sockets.end(), client);
+    // if (position != this->_sockets.end())
+    // {
+    //     delete (*position);
+    //     this->_sockets.erase(position);
+    // }
 }
 
 void Server::clean()

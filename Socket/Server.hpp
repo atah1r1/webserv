@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/11 12:24:44 by atahiri           #+#    #+#             */
-/*   Updated: 2022/08/11 17:01:12 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/08/11 19:44:51 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,6 +57,7 @@ public:
 	void sendResponse(Socket *client);
 
 	void clean();
+	void reset(int newClient);
 
 	static int start(std::vector<ServerConfig> servers);
 };
