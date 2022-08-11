@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/24 12:22:25 by aes-salm          #+#    #+#             */
-/*   Updated: 2022/08/10 12:40:07 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/08/11 13:11:10 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -127,5 +127,5 @@ void parseRequest(Request &request, std::string buffer)
 			parseBody(line, &request);
 		i++;
 	}
-	printRequest(request);
+	// printRequest(request);
 }
