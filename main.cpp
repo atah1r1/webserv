@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 17:17:03 by atahiri           #+#    #+#             */
-/*   Updated: 2022/08/11 12:49:16 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/08/11 16:40:26 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,8 +23,6 @@ int main(int argc, char *argv[])
     }
     Config *config = new Config();
     std::vector<ServerConfig> servers = config->getServers(argv[1]);
-    // broken pipe signal handler
-    // signal(SIGPIPE, SIG_IGN);
     Server::start(servers);
     return 0;
 }

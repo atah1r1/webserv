@@ -8,6 +8,7 @@ SRCS	= 	main.cpp\
 			Config/Lexer.cpp\
 			Config/Parser.cpp\
 			Socket/Socket.cpp\
+			Socket/Server.cpp\
 			Request/Request.cpp\
       		Request/Utils.cpp\
 			Utils/FileHandler.cpp\
