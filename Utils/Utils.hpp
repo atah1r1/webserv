@@ -53,6 +53,7 @@ std::string randomFileName(void);
 
 bool isMethodAllowed(std::vector<std::string> allowedMethods, const std::string &method);
 bool isMethodImplemented(const std::string &method);
+bool isSameHost( const std::string& host1, const std::string& host2 );
 
 template <typename T>
 T toNumber(const std::string &str)

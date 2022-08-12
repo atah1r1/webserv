@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ResponseHandler.cpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/01 22:24:39 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/10 00:05:28 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/08/12 02:56:01 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,7 @@ std::string ResponseHandler::_getStandardErrorBody( int statusCode ) {
 	return ss.str();
 }
 
-std::string ResponseHandler::_getDirListingBody( const std::string& uri, const std::string& root, const std::string& dirPath ) {
+std::string ResponseHandler::_getDirListingBody( const std::string& root, const std::string& dirPath ) {
 	std::stringstream ss;
 
 	std::string _dirPath = FileHandler::disconnectPath(root, dirPath);
@@ -64,7 +64,7 @@ std::string ResponseHandler::_getDirListingBody( const std::string& uri, const s
 
 	std::map<std::string, std::string>::iterator it = _paths.begin();
 	while (it != _paths.end()) {
-		ss << "<li><a href=\"" << uri << it->second << "\">" << it->first << "</a></li>\n";
+		ss << "<li><a href=\"" << it->second << "\">" << it->first << "</a></li>\n";
 		++it;
 	}
 	ss << "</ul>\n<hr>\n";
@@ -77,7 +77,7 @@ std::string ResponseHandler::_getDirListingBody( const std::string& uri, const s
 /*
 ** RESPONSE GENERATORS
 */
-Response ResponseHandler::_createErrorResponse( int statusCode, const std::pair<ServerConfig *, Location *>& config, const std::string& temp ) {
+Response ResponseHandler::_createErrorResponse( const Request& req, int statusCode, const std::pair<ServerConfig *, Location *>& config, const std::string& temp ) {
 	Response r;
 
 	std::string body = _getDefaultErrorBody(statusCode, config) + temp;
@@ -89,14 +89,14 @@ Response ResponseHandler::_createErrorResponse( int statusCode, const std::pair<
 	r.addHeader(H_DATE, getCurrentDate());
 	r.addHeader(H_CONTENT_TYPE, "text/html");
 	r.addHeader(H_CONTENT_LENGTH, toString<size_t>(body.length()));
-	r.addHeader(H_CONNECTION, "keep-alive");
-
+	std::string _conn = req.getHeader(H_CONNECTION);
+	r.addHeader(H_CONNECTION, !_conn.empty() ? _conn : "keep-alive");
 	r.setBody(body);
 
 	return r;
 }
 
-Response ResponseHandler::_createBodylessErrorResponse( int statusCode, const std::pair<ServerConfig *, Location *>& config, const std::string& temp ) {
+Response ResponseHandler::_createBodylessErrorResponse( const Request& req, int statusCode, const std::pair<ServerConfig *, Location *>& config, const std::string& temp ) {
 	Response r;
 
 	(void)config;
@@ -107,14 +107,15 @@ Response ResponseHandler::_createBodylessErrorResponse( int statusCode, const st
 	r.setStatus(getReason(statusCode));
 	r.addHeader(H_SERVER, SERVER_VERSION);
 	r.addHeader(H_DATE, getCurrentDate());
-	r.addHeader(H_CONNECTION, "keep-alive");
+	std::string _conn = req.getHeader(H_CONNECTION);
+	r.addHeader(H_CONNECTION, !_conn.empty() ? _conn : "keep-alive");
 
 	return r;
 }
 
-Response ResponseHandler::_createDirListingResponse( const std::string& uri, const std::string& root, const std::string& dirPath ) {
+Response ResponseHandler::_createDirListingResponse( const Request& req, const std::string& root, const std::string& dirPath ) {
 	Response r;
-	std::string body = _getDirListingBody(uri, root, dirPath);
+	std::string body = _getDirListingBody(root, dirPath);
 
 	r.setVersion("HTTP/1.1");
 	r.setStatusCode(OK);
@@ -123,14 +124,15 @@ Response ResponseHandler::_createDirListingResponse( const std::string& uri, con
 	r.addHeader(H_DATE, getCurrentDate());
 	r.addHeader(H_CONTENT_TYPE, "text/html");
 	r.addHeader(H_CONTENT_LENGTH, toString<size_t>(body.length()));
-	r.addHeader(H_CONNECTION, "keep-alive");
+	std::string _conn = req.getHeader(H_CONNECTION);
+	r.addHeader(H_CONNECTION, !_conn.empty() ? _conn : "keep-alive");
 
 	r.setBody(body);
 
 	return r;
 }
 
-Response ResponseHandler::_createRedirectionResponse( int statusCode, const std::pair<ServerConfig *, Location *>& config, const std::string& dirPath ) {
+Response ResponseHandler::_createRedirectionResponse( const Request& req, int statusCode, const std::pair<ServerConfig *, Location *>& config, const std::string& dirPath ) {
 	Response r;
 	std::string body = _getDefaultErrorBody(statusCode,  config);
 
@@ -143,23 +145,24 @@ Response ResponseHandler::_createRedirectionResponse( int statusCode, const std:
 	r.addHeader(H_LOCATION,  dirPath);
 	r.addHeader(H_CONTENT_TYPE, "text/html");
 	r.addHeader(H_CONTENT_LENGTH, toString<size_t>(body.length()));
-	r.addHeader(H_CONNECTION, "keep-alive");
+	std::string _conn = req.getHeader(H_CONNECTION);
+	r.addHeader(H_CONNECTION, !_conn.empty() ? _conn : "keep-alive");
 
 	r.setBody(body);
 
 	return r;
 }
 
-Response ResponseHandler::_createFileResponse( const std::string& filePath, const std::pair<ServerConfig *, Location *>& config ) {
+Response ResponseHandler::_createFileResponse( const Request& req, const std::string& filePath, const std::pair<ServerConfig *, Location *>& config ) {
 	Response r;
 
-	std::cerr << "SHIT IS CHUNKED BABY..." << std::endl;
+	//std::cerr << "SHIT IS CHUNKED BABY..." << std::endl;
 	// setup file for reading
 	r.setFilePath(filePath);
-	std::cerr << "==== FILE SIZE: " << FileHandler::getFileSize(filePath) << std::endl;
+	// std::cerr << "==== FILE SIZE: " << FileHandler::getFileSize(filePath) << std::endl;
 	if (!r.setupFile())
-		return _createErrorResponse(InternalServerError, config, "");
-	r.setChunked(true);
+		return _createErrorResponse(req, InternalServerError, config, "");
+	r.setBuffered(true);
 	r.setVersion("HTTP/1.1");
 	r.setStatusCode(OK);
 	r.setStatus(getReason(OK));
@@ -169,7 +172,8 @@ Response ResponseHandler::_createFileResponse( const std::string& filePath, cons
 	if (!_mime.empty())
 		r.addHeader(H_CONTENT_TYPE, _mime);
 	r.addHeader(H_CONTENT_LENGTH, toString<size_t>(FileHandler::getFileSize(filePath)));
-	r.addHeader(H_CONNECTION, "keep-alive");
+	std::string _conn = req.getHeader(H_CONNECTION);
+	r.addHeader(H_CONNECTION, !_conn.empty() ? _conn : "keep-alive");
 	return r;
 }
 
@@ -221,6 +225,8 @@ Response ResponseHandler::_createFileCGIResponse( const Request& req, ServerConf
 	Response r = Response::parseFrom(_cgiResponse);
 
 	r.addHeader("Server", SERVER_VERSION);
+	std::string _conn = req.getHeader(H_CONNECTION);
+	r.addHeader(H_CONNECTION, !_conn.empty() ? _conn : "keep-alive");
 
 	return r;
 }
@@ -236,7 +242,7 @@ std::pair<ServerConfig *, Location *> ResponseHandler::_getMatchingConfig( const
 	// std::cerr << "CONF PORT: |" << serverConfig.getPort() << "|" << std::endl;
 	// std::cerr << "REQ  PORT: |" << req.getPort() << "|" << std::endl;
 
-	if (serverConfig.getServerIp() == req.getHost() && serverConfig.getPort() == req.getPort()) {
+	if (isSameHost(serverConfig.getServerIp(), req.getHost()) && serverConfig.getPort() == req.getPort()) {
 		std::vector<Location *> _locations = serverConfig.getLocations();
 		Location* _l = matchLocation(_locations, req.getPath());
 		if (_l != NULL) return std::make_pair(&serverConfig, _l);
@@ -259,26 +265,26 @@ std::pair<bool, Response> ResponseHandler::_handleRequestErrors( const Request& 
 
 	// If Request is not valid
 	if (false /* TODO: check if req.statusCode is not 0 */) {
-		Response r = _createErrorResponse(BadRequest, config, "REQ NOT VALID\n"); // 400
+		Response r = _createErrorResponse(req, BadRequest, config, "REQ NOT VALID\n"); // 400
 		return std::make_pair(true, r);
 	}
 
 	// If Transfer-Encoding is something other than chunked
 	if (!req.getHeader(H_TRANSFER_ENCODING).empty() && req.getHeader(H_TRANSFER_ENCODING) != "chunked") {
-		Response r = _createErrorResponse(NotImplemented, config, "TRANS-ENC != chunked\n"); // 501
+		Response r = _createErrorResponse(req, NotImplemented, config, "TRANS-ENC != chunked\n"); // 501
 		return std::make_pair(true, r);
 	}
 
 	// If both Transfer-Encoding & Content-Length not present
 	if (trim(toUpperCase(req.getMethod())) == POST 
 		&& req.getHeader(H_TRANSFER_ENCODING).empty() && req.getHeader(H_CONTENT_LENGTH).empty()) {
-		Response r = _createErrorResponse(BadRequest, config, "TRANS-ENC = \"\" & CONT-LEN = \"\"\n"); // 400
+		Response r = _createErrorResponse(req, BadRequest, config, "TRANS-ENC = \"\" & CONT-LEN = \"\"\n"); // 400
 		return std::make_pair(true, r);
 	}
 
 	// If request PATH too long
 	if (req.getPath().length() > 2048) {
-		Response r = _createErrorResponse(URITooLong, config, "URL LONG\n"); // 414
+		Response r = _createErrorResponse(req, URITooLong, config, "URL LONG\n"); // 414
 		return std::make_pair(true, r);
 	}
 
@@ -292,26 +298,26 @@ std::pair<bool, Response> ResponseHandler::_handleRequestErrors( const Request& 
 
 	// If no location matches request
 	if (_conf == NULL || _loc == NULL) {
-		Response r = _createErrorResponse(NotFound, config, "LOC NO MATCH\n"); // 404
+		Response r = _createErrorResponse(req, NotFound, config, "LOC NO MATCH\n"); // 404
 		return std::make_pair(true, r);
 	}
 
 	// Check if method is allowed
 	std::vector<std::string> _allowedMethods = !_loc->_allow_methods.empty() ? _loc->_allow_methods : _conf->getAllowMethods();
 	if (!_allowedMethods.empty() && !isMethodAllowed(_allowedMethods, req.getMethod())) {
-		Response r = _createErrorResponse(MethodNotAllowed, config, "METH NOT ALLOWED\n"); // 405
+		Response r = _createErrorResponse(req, MethodNotAllowed, config, "METH NOT ALLOWED\n"); // 405
 		return std::make_pair(true, r);
 	}
 
 	// Check if method (DELETE) is explicitely allowed
 	if (toUpperCase(trim(req.getMethod())) == DELETE && !isMethodAllowed(_allowedMethods, req.getMethod())) {
-		Response r = _createErrorResponse(MethodNotAllowed, config, "DELETE NOT EXP ALLOWED\n"); // TODO: verify if 405 is right or Forbidden
+		Response r = _createErrorResponse(req, MethodNotAllowed, config, "DELETE NOT EXP ALLOWED\n"); // TODO: verify if 405 is right or Forbidden
 		return std::make_pair(true, r);
 	}
 
 	// Check if method in GET, POST, DELETE
 	if (!isMethodImplemented(req.getMethod())) {
-		Response r = _createErrorResponse(NotImplemented, config, "METH NOT IMPL.\n"); // 501
+		Response r = _createErrorResponse(req, NotImplemented, config, "METH NOT IMPL.\n"); // 501
 		return std::make_pair(true, r);
 	}
 
@@ -332,7 +338,7 @@ Response ResponseHandler::_handleGETFile( const Request& req, const std::pair<Se
 	}
 
 	// serve file as is
-	return _createFileResponse(requestPath, config);
+	return _createFileResponse(req, requestPath, config);
 	
 }
 
@@ -347,23 +353,23 @@ Response ResponseHandler::_handleGETDirectory( const Request& req, const std::pa
 
 	// check redir
 	if (requestPath.back() != '/') {
-		return _createRedirectionResponse(MovedPermanently, config, FileHandler::disconnectPath(_root, requestPath) + "/");
+		return _createRedirectionResponse(req, MovedPermanently, config, FileHandler::disconnectPath(_root, requestPath) + "/");
 	}
 
 	// check for index files
 	std::string _indexPath = FileHandler::searchIndexes(requestPath, _indexFiles);
 	if (_indexPath.empty() && !_autoIndexing) {
-		return _createErrorResponse(Forbidden, config, "INDEXS EMPTY & AUTOINDEX OFF\n");
+		return _createErrorResponse(req, Forbidden, config, "INDEXS EMPTY & AUTOINDEX OFF\n");
 	}
 
 	if (_indexPath.empty() && _autoIndexing) {
-		std::string _uri = _conf->getServerIp() + ":" + toString<int>(_conf->getPort());
-		return _createDirListingResponse(_uri, _root, requestPath);
+		//std::string _uri = _conf->getServerIp() + ":" + toString<int>(_conf->getPort());
+		return _createDirListingResponse(req, _root, requestPath);
 	}
 
 	// if index readable
 	if (!FileHandler::isPathReadable(_indexPath)) {
-		return _createErrorResponse(Forbidden, config, "DIR: PATH NOT READABLE\n");
+		return _createErrorResponse(req, Forbidden, config, "DIR: PATH NOT READABLE\n");
 	}
 
 	// if index not empty
@@ -372,7 +378,7 @@ Response ResponseHandler::_handleGETDirectory( const Request& req, const std::pa
 	}
 
 	// serve file as is
-	return _createFileResponse(_indexPath, config);
+	return _createFileResponse(req, _indexPath, config);
 }
 
 Response ResponseHandler::handleRequests( const Request& req, ServerConfig& serverConfig ) {
@@ -390,13 +396,13 @@ Response ResponseHandler::handleRequests( const Request& req, ServerConfig& serv
 	if (!_loc->_redirection_path.empty()) {
 		std::string _redir = trim(_loc->_redirection_path);
 		if (beginsWith(_redir, "https://") || beginsWith(_redir, "http://")) {
-			return _createRedirectionResponse(MovedPermanently, config, _redir);
+			return _createRedirectionResponse(req, MovedPermanently, config, _redir);
 		} else if (_redir.front() == '/') {
 			_redir = FileHandler::getFullPath(_root, _redir);
-			return _createRedirectionResponse(MovedPermanently,config, _redir);
+			return _createRedirectionResponse(req, MovedPermanently,config, _redir);
 		} else {
 			_redir = FileHandler::getFullPath(_loc->_location, _redir);
-			return _createRedirectionResponse(MovedPermanently, config, _redir);
+			return _createRedirectionResponse(req, MovedPermanently, config, _redir);
 		}
 	}
 
@@ -411,7 +417,7 @@ Response ResponseHandler::handleRequests( const Request& req, ServerConfig& serv
 		return handleDELETERequest(req, config);
 	}
 	// normally it shouldn't get here but if so:
-	return _createErrorResponse(MethodNotAllowed, config, "IT SHOULD'T GET HERE\n"); 
+	return _createErrorResponse(req, MethodNotAllowed, config, "IT SHOULD'T GET HERE\n"); 
 }
 
 Response ResponseHandler::handleGETRequest( const Request& req, const std::pair<ServerConfig *, Location *>& config ) {
@@ -423,18 +429,18 @@ Response ResponseHandler::handleGETRequest( const Request& req, const std::pair<
 
 	// check if path doesn't exist
 	if (!FileHandler::pathExists(_requestPath)) {
-		return _createErrorResponse(NotFound, config, "PATH NOT EXIST\n");
+		return _createErrorResponse(req, NotFound, config, "PATH NOT EXIST\n");
 	}
 
 	// check if path not readable
 	if (!FileHandler::isPathReadable(_requestPath)) {
-		return _createErrorResponse(Forbidden, config, "PATH NOT READABLE\n");
+		return _createErrorResponse(req, Forbidden, config, "PATH NOT READABLE\n");
 	}
 
 	// check if path is neither dir nor file
 	FileType _type = FileHandler::getType(_requestPath);
 	if (_type != T_DIR && _type != T_FILE) {
-		return _createErrorResponse(InternalServerError, config, "PATH == T_OTHER | T_ERROR\n");
+		return _createErrorResponse(req, InternalServerError, config, "PATH == T_OTHER | T_ERROR\n");
 	}
 
 	// check if path is file or dir
@@ -447,7 +453,7 @@ Response ResponseHandler::handleGETRequest( const Request& req, const std::pair<
 	}
 
 	// this shouldn't happen
-	return _createErrorResponse(InternalServerError, config, "SHOUDN'T HAPPEN TOO\n");
+	return _createErrorResponse(req, InternalServerError, config, "SHOUDN'T HAPPEN TOO\n");
 }
 
 Response ResponseHandler::handleDELETERequest( const Request& req, const std::pair<ServerConfig *, Location *>& config ) {
@@ -463,12 +469,12 @@ Response ResponseHandler::handleDELETERequest( const Request& req, const std::pa
 	FileType _type = FileHandler::getTypeS(_temp);
 
 	if (_type == T_ERROR && errno == ENOENT) {
-		return _createErrorResponse(NotFound, config, "PATH NOT EXIST\n");
+		return _createErrorResponse(req, NotFound, config, "PATH NOT EXIST\n");
 	}
 
 	if ((_type == T_DIR && _requestPath.back() != '/') ||
 		(_type == T_FILE && _requestPath.back() == '/')) {
-		return _createErrorResponse(Conflict, config, "(FILE + /) or (DIR - /)\n");
+		return _createErrorResponse(req, Conflict, config, "(FILE + /) or (DIR - /)\n");
 	}
 
 	// check if path is file or dir
@@ -479,9 +485,9 @@ Response ResponseHandler::handleDELETERequest( const Request& req, const std::pa
 	bool _removed = FileHandler::removeAll(_requestPath);
 
 	if (_removed)
-		return _createBodylessErrorResponse(NoContent, config, "GOOD");
+		return _createBodylessErrorResponse(req, NoContent, config, "GOOD");
 
-	return _createErrorResponse(InternalServerError, config, strerror(errno));
+	return _createErrorResponse(req, InternalServerError, config, strerror(errno));
 }
 
 Response ResponseHandler::handlePOSTRequest( const Request& req, const std::pair<ServerConfig *, Location *>& config ) {

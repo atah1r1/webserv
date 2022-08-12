@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/26 14:35:35 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/08 12:23:51 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/12 02:37:25 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,12 +28,12 @@ class ResponseHandler {
 private:
 	static std::string _getDefaultErrorBody( int statusCode, const std::pair<ServerConfig *, Location *>& config );
 	static std::string _getStandardErrorBody( int statusCode );
-	static std::string _getDirListingBody( const std::string& uri, const std::string& root, const std::string& dirPath );
-	static Response _createErrorResponse(int statusCode, const std::pair<ServerConfig *, Location *>& config, const std::string& temp );
-	static Response _createBodylessErrorResponse( int statusCode, const std::pair<ServerConfig *, Location *>& config, const std::string& temp );
-	static Response _createDirListingResponse( const std::string& uri, const std::string& root, const std::string& dirPath );
-	static Response _createRedirectionResponse( int statusCode, const std::pair<ServerConfig *, Location *>& config, const std::string& dirPath );
-	static Response _createFileResponse( const std::string& filePath, const std::pair<ServerConfig *, Location *>& config );
+	static std::string _getDirListingBody( const std::string& root, const std::string& dirPath );
+	static Response _createErrorResponse(const Request& req, int statusCode, const std::pair<ServerConfig *, Location *>& config, const std::string& temp );
+	static Response _createBodylessErrorResponse( const Request& req, int statusCode, const std::pair<ServerConfig *, Location *>& config, const std::string& temp );
+	static Response _createDirListingResponse( const Request& req, const std::string& root, const std::string& dirPath );
+	static Response _createRedirectionResponse( const Request& req, int statusCode, const std::pair<ServerConfig *, Location *>& config, const std::string& dirPath );
+	static Response _createFileResponse( const Request& req, const std::string& filePath, const std::pair<ServerConfig *, Location *>& config );
 	static Response _createFileCGIResponse( const Request& req, ServerConfig *conf, Location * loc, const std::string& filePath );
 	static Response _handleGETFile( const Request& req, const std::pair<ServerConfig *, Location *>& config, const std::string& requestPath  );
 	static Response _handleGETDirectory( const Request& req, const std::pair<ServerConfig *, Location *>& config, const std::string& requestPath );
