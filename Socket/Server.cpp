@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/11 12:24:52 by atahiri           #+#    #+#             */
-/*   Updated: 2022/08/11 19:48:16 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/08/12 03:09:54 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -176,10 +176,10 @@ void Server::sendResponse(Socket *client)
     // send chunked body response chunked
     char buffer[BUFFER_SIZE] = {0};
     size_t len = 0;
-    if (r.isChunked())
+    if (r.isBuffered())
     {
         size_t s = 0;
-        while ((len = r.getNextChunk(buffer)) > 0)
+        while ((len = r.getNextBuffer(buffer)) > 0)
         {
             send(client->getSockFd(), buffer, len, 0);
             s += len;

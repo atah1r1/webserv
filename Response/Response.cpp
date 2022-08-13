@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/26 03:00:15 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/08 16:38:50 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/08/12 02:48:58 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,12 +18,12 @@ Response::Response( void ) {
 	this->_status = "";
 	this->_status_code = 0;
 	this->_body = "";
-	this->_filePath = "";
-	this->_isChunked = false;
-	this->_isFromCGI = false;
+	this->_file_path = "";
+	this->_is_buffered = false;
+	this->is_from_cgi = false;
 }
 
-Response::Response( const Response& rhs ) : _status_code(0), _isChunked(false), _isFromCGI(false), _file(NULL) {
+Response::Response( const Response& rhs ) : _status_code(0), _is_buffered(false), is_from_cgi(false), _file(NULL) {
 	*this = rhs;
 }
 
@@ -33,8 +33,8 @@ Response& Response::operator= ( const Response& rhs )  {
 	this->_status_code = rhs.getStatusCode();
 	this->_body = rhs.getBody();
 	this->_headers = rhs.getHeaders();
-	this->_isChunked = rhs.isChunked();
-	this->_isFromCGI = rhs.isFromCGI();
+	this->_is_buffered = rhs.isBuffered();
+	this->is_from_cgi = rhs.isFromCGI();
 	if (this->_file != NULL) {
 		if (this->_file->is_open())
 			this->_file->close();
@@ -106,20 +106,20 @@ void Response::removeHeader( const std::pair<std::string, std::string>& header )
 	this->_headers.erase(header.first);
 }
 
-bool Response::isChunked( void ) const {
-	return this->_isChunked;
+bool Response::isBuffered( void ) const {
+	return this->_is_buffered;
 }
 
-void Response::setChunked( bool isChunked ) {
-	this->_isChunked = isChunked;
+void Response::setBuffered( bool isBuffered ) {
+	this->_is_buffered = isBuffered;
 }
 
 bool Response::isFromCGI( void ) const {
-	return this->_isFromCGI;
+	return this->is_from_cgi;
 }
 
 void Response::setFromCGI( bool isFromCGI ) {
-	this->_isFromCGI = isFromCGI;
+	this->is_from_cgi = isFromCGI;
 }
 
 std::fstream* Response::getFile( void ) const {
@@ -129,12 +129,12 @@ std::fstream* Response::getFile( void ) const {
 bool Response::setupFile( void ) {
 	if (this->_file == NULL)
 		this->_file = new std::fstream();
-	if (this->_filePath.empty()) {
+	if (this->_file_path.empty()) {
 		debugPrint(_ERROR, __FILE__, __LINE__, "Response: setupFile failure: _filePath is empty");
 		return false;
 	}
 
-	this->_file->open( this->_filePath, std::fstream::in | std::fstream::binary );
+	this->_file->open( this->_file_path, std::fstream::in | std::fstream::binary );
 	if (!this->_file->is_open()) {
 		debugPrint(_ERROR, __FILE__, __LINE__, "Response: open failure: ");
 		return false;
@@ -143,14 +143,14 @@ bool Response::setupFile( void ) {
 }
 
 void Response::setFilePath( const std::string& path ) {
-	this->_filePath = path;
+	this->_file_path = path;
 }
 
 std::string Response::getFilePath( void ) const {
-	return this->_filePath;
+	return this->_file_path;
 }
 
-size_t Response::getNextChunk(char *buffer) {
+size_t Response::getNextBuffer(char *buffer) {
 	if (!this->_file->good())
 		return 0;
 	this->_file->read(buffer, BUFFER_SIZE);
@@ -166,18 +166,18 @@ void Response::clearAll( void )  {
 	this->_file = NULL;
 
 	// unlink cgi file
-	if (this->_isFromCGI && !this->_filePath.empty())
-		remove(this->_filePath.c_str());
+	if (this->is_from_cgi && !this->_file_path.empty())
+		remove(this->_file_path.c_str());
 
 	// reset everything else
 	this->_version = "";
 	this->_status = "";
 	this->_status_code = 0;
 	this->_body = "";
-	this->_filePath = "";
+	this->_file_path = "";
 	this->_headers.clear();
-	this->_isChunked = false;
-	this->_isFromCGI = false;
+	this->_is_buffered = false;
+	this->is_from_cgi = false;
 }
 
 std::string Response::toString( void ) {
