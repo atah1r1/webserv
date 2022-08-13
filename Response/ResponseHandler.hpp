@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/26 14:35:35 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/12 02:37:25 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/13 17:03:22 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ private:
 	static std::string _getDefaultErrorBody( int statusCode, const std::pair<ServerConfig *, Location *>& config );
 	static std::string _getStandardErrorBody( int statusCode );
 	static std::string _getDirListingBody( const std::string& root, const std::string& dirPath );
-	static Response _createErrorResponse(const Request& req, int statusCode, const std::pair<ServerConfig *, Location *>& config, const std::string& temp );
+	static Response _createErrorResponse( const Request& req, int statusCode, const std::pair<ServerConfig *, Location *>& config, const std::string& temp );
 	static Response _createBodylessErrorResponse( const Request& req, int statusCode, const std::pair<ServerConfig *, Location *>& config, const std::string& temp );
 	static Response _createDirListingResponse( const Request& req, const std::string& root, const std::string& dirPath );
 	static Response _createRedirectionResponse( const Request& req, int statusCode, const std::pair<ServerConfig *, Location *>& config, const std::string& dirPath );

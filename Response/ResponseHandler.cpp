@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/01 22:24:39 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/12 02:56:01 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/13 17:02:44 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -491,7 +491,63 @@ Response ResponseHandler::handleDELETERequest( const Request& req, const std::pa
 }
 
 Response ResponseHandler::handlePOSTRequest( const Request& req, const std::pair<ServerConfig *, Location *>& config ) {
-	// TODO: finish
-	(void)req; (void)config;
-	return Response();
+	ServerConfig* _conf = config.first;
+	Location* _loc = config.second;
+	std::string _root = !_loc->_root.empty() ? _loc->_root : _conf->getRoot();
+
+	std::string _requestPath = FileHandler::getFullPath(_root, req.getPath());
+
+	if (!_loc->_upload_store.empty()) {
+
+		std::string _storePath = FileHandler::getFullPath(_root, _loc->_upload_store);
+
+		if (!FileHandler::pathExists(_storePath) || FileHandler::getType(_storePath) != T_DIR) {
+			return _createErrorResponse(req, InternalServerError, config, "STORE PATH = FILE OR DON'T EXIST\n");
+		}
+
+		// TODO: copy req body file to _storePath with name depends on file type
+		// std::ifstream  src("from.ogv", std::ios::binary);
+    	// std::ofstream  dst("to.ogv",   std::ios::binary);
+		// dst << src.rdbuf();
+		// TODO: after copying delete source file.
+
+		return _createBodylessErrorResponse(req, Created, config, "CREATED! SUCCESS\n");
+	}
+
+	if (!FileHandler::pathExists(_requestPath)) {
+		return _createErrorResponse(req, NotFound, config, "PATH NOT FOUND");
+	}
+
+	std::string _temp = _requestPath.back() == '/' ? _requestPath.substr(0, _requestPath.size() - 1) : _requestPath;
+	FileType _type = FileHandler::getType(_temp);
+
+	if (_type == T_DIR) {
+
+		if (_requestPath.back() != '/') {
+			return _createRedirectionResponse(req, MovedPermanently, config, _requestPath + "/");
+		}
+
+		std::string _indexPath = FileHandler::searchIndexes(_requestPath, _loc->_index_file);
+		if (_indexPath.empty()) {
+			return _createErrorResponse(req, Forbidden, config, "INDEX EMPTY\n");
+		}
+
+		if (!FileHandler::requiresCGI(_indexPath)) {
+			return _createErrorResponse(req, Forbidden, config, "INDEX DON'T REQUIRE CGI\n");
+		}
+
+		return _createFileCGIResponse(req, _conf, _loc, _indexPath);
+	}
+
+	if (_type == T_FILE) {
+
+		if (!FileHandler::requiresCGI(_requestPath)) {
+			return _createErrorResponse(req, Forbidden, config, "FILE DON'T REQUIRE CGI\n");
+		}
+
+		return _createFileCGIResponse(req, _conf, _loc, _requestPath);
+	}
+
+	return _createErrorResponse(req, InternalServerError, config, "PATH NOT FILE NOR DIR\n");
 }
+
