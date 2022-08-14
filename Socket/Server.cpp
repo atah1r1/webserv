@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/11 12:24:52 by atahiri           #+#    #+#             */
-/*   Updated: 2022/08/12 03:09:54 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/14 15:53:44 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -181,7 +181,13 @@ void Server::sendResponse(Socket *client)
         size_t s = 0;
         while ((len = r.getNextBuffer(buffer)) > 0)
         {
-            send(client->getSockFd(), buffer, len, 0);
+            int x = send(client->getSockFd(), buffer, len, 0);
+            bzero(buffer, BUFFER_SIZE);
+            if (x < 0) {
+                debugPrint(_ERROR, __FILE__, __LINE__, strerror(errno));
+            } else {
+                debugPrint(_INFO, __FILE__, __LINE__, "Success!");
+            }
             s += len;
         }
         std::cout << "Sent chunk " << s << " of size " << len << std::endl;

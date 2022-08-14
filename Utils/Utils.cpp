@@ -585,9 +585,12 @@ std::string randomFileName(void)
 bool isSameHost( const std::string& host1, const std::string& host2 ) {
 	std::string h1 = toLowerCase(trim(host1));
 	std::string h2 = toLowerCase(trim(host2));
-	if ((h1 == "localhost" || h1 == "0.0.0.0" || h1 == "127.0.0.1") &&
-		(h2 == "localhost" || h2 == "0.0.0.0" || h2 == "127.0.0.1")) {
-			return true;
-	}
+
+	if (h1 == "0.0.0.0") return true;
+
+	if ((h1 == "localhost" || h1 == "127.0.0.1") &&
+		(h2 == "localhost" || h2 == "127.0.0.1"))
+		return true;
+
 	return h1 == h2;
 }
