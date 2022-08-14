@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Socket.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/11 12:21:06 by atahiri           #+#    #+#             */
-/*   Updated: 2022/08/11 17:00:47 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/08/14 18:52:04 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,7 @@ private:
     bool _keepAlive;
     std::string _host;
     int opt;
+    bool _accepted;
 
 public:
     Socket(bool isServ);
@@ -53,7 +54,10 @@ public:
     void setSockAddr(struct sockaddr_in servAddr);
     int getSockFd() const;
     int getPort() const;
+    void setServSock(bool serve);
     void updateConnection(bool connec);
+    bool isAccepted() const;
+    void setAccepted( bool accepted );
 };
 
 #endif

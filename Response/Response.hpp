@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/26 01:23:28 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/12 02:48:14 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/14 17:38:43 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,7 @@ private:
 	std::string _body;
 	bool _is_buffered;
 	bool is_from_cgi;
+	bool _are_headers_sent;
 	std::fstream* _file;
 	std::string _file_path;
 	std::map<std::string, std::string> _headers;
@@ -66,6 +67,8 @@ public:
 	void setFilePath( const std::string& path );
 	std::string getFilePath( void ) const;
 	size_t getNextBuffer(char *buffer);
+	bool areHeadersSent() const;
+	void setHeadersSent( bool sent );
 
 	void clearAll( void );
 	std::string toString( void );

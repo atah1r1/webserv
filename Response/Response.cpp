@@ -6,14 +6,14 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/26 03:00:15 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/12 02:48:58 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/14 20:12:26 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Response.hpp"
 
 Response::Response( void ) {
-	this->_file = new std::fstream();
+	this->_file = NULL;
 	this->_version = "";
 	this->_status = "";
 	this->_status_code = 0;
@@ -21,9 +21,10 @@ Response::Response( void ) {
 	this->_file_path = "";
 	this->_is_buffered = false;
 	this->is_from_cgi = false;
+	this->_are_headers_sent = false;
 }
 
-Response::Response( const Response& rhs ) : _status_code(0), _is_buffered(false), is_from_cgi(false), _file(NULL) {
+Response::Response( const Response& rhs ) : _status_code(0), _is_buffered(false), is_from_cgi(false), _are_headers_sent(false), _file(NULL) {
 	*this = rhs;
 }
 
@@ -35,6 +36,7 @@ Response& Response::operator= ( const Response& rhs )  {
 	this->_headers = rhs.getHeaders();
 	this->_is_buffered = rhs.isBuffered();
 	this->is_from_cgi = rhs.isFromCGI();
+	this->_are_headers_sent = rhs.areHeadersSent();
 	if (this->_file != NULL) {
 		if (this->_file->is_open())
 			this->_file->close();
@@ -122,6 +124,14 @@ void Response::setFromCGI( bool isFromCGI ) {
 	this->is_from_cgi = isFromCGI;
 }
 
+bool Response::areHeadersSent() const {
+	return this->_are_headers_sent;
+}
+
+void Response::setHeadersSent( bool sent ) {
+	this->_are_headers_sent = sent;
+}
+
 std::fstream* Response::getFile( void ) const {
 	return this->_file;
 }
@@ -178,6 +188,7 @@ void Response::clearAll( void )  {
 	this->_headers.clear();
 	this->_is_buffered = false;
 	this->is_from_cgi = false;
+	this->_are_headers_sent = false;
 }
 
 std::string Response::toString( void ) {

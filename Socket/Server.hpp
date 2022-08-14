@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/11 12:24:44 by atahiri           #+#    #+#             */
-/*   Updated: 2022/08/11 19:44:51 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/08/14 18:41:59 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@ public:
 	void performSelect();
 
 	void acceptNewClient(Socket *sock);
-	void handleClient(Socket *client);
+	int handleClient(Socket *client);
 	void sendResponse(Socket *client);
 
 	void clean();
