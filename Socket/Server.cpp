@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
+/*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/11 12:24:52 by atahiri           #+#    #+#             */
-/*   Updated: 2022/08/14 20:15:24 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/15 15:07:15 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -308,6 +308,7 @@ void Server::acceptNewClient(Socket *sock)
     client->setSockFd(newClient);
 
     client->setSockAddr(sock->getSockAddr());
+    std::cout << "new client: " << newClient << std::endl;
     this->_clients.insert(std::make_pair(newClient, Request()));
 
     this->_sockets.push_back(client);

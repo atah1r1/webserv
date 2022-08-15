@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Socket.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
+/*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/11 12:21:13 by atahiri           #+#    #+#             */
-/*   Updated: 2022/08/14 18:46:46 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/15 15:21:16 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,27 @@ Socket::Socket(bool isServ) : _isServSock(isServ), _keepAlive(false), opt(1), _a
 
 Socket::~Socket()
 {
+}
+
+Socket::Socket(const Socket &rhs)
+{
+    *this = rhs;
+}
+
+Socket &Socket::operator=(const Socket &rhs)
+{
+    if (this != &rhs)
+    {
+        this->_sockfd = rhs._sockfd;
+        this->_port = rhs._port;
+        this->_serv_addr = rhs._serv_addr;
+        this->_isServSock = rhs._isServSock;
+        this->_keepAlive = rhs._keepAlive;
+        this->_host = rhs._host;
+        this->opt = rhs.opt;
+        this->_accepted = rhs._accepted;
+    }
+    return *this;
 }
 
 bool Socket::operator==(const Socket &a)

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Socket.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
+/*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/11 12:21:06 by atahiri           #+#    #+#             */
-/*   Updated: 2022/08/14 18:52:04 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/15 15:20:46 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,8 @@ private:
 
 public:
     Socket(bool isServ);
+    Socket(const Socket &);
+    Socket &operator=(const Socket &);
     ~Socket();
 
     bool operator==(const Socket &a);

@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/24 12:22:25 by aes-salm          #+#    #+#             */
-/*   Updated: 2022/08/11 19:32:24 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/08/15 17:01:15 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,7 +99,7 @@ void parseBody(std::string line, Request *request)
 	std::cout << "Body: " << line << std::endl;
 }
 
-void parseRequest(Request &request, std::string buffer)
+void parseRequest(Request &request, const std::string& buffer)
 {
 	std::istringstream is(buffer);
 	std::string line;
