@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/26 01:23:28 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/14 17:38:43 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/16 06:57:41 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@
 #include "../Utils/StatusCodes.hpp"
 #include "../Utils/Utils.hpp"
 
-#define BUFFER_SIZE (1024)
+#define BUFFER_SIZE (1024 * 2)
 
 class Response {
 private:

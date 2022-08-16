@@ -75,4 +75,13 @@ std::string toString(T t)
 	return ss.str();
 }
 
+template <typename T>
+bool eraseByIndex(std::vector<T> &v, size_t index)
+{
+	if (index >= v.size())
+		return false;
+	v.erase(v.begin() + index);
+	return true;
+}
+
 #endif // __GENERAL_UTILS_HPP__

@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/01 22:24:39 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/13 17:02:44 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/16 05:10:43 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,6 +79,7 @@ std::string ResponseHandler::_getDirListingBody( const std::string& root, const 
 */
 Response ResponseHandler::_createErrorResponse( const Request& req, int statusCode, const std::pair<ServerConfig *, Location *>& config, const std::string& temp ) {
 	Response r;
+	(void)req; // TODO: remove this line
 
 	std::string body = _getDefaultErrorBody(statusCode, config) + temp;
 
@@ -89,8 +90,8 @@ Response ResponseHandler::_createErrorResponse( const Request& req, int statusCo
 	r.addHeader(H_DATE, getCurrentDate());
 	r.addHeader(H_CONTENT_TYPE, "text/html");
 	r.addHeader(H_CONTENT_LENGTH, toString<size_t>(body.length()));
-	std::string _conn = req.getHeader(H_CONNECTION);
-	r.addHeader(H_CONNECTION, !_conn.empty() ? _conn : "keep-alive");
+	// std::string _conn = req.getHeader(H_CONNECTION);
+	// r.addHeader(H_CONNECTION, !_conn.empty() ? _conn : "keep-alive");
 	r.setBody(body);
 
 	return r;
@@ -98,6 +99,7 @@ Response ResponseHandler::_createErrorResponse( const Request& req, int statusCo
 
 Response ResponseHandler::_createBodylessErrorResponse( const Request& req, int statusCode, const std::pair<ServerConfig *, Location *>& config, const std::string& temp ) {
 	Response r;
+	(void)req; // TODO: remove this line
 
 	(void)config;
 	(void)temp;
@@ -107,14 +109,15 @@ Response ResponseHandler::_createBodylessErrorResponse( const Request& req, int 
 	r.setStatus(getReason(statusCode));
 	r.addHeader(H_SERVER, SERVER_VERSION);
 	r.addHeader(H_DATE, getCurrentDate());
-	std::string _conn = req.getHeader(H_CONNECTION);
-	r.addHeader(H_CONNECTION, !_conn.empty() ? _conn : "keep-alive");
+	// std::string _conn = req.getHeader(H_CONNECTION);
+	// r.addHeader(H_CONNECTION, !_conn.empty() ? _conn : "keep-alive");
 
 	return r;
 }
 
 Response ResponseHandler::_createDirListingResponse( const Request& req, const std::string& root, const std::string& dirPath ) {
 	Response r;
+	(void)req; // TODO: remove this line
 	std::string body = _getDirListingBody(root, dirPath);
 
 	r.setVersion("HTTP/1.1");
@@ -124,8 +127,8 @@ Response ResponseHandler::_createDirListingResponse( const Request& req, const s
 	r.addHeader(H_DATE, getCurrentDate());
 	r.addHeader(H_CONTENT_TYPE, "text/html");
 	r.addHeader(H_CONTENT_LENGTH, toString<size_t>(body.length()));
-	std::string _conn = req.getHeader(H_CONNECTION);
-	r.addHeader(H_CONNECTION, !_conn.empty() ? _conn : "keep-alive");
+	// std::string _conn = req.getHeader(H_CONNECTION);
+	// r.addHeader(H_CONNECTION, !_conn.empty() ? _conn : "keep-alive");
 
 	r.setBody(body);
 
@@ -134,6 +137,7 @@ Response ResponseHandler::_createDirListingResponse( const Request& req, const s
 
 Response ResponseHandler::_createRedirectionResponse( const Request& req, int statusCode, const std::pair<ServerConfig *, Location *>& config, const std::string& dirPath ) {
 	Response r;
+	(void)req; // TODO: remove this line
 	std::string body = _getDefaultErrorBody(statusCode,  config);
 
 	r.setVersion("HTTP/1.1");
@@ -145,8 +149,8 @@ Response ResponseHandler::_createRedirectionResponse( const Request& req, int st
 	r.addHeader(H_LOCATION,  dirPath);
 	r.addHeader(H_CONTENT_TYPE, "text/html");
 	r.addHeader(H_CONTENT_LENGTH, toString<size_t>(body.length()));
-	std::string _conn = req.getHeader(H_CONNECTION);
-	r.addHeader(H_CONNECTION, !_conn.empty() ? _conn : "keep-alive");
+	// std::string _conn = req.getHeader(H_CONNECTION);
+	// r.addHeader(H_CONNECTION, !_conn.empty() ? _conn : "keep-alive");
 
 	r.setBody(body);
 
@@ -172,8 +176,8 @@ Response ResponseHandler::_createFileResponse( const Request& req, const std::st
 	if (!_mime.empty())
 		r.addHeader(H_CONTENT_TYPE, _mime);
 	r.addHeader(H_CONTENT_LENGTH, toString<size_t>(FileHandler::getFileSize(filePath)));
-	std::string _conn = req.getHeader(H_CONNECTION);
-	r.addHeader(H_CONNECTION, !_conn.empty() ? _conn : "keep-alive");
+	// std::string _conn = req.getHeader(H_CONNECTION);
+	// r.addHeader(H_CONNECTION, !_conn.empty() ? _conn : "keep-alive");
 	return r;
 }
 
@@ -225,8 +229,8 @@ Response ResponseHandler::_createFileCGIResponse( const Request& req, ServerConf
 	Response r = Response::parseFrom(_cgiResponse);
 
 	r.addHeader("Server", SERVER_VERSION);
-	std::string _conn = req.getHeader(H_CONNECTION);
-	r.addHeader(H_CONNECTION, !_conn.empty() ? _conn : "keep-alive");
+	// std::string _conn = req.getHeader(H_CONNECTION);
+	// r.addHeader(H_CONNECTION, !_conn.empty() ? _conn : "keep-alive");
 
 	return r;
 }

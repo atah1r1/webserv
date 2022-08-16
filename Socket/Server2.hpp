@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server2.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/15 15:17:14 by atahiri           #+#    #+#             */
-/*   Updated: 2022/08/15 17:13:04 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/08/16 01:36:41 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,10 +40,12 @@ private:
 	fd_set _writeSet;
 	int _maxFd;
 public:
-    Server2(/* args */);
+    Server2( void );
     ~Server2();
-    void setPorts(std::map<size_t, std::string> &ports);
+    // void setPorts(std::map<size_t, std::string> &ports);
     void setServConf(std::vector<ServerConfig> &servConf);
+    std::map<size_t, std::string> getPorts() const;
+    std::vector<ServerConfig> getServConf() const;
     bool findResponse(int sockFd);
     int start();
 };

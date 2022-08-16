@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/26 03:00:15 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/14 20:12:26 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/16 03:20:14 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,7 +77,7 @@ std::string Response::getBody( void ) const  {
 }
 
 void Response::setBody( const std::string& body )  {
-	this->_body = trim(body);
+	this->_body = body;
 }
 
 std::map<std::string, std::string> Response::getHeaders( void ) const  {
@@ -169,7 +169,7 @@ size_t Response::getNextBuffer(char *buffer) {
 
 void Response::clearAll( void )  {
 	// reset file
-	if (this->_file->is_open())
+	if (this->_file != NULL && this->_file->is_open())
 		this->_file->close();
 	if (this->_file != NULL)
 		delete this->_file;
