@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/15 15:17:10 by atahiri           #+#    #+#             */
-/*   Updated: 2022/08/16 07:19:46 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/16 20:44:00 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,6 +62,10 @@ bool Server2::findResponse(int sockFd) {
     return (this->_responses.find(sockFd) != this->_responses.end());
 }
 
+bool Server2::findFailedBuffer(int sockFd) {
+    return (this->_failed_buffers.find(sockFd) != this->_failed_buffers.end());
+}
+
 int Server2::start( void ) {
      struct timeval timeout;
     // --- //
@@ -104,7 +108,7 @@ int Server2::start( void ) {
     // start main loop
     signal(SIGPIPE, SIG_IGN);
     //debugPrint(_INFO, __FILE__, __LINE__, "Starting main loop");
-    while (1) {
+    while (true) {
         // 0. copy _Sets to tmp_Sets
         //std::cerr << "LOOP: 0. copy _Sets to tmp_Sets" << std::endl;
         memcpy(&tmp_readSet, &_readSet, sizeof(fd_set));
@@ -162,8 +166,8 @@ int Server2::start( void ) {
                 //std::cerr << "[" << i << "] ACCEPTED: read from client." << std::endl;
                 if (FD_ISSET(_clients[i].getSockFd(), &tmp_readSet)) {
                     char buffer[BUFFER_SIZE + 1] = {0};
-                    ssize_t xrecv = read(fd, buffer, BUFFER_SIZE);
-                    //ssize_t xrecv = recv(_clients[i].getSockFd(), buffer, BUFFER_SIZE, 0);
+                    // ssize_t xrecv = read(fd, buffer, BUFFER_SIZE);
+                    ssize_t xrecv = recv(fd, buffer, BUFFER_SIZE, 0);
                     if (xrecv < 0) {
                         _states[i] = RECV_ERROR;
                     } else if (xrecv >= 0) {
@@ -171,11 +175,6 @@ int Server2::start( void ) {
                         if (xrecv > 0)
                             parseRequest(_requests[fd], std::string(buffer));
                         if (_requests[fd].getState() == Request::COMPLETED) {
-
-                            // FD_CLR(_clients[i].getSockFd(), &this->_readSet);
-                            // FD_CLR(_clients[i].getSockFd(), &tmp_readSet);
-                            // FD_SET(_clients[i].getSockFd(), &this->_writeSet);
-                            // FD_SET(_clients[i].getSockFd(), &tmp_writeSet);
                             FD_CLR(fd, &this->_readSet);
                             FD_CLR(fd, &tmp_readSet);
                             FD_SET(fd, &this->_writeSet);
@@ -207,7 +206,8 @@ int Server2::start( void ) {
                         if (resStr.length() == 0) {
                             throw std::runtime_error("Response is empty.");
                         }
-                        ssize_t xsend = write(fd, resStr.c_str(), resStr.length());
+                        ssize_t xsend = send(fd, resStr.c_str(), resStr.length(), 0);
+                        //ssize_t xsend = write(fd, resStr.c_str(), resStr.length());
 
                         if (xsend < 0) {
                             _states[i] = SEND_HEADER_ERROR;
@@ -225,28 +225,51 @@ int Server2::start( void ) {
             // 6. write body to client
             if (_states[i] == WROTE_HEADERS) {
                 //std::cerr << "[" << i << "] WROTE_HEADERS: write body to client." << std::endl;
-                //if (FD_ISSET(_clients[i].getSockFd(), &tmp_writeSet)) {
-                    if (!findResponse(fd)) {
-                        _states[i] = ERROR;
-                        std::cerr << "[" << i << "] FUCK: Response not found (this shouldn't happen)." << std::endl;
-                    }
+                if (!findResponse(fd)) {
+                    _states[i] = ERROR;
+                    std::cerr << "[" << i << "] FUCK: Response not found (this shouldn't happen)." << std::endl;
+                }
 
-                    char buffer[BUFFER_SIZE + 1] = {0};
-                    Response& res = _responses[fd];
+                char buffer[BUFFER_SIZE + 1] = {0};
+                Response& res = _responses[fd];
+
+                if (findFailedBuffer(fd)) {
+                    //ssize_t xsend = write(fd, _failed_buffers[fd].data(), _failed_buffers[fd].size());
+                    ssize_t xsend = send(fd, _failed_buffers[fd].data(), _failed_buffers[fd].size(), 0);
+                    if (xsend < 0) {
+                        if (errno == EPIPE) {
+                            _states[i] = COMPLETED;
+                        } else {
+                            _states[i] = SEND_BODY_ERROR;
+                        }
+                        std::cerr << "[" << i << "] ERROR: " << strerror(errno) << ": " << errno << std::endl;
+                    } else { 
+                        _failed_buffers.erase(fd);
+                        std::cerr << "[" << i << "] SEND_FAILED_BUFFER" << std::endl;
+                        std::cerr << "[" << i << "] SUCCESSSSSS" << std::endl;
+                    }
+                } else {
                     size_t xread = res.getNextBuffer(buffer);
                     if (xread > 0) {
                         buffer[xread] = '\0';
-                        //ssize_t xsend = send(_clients[i].getSockFd(), buffer, xread, 0);
-                        ssize_t xsend = write(fd, buffer, xread);
+                        ssize_t xsend = send(fd, buffer, xread, 0);
+                        //ssize_t xsend = write(fd, buffer, xread);
                         if (xsend < 0) {
-                            _states[i] = SEND_BODY_ERROR;
+                            _failed_buffers[fd] = std::vector<char>(buffer, buffer + xread);
+                             if (errno == EPIPE) {
+                                _states[i] = COMPLETED;
+                            } else {
+                                _states[i] = SEND_BODY_ERROR;
+                            }
+                            std::cerr << "[" << i << "] ERROR: " << strerror(errno) << ": " << errno << std::endl;
+                        } else {
+                            std::cerr << "[" << i << "] SUCCESSSSSS" << std::endl;
                         }
                     } else {
+                        std::cerr << "[" << i << "] SUCCESSSSSS" << std::endl;
                         _states[i] = COMPLETED;
                     }
-                // } else {
-                //     debugPrint(_DEBUG, __FILE__, __LINE__, toString(i) + " : Not Ready to Write.");
-                // }
+                }
             }
 
             // 7. close client
@@ -277,22 +300,6 @@ int Server2::start( void ) {
                     _states[i] = WROTE_HEADERS;
                 }
                 continue;
-                // std::cerr << "[" << i << "] ERROR: " << getStateStr(_states[i]) << ": error: " << strerror(errno) << std::endl;
-                // if (_states[i] == RECV_ERROR) {
-                //     FD_CLR(fd, &this->_readSet);
-                //     FD_CLR(fd, &tmp_readSet);
-                // } else {
-                //     FD_CLR(fd, &this->_writeSet);
-                //     FD_CLR(fd, &tmp_writeSet);
-                // }
-                // int xclose = close(fd);
-                // if (xclose < 0)
-                //     throw std::runtime_error("Error closing client socket.");
-                // Response& res = _responses[fd];
-                // res.clearAll();
-                // _responses.erase(fd);
-                // _requests.erase(fd);
-                // _states[i] = INIT;
             }
         }
     }

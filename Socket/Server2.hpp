@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/15 15:17:14 by atahiri           #+#    #+#             */
-/*   Updated: 2022/08/16 01:36:41 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/16 20:21:23 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,7 @@ private:
     std::map<size_t, std::string> _ports;
 	std::vector<ServerConfig> _servConf;
     std::map<int, State> _states;
+    std::map<int, std::vector<char> > _failed_buffers;
 
 	fd_set _readSet;
 	fd_set _writeSet;
@@ -47,6 +48,7 @@ public:
     std::map<size_t, std::string> getPorts() const;
     std::vector<ServerConfig> getServConf() const;
     bool findResponse(int sockFd);
+    bool findFailedBuffer(int sockFd);
     int start();
 };
 
