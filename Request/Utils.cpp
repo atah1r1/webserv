@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   Utils.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/24 12:22:25 by aes-salm          #+#    #+#             */
-/*   Updated: 2022/08/15 17:01:15 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/08/17 18:32:48 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Request.hpp"
 
-void printRequest(Request request)
+void printRequest(const Request& request)
 {
 	std::cout << "-------------- Print Request Object --------------" << std::endl;
 	std::cout << "StatusCode: " << request.getStatusCode() << std::endl;

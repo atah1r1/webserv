@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/15 15:17:14 by atahiri           #+#    #+#             */
-/*   Updated: 2022/08/17 15:18:34 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/17 16:58:24 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,10 +31,11 @@ private:
     std::map<int, Request> _requests;
     std::vector<Socket> _sockets;
     std::vector<Socket> _clients;
+    std::vector<State> _states;
     std::map<int, Response> _responses;
     std::map<size_t, std::string> _ports;
 	std::vector<ServerConfig> _servConf;
-    std::map<int, State> _states;
+    //std::map<int, State> _states;
     std::map<int, std::vector<char> > _failed_buffers;
 
 	fd_set _readSet;
