@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Server2.hpp                                        :+:      :+:    :+:   */
+/*   Server.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/15 15:17:14 by atahiri           #+#    #+#             */
-/*   Updated: 2022/08/17 16:58:24 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/17 21:40:09 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@
 #include "Socket.hpp"
 #include "State.hpp"
 
-class Server2
+class Server
 {
 private:
     std::map<int, Request> _requests;
@@ -35,20 +35,17 @@ private:
     std::map<int, Response> _responses;
     std::map<size_t, std::string> _ports;
 	std::vector<ServerConfig> _servConf;
-    //std::map<int, State> _states;
-    std::map<int, std::vector<char> > _failed_buffers;
 
 	fd_set _readSet;
 	fd_set _writeSet;
 	int _maxFd;
 public:
-    Server2( void );
-    ~Server2();
+    Server( void );
+    ~Server();
     void setServConf(std::vector<ServerConfig> &servConf);
     std::map<size_t, std::string> getPorts() const;
     std::vector<ServerConfig> getServConf() const;
     bool findResponse(int sockFd);
-    bool findFailedBuffer(int sockFd);
     int start();
 };
 

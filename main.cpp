@@ -6,12 +6,12 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 17:17:03 by atahiri           #+#    #+#             */
-/*   Updated: 2022/08/17 15:37:16 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/17 22:03:58 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "./Config/Config.hpp"
-#include "Socket/Server2.hpp"
+#include "Socket/Server.hpp"
 #include "Request/Request.hpp"
 #include <signal.h>
 
@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
 
     Config *config = new Config();
     std::vector<ServerConfig> servers = config->getServers(argv[1]);
-    Server2 server;
+    Server server;
     server.setServConf(servers);
     //setup_signals();
     signal(SIGPIPE, SIG_IGN);

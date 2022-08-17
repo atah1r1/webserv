@@ -1,16 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Server2.cpp                                        :+:      :+:    :+:   */
+/*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/15 15:17:10 by atahiri           #+#    #+#             */
-/*   Updated: 2022/08/17 19:39:43 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/17 22:03:58 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Server2.hpp"
+#include "Server.hpp"
 
 std::string getStateStr(State s) {
     switch (s)
@@ -42,40 +42,34 @@ std::string getStateStr(State s) {
     }
 }
 
-Server2::Server2( void ) : _maxFd(0) { }
+Server::Server( void ) : _maxFd(0) { }
 
-Server2::~Server2() { }
+Server::~Server() { }
 
-void Server2::setServConf(std::vector<ServerConfig> &servConf) {
+void Server::setServConf(std::vector<ServerConfig> &servConf) {
     this->_servConf = servConf;
 }
 
-std::map<size_t, std::string> Server2::getPorts() const {
+std::map<size_t, std::string> Server::getPorts() const {
     return this->_ports;
 }
 
-std::vector<ServerConfig> Server2::getServConf( void ) const {
+std::vector<ServerConfig> Server::getServConf( void ) const {
     return this->_servConf;
 }
 
-bool Server2::findResponse(int sockFd) {
+bool Server::findResponse(int sockFd) {
     return (this->_responses.find(sockFd) != this->_responses.end());
 }
 
-bool Server2::findFailedBuffer(int sockFd) {
-    return (this->_failed_buffers.find(sockFd) != this->_failed_buffers.end());
-}
-
-int Server2::start( void ) {
+int Server::start( void ) {
     struct timeval timeout;
     timeout.tv_sec = 60 * 60;
     timeout.tv_usec = 0;
-    // size_t _client_index = 0;
 
     // ======================= set ports and ips ======================= //
     for (size_t i = 0; i < this->_servConf.size(); i++) {
         _ports.insert(std::make_pair(_servConf[i].getPort(), _servConf[i].getServerIp()));
-        //_states[i] = INIT;
     }
 
     // ======================= init fd_sets ======================= //
@@ -175,13 +169,8 @@ int Server2::start( void ) {
                     }
                     ssize_t xsend = send(fd, resStr.c_str(), resStr.length(), 0);
                     if (xsend < 0) {
-                        if (errno == EPIPE) {
-                            _states[i] = ERROR;
-                            std::cerr << "[" << i << "] SEND_HEADER_ERROR: STOPPING" << std::endl;
-                        } else {
-                            std::cerr << "[" << i << "] SEND_HEADER_ERROR: SKIPPING" << std::endl;
-                            continue;
-                        }
+                        _states[i] = ERROR;
+                        std::cerr << "[" << i << "] SEND_HEADER_ERROR: STOPPING" << std::endl;
                     } else if (res.isBuffered()) {
                         _states[i] = WROTE_HEADERS;
                         res.setHeadersSent(true);
@@ -199,56 +188,31 @@ int Server2::start( void ) {
                     _states[i] = ERROR;
                     std::cerr << "[" << i << "] FUCK: Response not found (this shouldn't happen)." << std::endl;
                 }
-                if (!findFailedBuffer(fd)) { // findFailedBuffer(fd) == false
+                char buffer[BUFFER_SIZE] = {0};
+                Response& res = _responses[fd];
+                size_t xread = res.getNextBuffer(buffer);
 
-                    char buffer[BUFFER_SIZE] = {0};
-                    Response& res = _responses[fd];
-
-                    size_t xread = res.getNextBuffer(buffer);
-                    if (xread > 0) {
-                        ssize_t xsend = send(fd, buffer, xread, 0);
-                        if (xsend < 0) {
-                            if (errno == EPIPE) {
-                                _states[i] = ERROR;
-                                std::cerr << "[" << i << "] SEND_BODY_ERROR: STOPPING" << std::endl;
-                            } else {
-                                _failed_buffers[fd] = std::vector<char>(buffer, buffer + xread);
-                                std::cerr << "[" << i << "] SEND_BODY_ERROR: SKIPPING" << std::endl;
-                                continue;
-                            }
-                        } else {
-                            continue;
-                        }
-                    } else {
-                        _states[i] = COMPLETED;
-                    }
-                } else { // findFailedBuffer(fd) == true
-
-                    ssize_t xsend = send(fd, _failed_buffers[fd].data(), _failed_buffers[fd].size(), 0);
-                    std::cerr << "[" << i << "] SENDING_FAILED_BUFFER" << std::endl;
+                if (xread > 0) {
+                    ssize_t xsend = send(fd, buffer, xread, 0);
                     if (xsend < 0) {
-                        if (errno == EPIPE) {
-                            _states[i] = ERROR;
-                            std::cerr << "[" << i << "] SENDING_FAILED_BUFFER_ERROR: STOPPING" << std::endl;
-                        } else {
-                            std::cerr << "[" << i << "] SENDING_FAILED_BUFFER_ERROR: SKIPPING" << std::endl;
-                            continue;
-                        }
+                        _states[i] = ERROR;
+                        std::cerr << "[" << i << "] SEND_BODY_ERROR: STOPPING" << std::endl;
                     } else {
-                        _failed_buffers.erase(fd);
-                        std::cerr << "[" << i << "] FB SUCCESS" << std::endl;
+                        continue;
                     }
+                } else {
+                    _states[i] = COMPLETED;
                 }
             }
 
             // ======================= 8. errors ======================= //
             if (_states[i] == ERROR) {
+                std::cerr << "[" << i << "] COMPLETED: ERROR" << std::endl;
                 FD_CLR(fd, &this->_writeSet);
                 FD_CLR(fd, &tmp_writeSet);
                 _responses[fd].clearAll();
                 _responses.erase(fd);
                 _requests.erase(fd);
-                _failed_buffers.erase(fd);
                 _clients.erase(_clients.begin() + i);
                 _states.erase(_states.begin() + i);
                 continue;
@@ -257,6 +221,7 @@ int Server2::start( void ) {
             // ======================= 7. close client ======================= //
             if (_states[i] == COMPLETED) {
                 if (_requests[fd].getHeader(H_CONNECTION) == "keep-alive") {
+                    std::cerr << "[" << i << "] COMPLETED: KEEP-ALIVE" << std::endl;
                     FD_CLR(fd, &this->_writeSet);
                     FD_CLR(fd, &tmp_writeSet);
                     FD_SET(fd, &this->_readSet);
@@ -265,9 +230,9 @@ int Server2::start( void ) {
                     _responses[fd].clearAll();
                     _responses.erase(fd);
                     _requests.erase(fd);
-                    _failed_buffers.erase(fd);
                     _requests[fd] = Request();
                 } else {
+                    std::cerr << "[" << i << "] COMPLETED: CLOSE" << std::endl;
                     FD_CLR(fd, &this->_writeSet);
                     FD_CLR(fd, &tmp_writeSet);
                     int xclose = close(fd);
@@ -276,7 +241,6 @@ int Server2::start( void ) {
                     _responses[fd].clearAll();
                     _responses.erase(fd);
                     _requests.erase(fd);
-                    _failed_buffers.erase(fd);
                     _clients.erase(_clients.begin() + i);
                     _states.erase(_states.begin() + i);
                 }
