@@ -50,6 +50,8 @@ std::string trim(const std::string &str);
 std::string toUpperCase(const std::string &str);
 std::string toLowerCase(const std::string &str);
 std::string randomFileName(void);
+int hexToDecimal(const std::string& str);
+std::string decodeUrl(const std::string& str);
 
 bool isMethodAllowed(std::vector<std::string> allowedMethods, const std::string &method);
 bool isMethodImplemented(const std::string &method);

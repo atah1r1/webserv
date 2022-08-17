@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/01 22:24:39 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/13 17:02:44 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/17 19:32:53 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,6 +79,7 @@ std::string ResponseHandler::_getDirListingBody( const std::string& root, const 
 */
 Response ResponseHandler::_createErrorResponse( const Request& req, int statusCode, const std::pair<ServerConfig *, Location *>& config, const std::string& temp ) {
 	Response r;
+	(void)req; // TODO: remove this line
 
 	std::string body = _getDefaultErrorBody(statusCode, config) + temp;
 
@@ -90,7 +91,7 @@ Response ResponseHandler::_createErrorResponse( const Request& req, int statusCo
 	r.addHeader(H_CONTENT_TYPE, "text/html");
 	r.addHeader(H_CONTENT_LENGTH, toString<size_t>(body.length()));
 	std::string _conn = req.getHeader(H_CONNECTION);
-	r.addHeader(H_CONNECTION, !_conn.empty() ? _conn : "keep-alive");
+	r.addHeader(H_CONNECTION, !_conn.empty() ? _conn : "close");
 	r.setBody(body);
 
 	return r;
@@ -98,6 +99,7 @@ Response ResponseHandler::_createErrorResponse( const Request& req, int statusCo
 
 Response ResponseHandler::_createBodylessErrorResponse( const Request& req, int statusCode, const std::pair<ServerConfig *, Location *>& config, const std::string& temp ) {
 	Response r;
+	(void)req; // TODO: remove this line
 
 	(void)config;
 	(void)temp;
@@ -108,13 +110,14 @@ Response ResponseHandler::_createBodylessErrorResponse( const Request& req, int 
 	r.addHeader(H_SERVER, SERVER_VERSION);
 	r.addHeader(H_DATE, getCurrentDate());
 	std::string _conn = req.getHeader(H_CONNECTION);
-	r.addHeader(H_CONNECTION, !_conn.empty() ? _conn : "keep-alive");
+	r.addHeader(H_CONNECTION, !_conn.empty() ? _conn : "close");
 
 	return r;
 }
 
 Response ResponseHandler::_createDirListingResponse( const Request& req, const std::string& root, const std::string& dirPath ) {
 	Response r;
+	(void)req; // TODO: remove this line
 	std::string body = _getDirListingBody(root, dirPath);
 
 	r.setVersion("HTTP/1.1");
@@ -125,7 +128,7 @@ Response ResponseHandler::_createDirListingResponse( const Request& req, const s
 	r.addHeader(H_CONTENT_TYPE, "text/html");
 	r.addHeader(H_CONTENT_LENGTH, toString<size_t>(body.length()));
 	std::string _conn = req.getHeader(H_CONNECTION);
-	r.addHeader(H_CONNECTION, !_conn.empty() ? _conn : "keep-alive");
+	r.addHeader(H_CONNECTION, !_conn.empty() ? _conn : "close");
 
 	r.setBody(body);
 
@@ -134,6 +137,7 @@ Response ResponseHandler::_createDirListingResponse( const Request& req, const s
 
 Response ResponseHandler::_createRedirectionResponse( const Request& req, int statusCode, const std::pair<ServerConfig *, Location *>& config, const std::string& dirPath ) {
 	Response r;
+	(void)req; // TODO: remove this line
 	std::string body = _getDefaultErrorBody(statusCode,  config);
 
 	r.setVersion("HTTP/1.1");
@@ -146,7 +150,7 @@ Response ResponseHandler::_createRedirectionResponse( const Request& req, int st
 	r.addHeader(H_CONTENT_TYPE, "text/html");
 	r.addHeader(H_CONTENT_LENGTH, toString<size_t>(body.length()));
 	std::string _conn = req.getHeader(H_CONNECTION);
-	r.addHeader(H_CONNECTION, !_conn.empty() ? _conn : "keep-alive");
+	r.addHeader(H_CONNECTION, !_conn.empty() ? _conn : "close");
 
 	r.setBody(body);
 
@@ -156,10 +160,8 @@ Response ResponseHandler::_createRedirectionResponse( const Request& req, int st
 Response ResponseHandler::_createFileResponse( const Request& req, const std::string& filePath, const std::pair<ServerConfig *, Location *>& config ) {
 	Response r;
 
-	//std::cerr << "SHIT IS CHUNKED BABY..." << std::endl;
 	// setup file for reading
 	r.setFilePath(filePath);
-	// std::cerr << "==== FILE SIZE: " << FileHandler::getFileSize(filePath) << std::endl;
 	if (!r.setupFile())
 		return _createErrorResponse(req, InternalServerError, config, "");
 	r.setBuffered(true);
@@ -173,7 +175,8 @@ Response ResponseHandler::_createFileResponse( const Request& req, const std::st
 		r.addHeader(H_CONTENT_TYPE, _mime);
 	r.addHeader(H_CONTENT_LENGTH, toString<size_t>(FileHandler::getFileSize(filePath)));
 	std::string _conn = req.getHeader(H_CONNECTION);
-	r.addHeader(H_CONNECTION, !_conn.empty() ? _conn : "keep-alive");
+	r.addHeader(H_CONNECTION, !_conn.empty() ? _conn : "close");
+
 	return r;
 }
 
@@ -226,7 +229,7 @@ Response ResponseHandler::_createFileCGIResponse( const Request& req, ServerConf
 
 	r.addHeader("Server", SERVER_VERSION);
 	std::string _conn = req.getHeader(H_CONNECTION);
-	r.addHeader(H_CONNECTION, !_conn.empty() ? _conn : "keep-alive");
+	r.addHeader(H_CONNECTION, !_conn.empty() ? _conn : "close");
 
 	return r;
 }
@@ -363,7 +366,6 @@ Response ResponseHandler::_handleGETDirectory( const Request& req, const std::pa
 	}
 
 	if (_indexPath.empty() && _autoIndexing) {
-		//std::string _uri = _conf->getServerIp() + ":" + toString<int>(_conf->getPort());
 		return _createDirListingResponse(req, _root, requestPath);
 	}
 
@@ -426,10 +428,11 @@ Response ResponseHandler::handleGETRequest( const Request& req, const std::pair<
 	std::string _root = !_loc->_root.empty() ? _loc->_root : _conf->getRoot();
 
 	std::string _requestPath = FileHandler::getFullPath(_root, req.getPath());
+	_requestPath = decodeUrl(_requestPath);
 
 	// check if path doesn't exist
 	if (!FileHandler::pathExists(_requestPath)) {
-		return _createErrorResponse(req, NotFound, config, "PATH NOT EXIST\n");
+		return _createErrorResponse(req, NotFound, config, std::string("PATH NOT EXIST\n") + _requestPath);
 	}
 
 	// check if path not readable
@@ -462,6 +465,8 @@ Response ResponseHandler::handleDELETERequest( const Request& req, const std::pa
 	std::string _root = !_loc->_root.empty() ? _loc->_root : _conf->getRoot();
 
 	std::string _requestPath = FileHandler::getFullPath(_root, req.getPath());
+	_requestPath = decodeUrl(_requestPath);
+
 	// incase of file with '/' at the end
 	std::string _temp = _requestPath.back() == '/' ? _requestPath.substr(0, _requestPath.size() - 1) : _requestPath;
 
@@ -469,7 +474,7 @@ Response ResponseHandler::handleDELETERequest( const Request& req, const std::pa
 	FileType _type = FileHandler::getTypeS(_temp);
 
 	if (_type == T_ERROR && errno == ENOENT) {
-		return _createErrorResponse(req, NotFound, config, "PATH NOT EXIST\n");
+		return _createErrorResponse(req, NotFound, config, std::string("PATH NOT EXIST\n") + _requestPath);
 	}
 
 	if ((_type == T_DIR && _requestPath.back() != '/') ||
@@ -496,6 +501,7 @@ Response ResponseHandler::handlePOSTRequest( const Request& req, const std::pair
 	std::string _root = !_loc->_root.empty() ? _loc->_root : _conf->getRoot();
 
 	std::string _requestPath = FileHandler::getFullPath(_root, req.getPath());
+	_requestPath = decodeUrl(_requestPath);
 
 	if (!_loc->_upload_store.empty()) {
 

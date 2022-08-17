@@ -1,24 +1,29 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Utils.hpp                                          :+:      :+:    :+:   */
+/*   State.hpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/06/24 12:22:25 by aes-salm          #+#    #+#             */
-/*   Updated: 2022/08/17 18:33:14 by ehakam           ###   ########.fr       */
+/*   Created: 2022/08/15 15:48:08 by atahiri           #+#    #+#             */
+/*   Updated: 2022/08/16 07:13:33 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef UTILS_HPP
-#define UTILS_HPP
+enum State {
+    // normal state
+    INIT = 0,
+    ACCEPTED = 1,
+    READ_REQUEST = 2,
+    WROTE_HEADERS = 3,
+    WROTE_BODY = 4,
+    COMPLETED = 5,
+    CLOSED = 6,
+    KEEP_ALIVE = 7,
 
-#include "Request.hpp"
-
-void parseFirstLine(std::string line, Request *request);
-void parseHeaders(std::string line, Request *request);
-void parseBody(std::string line, Request *request);
-void parseRequest(Request &request, const std::string& buffer);
-void printRequest(const Request& request);
-
-#endif
+    // error state
+    RECV_ERROR = -1,
+    SEND_HEADER_ERROR = -2,
+    SEND_BODY_ERROR = -3,
+    ERROR = -4
+};

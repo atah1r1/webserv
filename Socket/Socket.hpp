@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/11 12:21:06 by atahiri           #+#    #+#             */
-/*   Updated: 2022/08/11 17:00:47 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/08/15 15:20:46 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,9 +34,12 @@ private:
     bool _keepAlive;
     std::string _host;
     int opt;
+    bool _accepted;
 
 public:
     Socket(bool isServ);
+    Socket(const Socket &);
+    Socket &operator=(const Socket &);
     ~Socket();
 
     bool operator==(const Socket &a);
@@ -53,7 +56,10 @@ public:
     void setSockAddr(struct sockaddr_in servAddr);
     int getSockFd() const;
     int getPort() const;
+    void setServSock(bool serve);
     void updateConnection(bool connec);
+    bool isAccepted() const;
+    void setAccepted( bool accepted );
 };
 
 #endif

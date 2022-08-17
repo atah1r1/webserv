@@ -6,18 +6,39 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/11 12:21:13 by atahiri           #+#    #+#             */
-/*   Updated: 2022/08/11 19:52:30 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/08/15 15:21:16 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Socket.hpp"
 
-Socket::Socket(bool isServ) : _isServSock(isServ), _keepAlive(false), opt(1)
+Socket::Socket(bool isServ) : _isServSock(isServ), _keepAlive(false), opt(1), _accepted(false)
 {
 }
 
 Socket::~Socket()
 {
+}
+
+Socket::Socket(const Socket &rhs)
+{
+    *this = rhs;
+}
+
+Socket &Socket::operator=(const Socket &rhs)
+{
+    if (this != &rhs)
+    {
+        this->_sockfd = rhs._sockfd;
+        this->_port = rhs._port;
+        this->_serv_addr = rhs._serv_addr;
+        this->_isServSock = rhs._isServSock;
+        this->_keepAlive = rhs._keepAlive;
+        this->_host = rhs._host;
+        this->opt = rhs.opt;
+        this->_accepted = rhs._accepted;
+    }
+    return *this;
 }
 
 bool Socket::operator==(const Socket &a)
@@ -76,14 +97,20 @@ bool Socket::isServSock() const
     return this->_isServSock;
 }
 
+void Socket::setServSock(bool serve) {
+    this->_isServSock = serve;
+}
+
 bool Socket::keepAlive() const
 {
     return this->_keepAlive;
 }
+
 void Socket::m_close() const
 {
     close(this->_sockfd);
 }
+
 void Socket::setPort(int port)
 {
    this->_port = port; 
@@ -122,4 +149,12 @@ int Socket::getPort() const
 void Socket::updateConnection(bool connec)
 {
     this->_keepAlive = connec;
+}
+
+bool Socket::isAccepted() const {
+    return this->_accepted;
+}
+
+void Socket::setAccepted( bool accepted ) {
+    this->_accepted = accepted;
 }

@@ -1,6 +1,6 @@
 NAME 	= 	webserv
 CC		= 	c++
-FLAGS	= 	-Wall -Wextra -Werror -std=c++98 -g
+FLAGS	= 	-Wall -Wextra -Werror -std=c++98
 SRCS	= 	main.cpp\
 			Config/Config.cpp\
 			Config/ServerConfig.cpp\
@@ -20,15 +20,15 @@ SRCS	= 	main.cpp\
 
 
 $(NAME) : 	$(SRCS)
-			@$(CC) $(FLAGS) $(SRCS) -o $(NAME) -D ALLOW_DEBUG
+			@$(CC) $(FLAGS) $(SRCS) -o $(NAME) -D ALLOW_DEBUG -O2
 
 all		: 	$(NAME)
-			@rm -rf webserv.dSYM
 
 clean	:
 			@rm -rf *.o
 
 fclean	: 	clean
 			@rm -rf $(NAME)
+			@rm -rf *.dSYM/
 
 re		: 	fclean all
