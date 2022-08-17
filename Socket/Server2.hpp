@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/15 15:17:14 by atahiri           #+#    #+#             */
-/*   Updated: 2022/08/16 20:21:23 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/17 15:18:34 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,6 @@ private:
 public:
     Server2( void );
     ~Server2();
-    // void setPorts(std::map<size_t, std::string> &ports);
     void setServConf(std::vector<ServerConfig> &servConf);
     std::map<size_t, std::string> getPorts() const;
     std::vector<ServerConfig> getServConf() const;
