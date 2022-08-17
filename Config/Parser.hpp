@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 09:38:10 by atahiri           #+#    #+#             */
-/*   Updated: 2022/07/30 15:27:30 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/08/17 16:21:59 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ public:
     ServerConfig parseServer();
     ServerConfig checkConfig(ServerConfig server_setup);
     std::string parseIp();
-    std::string parseServerName();
+    std::vector<std::string> parseServerName();
     std::string parseRoot();
     std::vector<std::string> parseIndex();
     std::pair<int, std::string> parseErrorPages();
