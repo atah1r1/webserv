@@ -167,14 +167,18 @@ void _fillCGIs(void)
 	CGIs.insert(std::make_pair("py", "/CGI/bin/PY_CGI"));
 }
 
-std::string getCGIPath(const std::string &extension)
+std::string getCGIPath( const std::map<std::string, std::string>& cgiPaths, const std::string &extension )
 {
-	_fillCGIs();
-
-	std::map<std::string, std::string>::iterator it =
-		CGIs.find(toLowerCase(trim(extension)));
-	if (it != CGIs.end())
-		return it->second;
+	if (cgiPaths.empty()) {
+		_fillCGIs();
+		std::map<std::string, std::string>::iterator it = CGIs.find(toLowerCase(trim(extension)));
+		if (it != CGIs.end())
+			return it->second;
+	} else {
+		std::map<std::string, std::string>::const_iterator it = cgiPaths.find(toLowerCase(trim(extension)));
+		if (it != cgiPaths.end())
+			return it->second;
+	}
 	return "";
 }
 

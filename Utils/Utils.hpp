@@ -45,7 +45,7 @@ Location *matchLocation(std::vector<Location *> locations, const std::string &pa
 std::string getCurrentDate(void);
 std::string toHeaderCase(const std::string &header);
 std::string getMimeType(const std::string &extension);
-std::string getCGIPath(const std::string &extension);
+std::string getCGIPath( const std::map<std::string, std::string>& cgiPaths, const std::string &extension );
 std::string trim(const std::string &str);
 std::string toUpperCase(const std::string &str);
 std::string toLowerCase(const std::string &str);

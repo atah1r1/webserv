@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/24 12:22:25 by aes-salm          #+#    #+#             */
-/*   Updated: 2022/08/17 18:32:48 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/18 02:01:09 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 
 void printRequest(const Request& request)
 {
+	std::cout << C_BLUE;
 	std::cout << "-------------- Print Request Object --------------" << std::endl;
 	std::cout << "StatusCode: " << request.getStatusCode() << std::endl;
 	std::cout << "Method: " << request.getMethod() << std::endl;
@@ -28,10 +29,11 @@ void printRequest(const Request& request)
 	std::map<std::string, std::string>::iterator it = headers.begin();
 	while (it != headers.end())
 	{
-		std::cout << it->first << ":" << it->second << std::endl;
+		std::cout << it->first << ": " << it->second << std::endl;
 		it++;
 	}
 	std::cout << "---------------------- End -----------------------" << std::endl;
+	std::cout << C_RESET;
 }
 
 void parseFirstLine(std::string line, Request *request)
@@ -114,7 +116,7 @@ void parseRequest(Request &request, const std::string& buffer)
 			if (line == "\r")
 			{
 				request.setState(Request::BEFORE_BODY);
-				if (request.getMethod() == "GET" || request.getMethod() == "DELETE")
+				if (request.getMethod() != "POST")
 				{
 					request.setState(Request::COMPLETED);
 					break;

@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 17:17:03 by atahiri           #+#    #+#             */
-/*   Updated: 2022/08/17 22:03:58 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/18 15:33:54 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,6 +59,7 @@ int main(int argc, char *argv[])
     try {
         server.start();
     } catch (std::exception &e) {
+        server.cleanup();
         std::cerr << e.what() << std::endl;
     }
 
