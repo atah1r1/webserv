@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerConfig.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
+/*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 16:08:24 by atahiri           #+#    #+#             */
-/*   Updated: 2022/08/01 22:55:53 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/17 16:29:10 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ ServerConfig::ServerConfig(/* args */)
 	std::vector<std::string> vec(1, "");
 	setPort(0);
 	this->_ip = "";
-	setServerName("");
+	setServerNames(std::vector<std::string>(1, ""));
 	setClientBufferSize(0);
 	// setErrorPages(err_pages);
 }
@@ -27,14 +27,14 @@ ServerConfig::~ServerConfig()
 {
 }
 
-std::string ServerConfig::getServerName(void) const
+std::vector<std::string> ServerConfig::getServerNames(void) const
 {
-	return this->_name;
+	return this->_server_names;
 }
 
-void ServerConfig::setServerName(std::string _name)
+void ServerConfig::setServerNames(std::vector<std::string> server_names)
 {
-	this->_name = _name;
+	this->_server_names = server_names;
 }
 
 std::string ServerConfig::getServerIp(void) const

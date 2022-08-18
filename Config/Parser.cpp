@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Parser.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
+/*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 09:38:49 by atahiri           #+#    #+#             */
-/*   Updated: 2022/08/18 02:05:48 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/18 19:27:18 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,21 +95,21 @@ std::string Parser::parseIp()
     }
     return (ip);
 }
-std::string Parser::parseServerName()
+std::vector<std::string> Parser::parseServerName()
 {
     this->grab(WORD); // server_name
-    std::string server_name;
-    if (current_token.type == WORD)
+    std::vector<std::string> server_names;
+    while (current_token.type == WORD)
     {
-        server_name = current_token.value;
+        server_names.push_back(current_token.value);
         this->grab(WORD);
     }
-    else
-    {
-        std::cout << "Error: expected server_name but got " << this->current_token.type << std::endl;
-        exit(1);
-    }
-    return (server_name);
+    // else
+    // {
+    //     std::cout << "Error: expected server_name but got " << this->current_token.type << std::endl;
+    //     exit(1);
+    // }
+    return (server_names);
 }
 
 std::string Parser::parseRoot()
@@ -309,7 +309,7 @@ ServerConfig Parser::checkConfig(ServerConfig server_setup)
         std::cout << "Error: bad or no ip founded" << std::endl;
         exit(1);
     }
-    if (server_setup.getServerName().empty())
+    if (server_setup.getServerNames().empty())
     {
         std::cout << "Error: bad or no server name founded" << std::endl;
         exit(1);
@@ -335,8 +335,8 @@ ServerConfig Parser::parseServer()
     {
         if (!current_token.value.compare("listen"))
             server_setup.setServerIp(parseIp());
-        else if (!current_token.value.compare("server_name"))
-            server_setup.setServerName(parseServerName());
+        else if (!current_token.value.compare("server_names"))
+            server_setup.setServerNames(parseServerName());
         else if (!current_token.value.compare("error_page"))
         {
             server_setup.setErrorPages(parseErrorPages());
