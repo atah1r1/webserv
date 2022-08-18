@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/15 15:17:10 by atahiri           #+#    #+#             */
-/*   Updated: 2022/08/18 16:42:25 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/18 18:44:35 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -175,13 +175,9 @@ void Server::keepAlive( int& fd, size_t& index ) {
 void Server::cleanup( void ) {
     FD_ZERO(&_readSet);
     FD_ZERO(&_writeSet);
+    FD_ZERO(&_tmpReadSet);
+    FD_ZERO(&_tmpWriteSet);
 
-    _requests.clear();
-    _responses.clear();
-    _states.clear();
-    _ports.clear();
-    _servConf.clear();
-    
     for(size_t i = 0; i < _clients.size(); i++) {
         int xclose = close(_clients[i].getSockFd());
         if (xclose < 0)
@@ -193,9 +189,6 @@ void Server::cleanup( void ) {
         if (xclose < 0)
             throw std::runtime_error("Error closing server socket.");
     }
-
-    _clients.clear();
-    _sockets.clear();
 }
 
 void Server::listen( void ) {
@@ -241,22 +234,36 @@ void Server::listen( void ) {
 }
 
 int Server::start( void ) {
+    // initialize sets to null
     initSets();
+
+    // get list of ip:port combinations from serverConfigs.
     setPorts();
+
+    // create sockets and bind to ports
     setupServerSockets();
 
     while (true) {
+        // copy original sets to temporary sets
         memcpy(&_tmpReadSet, &_readSet, sizeof(fd_set));
         memcpy(&_tmpWriteSet, &_writeSet, sizeof(fd_set));
 
+        // perform selection on temporary sets
         int xselect = select(_maxFd + 1, &_tmpReadSet, &_tmpWriteSet, NULL, NULL);
-        if (xselect < 0) {
-            throw std::runtime_error(std::string("select() failed: ") + strerror(errno));
-        } else if (xselect == 0) {
-            throw std::runtime_error(std::string("select() timeout: ") + strerror(errno));
-        }
-        acceptClients();
 
+        // catch select errors
+        if (xselect < 0) {
+            throw std::runtime_error(std::string("select failed: ") + strerror(errno));
+        }
+
+        // accept new connections if any / catch errors
+        try {
+            acceptClients();
+        } catch (std::exception& e) {
+            throw;
+        }
+
+        // read from / write to clients / catch errors
         try {
             listen();
         } catch (std::exception& e) {
