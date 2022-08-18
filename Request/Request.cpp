@@ -6,7 +6,7 @@
 /*   By: aes-salm <aes-salm@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/23 15:57:03 by aes-salm          #+#    #+#             */
-/*   Updated: 2022/08/08 11:39:44 by aes-salm         ###   ########.fr       */
+/*   Updated: 2022/08/17 23:46:20 by aes-salm         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,10 @@ Request::Request(/* args */)
 	_host = "";
 	_port = 0;
 	_headers = std::map<std::string, std::string>();
+	_bodyTmp = "";
+	_bodyLength = 0;
+	this->setHeader("Transfer-Encoding", "");
+	this->setHeader("Content-Length", "");
 }
 
 Request::~Request()
@@ -95,6 +99,22 @@ std::string Request::getQueries() const
 {
 	return _queries;
 }
+std::fstream &Request::getBodyFile()
+{
+	return _body;
+}
+std::string Request::getBodyFileName() const
+{
+	return _bodyFileName;
+}
+std::string Request::getBodyTmp() const
+{
+	return _bodyTmp;
+}
+int Request::getBodyLength() const
+{
+	return _bodyLength;
+}
 
 // SETTERS
 void Request::setMethod(std::string method)
@@ -132,4 +152,53 @@ void Request::setStatusCode(int statusCode)
 void Request::setQueries(std::string queries)
 {
 	_queries = queries;
+}
+// void Request::setBodyFile(std::fstream &body)
+// {
+// 	_body = std::fstream(body);
+// }
+void Request::setBodyFileName(std::string bodyFileName)
+{
+	_bodyFileName = bodyFileName;
+}
+void Request::setBodyTmp(std::string tmp)
+{
+	_bodyTmp = tmp;
+}
+void Request::setBodyLength(int length)
+{
+	_bodyLength = length;
+}
+
+// METHODS
+int Request::parseRequestError(std::string error, int statusCode)
+{
+	std::cout << "\033[1;31m[ ERROR ]: " << error << "\033[0m" << std::endl;
+	this->setStatusCode(statusCode);
+	this->setState(Request::COMPLETED);
+	return -1;
+}
+
+void Request::printRequest(void)
+{
+	std::cout << "-------------- Print Request Object --------------" << std::endl;
+	std::cout << "StatusCode: " << this->getStatusCode() << std::endl;
+	std::cout << "Method: " << this->getMethod() << std::endl;
+	std::cout << "Path: " << this->getPath() << std::endl;
+	std::cout << "Queries: " << this->getQueries() << std::endl;
+	std::cout << "Version: " << this->getVersion() << std::endl;
+	std::cout << "Host: " << this->getHost() << std::endl;
+	std::cout << "Port: " << this->getPort() << std::endl;
+	std::cout << "ParseState: " << this->getState() << std::endl;
+	std::cout << "BodyFileName: " << this->getBodyFileName() << std::endl;
+	std::cout << "BodyLength: " << this->getBodyLength() << std::endl;
+	std::cout << "Headers: " << std::endl;
+	std::map<std::string, std::string> headers = this->getHeaders();
+	std::map<std::string, std::string>::iterator it = headers.begin();
+	while (it != headers.end())
+	{
+		std::cout << it->first << ":" << it->second << std::endl;
+		it++;
+	}
+	std::cout << "---------------------- End -----------------------" << std::endl;
 }
