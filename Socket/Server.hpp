@@ -38,24 +38,27 @@ private:
 
 	fd_set _readSet;
 	fd_set _writeSet;
+    fd_set _tmpReadSet;
+    fd_set _tmpWriteSet;
 	int _maxFd;
 public:
     Server( void );
     ~Server();
     void setServConf(std::vector<ServerConfig> &servConf);
     void setPorts( void );
-    void initSets(fd_set& tmpReadSet, fd_set& tmpWriteSet);
+    void initSets( void );
     std::map<size_t, std::string> getPorts() const;
     std::vector<ServerConfig> getServConf() const;
     bool findResponse(int sockFd);
     void setupServerSockets( void );
-    void acceptClients( fd_set& tmpReadSet );
-    void readRequest( int& fd, size_t& index, fd_set& tmpReadSet, fd_set& tmpWriteSet );
+    void acceptClients( void );
+    void readRequest( int& fd, size_t& index );
     void writeResponseHeaders( int& fd, size_t& index );
     void writeResponseBody( int& fd, size_t& index );
-    void terminateClient( int& fd, size_t& index, fd_set& tmpReadSet, fd_set& tmpWriteSet );
-    void keepAlive( int& fd, size_t& index, fd_set& tmpReadSet, fd_set& tmpWriteSet );
-    void listen( fd_set& tmpReadSet, fd_set& tmpWriteSet );
+    void terminateClient( int& fd, size_t& index);
+    void keepAlive( int& fd, size_t& index );
+    void listen( void );
+    void cleanup( void );
     int start();
 };
 

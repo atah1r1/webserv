@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/26 14:35:35 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/13 17:03:22 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/18 16:41:43 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,10 +38,10 @@ private:
 	static Response _handleGETFile( const Request& req, const std::pair<ServerConfig *, Location *>& config, const std::string& requestPath  );
 	static Response _handleGETDirectory( const Request& req, const std::pair<ServerConfig *, Location *>& config, const std::string& requestPath );
 	static std::pair<bool, Response> _handleRequestErrors( const Request& req, const std::pair<ServerConfig *, Location *>& config) ;
-	static std::pair<ServerConfig *, Location *> _getMatchingConfig( const Request& req, ServerConfig& serverConfig );
+	static std::pair<ServerConfig *, Location *> _getMatchingConfig( const Request& req, std::vector<ServerConfig>& serverConfigs );
 public:
 
-	static Response handleRequests( const Request& req, ServerConfig& servers );
+	static Response handleRequests( const Request& req, std::vector<ServerConfig>& serverConfigs );
 	static Response handleGETRequest( const Request& req, const std::pair<ServerConfig *, Location *>& config );
 	static Response handleDELETERequest( const Request& req, const std::pair<ServerConfig *, Location *>& config );
 	static Response handlePOSTRequest( const Request& req, const std::pair<ServerConfig *, Location *>& config );

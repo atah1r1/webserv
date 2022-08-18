@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/01 22:24:39 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/18 01:42:17 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/18 17:24:08 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -230,24 +230,30 @@ Response ResponseHandler::_createFileCGIResponse( const Request& req, ServerConf
 /*
 ** CONFIG/ERRORS HANDLERS
 */
-std::pair<ServerConfig *, Location *> ResponseHandler::_getMatchingConfig( const Request& req, ServerConfig& serverConfig ) {
+std::pair<ServerConfig *, Location *> ResponseHandler::_getMatchingConfig( const Request& req, std::vector<ServerConfig>& serverConfigs ) {
 
 	// match Server & Location with same HOST & PATH
-	if (isSameHost(serverConfig.getServerIp(), req.getHost()) && serverConfig.getPort() == req.getPort()) {
-		std::vector<Location *> _locations = serverConfig.getLocations();
-		Location* _l = matchLocation(_locations, req.getPath());
-		if (_l != NULL) return std::make_pair(&serverConfig, _l);
+	for(std::vector<ServerConfig>::iterator it = serverConfigs.begin(); it != serverConfigs.end(); ++it) {
+		if (isSameHost(it->getServerIp(), req.getHost()) && it->getPort() == req.getPort()) {
+			std::vector<Location *> _locations = it->getLocations();
+			Location* _l = matchLocation(_locations, req.getPath());
+			if (_l != NULL)
+				return std::make_pair(&(*it), _l);
+		}
 	}
 
 	// match Server & Location with same SERVERNAME & PATH
-	if (serverConfig.getServerName() == req.getHost() && serverConfig.getPort() == req.getPort()) {
-		std::vector<Location *> _locations = serverConfig.getLocations();
-		Location* _l = matchLocation(_locations, req.getPath());
-		if (_l != NULL) return std::make_pair(&serverConfig, _l);
+	for(std::vector<ServerConfig>::iterator it = serverConfigs.begin(); it != serverConfigs.end(); ++it) {
+		if (it->getServerName() == req.getHost() && it->getPort() == req.getPort()) {
+			std::vector<Location *> _locations = it->getLocations();
+			Location* _l = matchLocation(_locations, req.getPath());
+			if (_l != NULL)
+				return std::make_pair(&(*it), _l);
+		}
 	}
 
 	// no match has been found :(
-	return std::make_pair(&serverConfig, (Location *)NULL);
+	return std::make_pair(&serverConfigs.front(), (Location *)NULL);
 }
 
 std::pair<bool, Response> ResponseHandler::_handleRequestErrors( const Request& req, const std::pair<ServerConfig *, Location *>& config ) {
@@ -255,7 +261,7 @@ std::pair<bool, Response> ResponseHandler::_handleRequestErrors( const Request& 
 	Location* _loc = config.second;
 
 	// If Request is not valid
-	if (false /* TODO: check if req.statusCode is not 0 */) {
+	if (req.getStatusCode() != 0) {
 		Response r = _createErrorResponse(req, BadRequest, config, "REQ NOT VALID\n"); // 400
 		return std::make_pair(true, r);
 	}
@@ -302,7 +308,7 @@ std::pair<bool, Response> ResponseHandler::_handleRequestErrors( const Request& 
 
 	// Check if method (DELETE) is explicitely allowed
 	if (toUpperCase(trim(req.getMethod())) == DELETE && !isMethodAllowed(_allowedMethods, req.getMethod())) {
-		Response r = _createErrorResponse(req, MethodNotAllowed, config, "DELETE NOT EXP ALLOWED\n"); // TODO: verify if 405 is right or Forbidden
+		Response r = _createErrorResponse(req, MethodNotAllowed, config, "DELETE NOT EXP ALLOWED\n");
 		return std::make_pair(true, r);
 	}
 
@@ -371,8 +377,8 @@ Response ResponseHandler::_handleGETDirectory( const Request& req, const std::pa
 	return _createFileResponse(req, _indexPath, config);
 }
 
-Response ResponseHandler::handleRequests( const Request& req, ServerConfig& serverConfig ) {
-	std::pair<ServerConfig *, Location *> config = _getMatchingConfig(req, serverConfig);
+Response ResponseHandler::handleRequests( const Request& req, std::vector<ServerConfig>& serverConfigs ) {
+	std::pair<ServerConfig *, Location *> config = _getMatchingConfig(req, serverConfigs);
 
 	// check for request errors
 	std::pair<bool, Response> _res = _handleRequestErrors(req, config);
@@ -385,15 +391,11 @@ Response ResponseHandler::handleRequests( const Request& req, ServerConfig& serv
 	// loc has redirection
 	if (!_loc->_redirection_path.empty()) {
 		std::string _redir = trim(_loc->_redirection_path);
-		if (beginsWith(_redir, "https://") || beginsWith(_redir, "http://")) {
-			return _createRedirectionResponse(req, MovedPermanently, config, _redir);
-		} else if (_redir.front() == '/') {
-			_redir = FileHandler::getFullPath(_root, _redir);
-			return _createRedirectionResponse(req, MovedPermanently,config, _redir);
-		} else {
-			_redir = FileHandler::getFullPath(_loc->_location, _redir);
-			return _createRedirectionResponse(req, MovedPermanently, config, _redir);
+
+		if (_redir.front() == '/') {
+			_redir = std::string("http://") + req.getHost() + ":" + toString(req.getPort()) + _redir;
 		}
+		return _createRedirectionResponse(req, MovedPermanently, config, _redir);
 	}
 
 	// no errors / redirections
@@ -402,7 +404,7 @@ Response ResponseHandler::handleRequests( const Request& req, ServerConfig& serv
 	if (_m == GET) {
 		return handleGETRequest(req, config);
 	} else if (_m == POST) {
-		// TODO: handle POST
+		return handlePOSTRequest(req, config);
 	} else if (_m == DELETE) {
 		return handleDELETERequest(req, config);
 	}
