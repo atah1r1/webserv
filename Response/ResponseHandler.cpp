@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/01 22:24:39 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/17 19:32:53 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/18 01:42:17 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,7 +79,6 @@ std::string ResponseHandler::_getDirListingBody( const std::string& root, const 
 */
 Response ResponseHandler::_createErrorResponse( const Request& req, int statusCode, const std::pair<ServerConfig *, Location *>& config, const std::string& temp ) {
 	Response r;
-	(void)req; // TODO: remove this line
 
 	std::string body = _getDefaultErrorBody(statusCode, config) + temp;
 
@@ -91,7 +90,7 @@ Response ResponseHandler::_createErrorResponse( const Request& req, int statusCo
 	r.addHeader(H_CONTENT_TYPE, "text/html");
 	r.addHeader(H_CONTENT_LENGTH, toString<size_t>(body.length()));
 	std::string _conn = req.getHeader(H_CONNECTION);
-	r.addHeader(H_CONNECTION, !_conn.empty() ? _conn : "close");
+	r.addHeader(H_CONNECTION, !_conn.empty() ? _conn : "keep-alive");
 	r.setBody(body);
 
 	return r;
@@ -99,7 +98,6 @@ Response ResponseHandler::_createErrorResponse( const Request& req, int statusCo
 
 Response ResponseHandler::_createBodylessErrorResponse( const Request& req, int statusCode, const std::pair<ServerConfig *, Location *>& config, const std::string& temp ) {
 	Response r;
-	(void)req; // TODO: remove this line
 
 	(void)config;
 	(void)temp;
@@ -110,14 +108,13 @@ Response ResponseHandler::_createBodylessErrorResponse( const Request& req, int 
 	r.addHeader(H_SERVER, SERVER_VERSION);
 	r.addHeader(H_DATE, getCurrentDate());
 	std::string _conn = req.getHeader(H_CONNECTION);
-	r.addHeader(H_CONNECTION, !_conn.empty() ? _conn : "close");
+	r.addHeader(H_CONNECTION, !_conn.empty() ? _conn : "keep-alive");
 
 	return r;
 }
 
 Response ResponseHandler::_createDirListingResponse( const Request& req, const std::string& root, const std::string& dirPath ) {
 	Response r;
-	(void)req; // TODO: remove this line
 	std::string body = _getDirListingBody(root, dirPath);
 
 	r.setVersion("HTTP/1.1");
@@ -128,7 +125,7 @@ Response ResponseHandler::_createDirListingResponse( const Request& req, const s
 	r.addHeader(H_CONTENT_TYPE, "text/html");
 	r.addHeader(H_CONTENT_LENGTH, toString<size_t>(body.length()));
 	std::string _conn = req.getHeader(H_CONNECTION);
-	r.addHeader(H_CONNECTION, !_conn.empty() ? _conn : "close");
+	r.addHeader(H_CONNECTION, !_conn.empty() ? _conn : "keep-alive");
 
 	r.setBody(body);
 
@@ -137,8 +134,7 @@ Response ResponseHandler::_createDirListingResponse( const Request& req, const s
 
 Response ResponseHandler::_createRedirectionResponse( const Request& req, int statusCode, const std::pair<ServerConfig *, Location *>& config, const std::string& dirPath ) {
 	Response r;
-	(void)req; // TODO: remove this line
-	std::string body = _getDefaultErrorBody(statusCode,  config);
+	std::string body = _getDefaultErrorBody(statusCode, config);
 
 	r.setVersion("HTTP/1.1");
 	r.setStatusCode(statusCode);
@@ -150,7 +146,7 @@ Response ResponseHandler::_createRedirectionResponse( const Request& req, int st
 	r.addHeader(H_CONTENT_TYPE, "text/html");
 	r.addHeader(H_CONTENT_LENGTH, toString<size_t>(body.length()));
 	std::string _conn = req.getHeader(H_CONNECTION);
-	r.addHeader(H_CONNECTION, !_conn.empty() ? _conn : "close");
+	r.addHeader(H_CONNECTION, !_conn.empty() ? _conn : "keep-alive");
 
 	r.setBody(body);
 
@@ -163,7 +159,7 @@ Response ResponseHandler::_createFileResponse( const Request& req, const std::st
 	// setup file for reading
 	r.setFilePath(filePath);
 	if (!r.setupFile())
-		return _createErrorResponse(req, InternalServerError, config, "");
+		return _createErrorResponse(req, InternalServerError, config, std::string("COULDN'T NOT OPEN FILE<br/>" + filePath));
 	r.setBuffered(true);
 	r.setVersion("HTTP/1.1");
 	r.setStatusCode(OK);
@@ -175,7 +171,7 @@ Response ResponseHandler::_createFileResponse( const Request& req, const std::st
 		r.addHeader(H_CONTENT_TYPE, _mime);
 	r.addHeader(H_CONTENT_LENGTH, toString<size_t>(FileHandler::getFileSize(filePath)));
 	std::string _conn = req.getHeader(H_CONNECTION);
-	r.addHeader(H_CONNECTION, !_conn.empty() ? _conn : "close");
+	r.addHeader(H_CONNECTION, !_conn.empty() ? _conn : "keep-alive");
 
 	return r;
 }
@@ -187,37 +183,34 @@ Response ResponseHandler::_createFileCGIResponse( const Request& req, ServerConf
 	std::vector<const char *> v;
 	v.push_back(strdup((std::string("REQUEST_METHOD") + "=" + req.getMethod()).c_str()));
 	v.push_back(strdup((std::string("PATH") + "=" + (getenv("PATH") ?: "")).c_str()));
-	v.push_back(strdup((std::string("AUTH_TYPE") + "=null").c_str()));
+	v.push_back(strdup(std::string("AUTH_TYPE=null").c_str()));
 	v.push_back(strdup((std::string("TERM") + "=" + (getenv("TERM") ?: "")).c_str()));
 	v.push_back(strdup((std::string("HOME") + "=" + (getenv("HOME") ?: "")).c_str()));
-	gethostname(buff, 100);
-	v.push_back(strdup((std::string("HOSTNAME") + "=" + buff).c_str()));
-	getlogin_r(buff, 100);
-	v.push_back(strdup((std::string("USER") + "=" + buff).c_str()));
+	gethostname(buff, 1023);
+	v.push_back(strdup((std::string("HOSTNAME=") + buff).c_str()));
+	getlogin_r(buff, 1023);
+	v.push_back(strdup((std::string("USER=") + buff).c_str()));
 
-	size_t n = req.getPath().find_first_of('?');
-	n = n == std::string::npos ? req.getPath().length() : n + 1;
-	v.push_back(strdup((std::string("CONTENT_LENGTH") + "=" + req.getHeader(H_CONTENT_LENGTH)).c_str()));
+	v.push_back(strdup((std::string("CONTENT_LENGTH=") + req.getHeader(H_CONTENT_LENGTH)).c_str()));
 
-	v.push_back(strdup((std::string("CONTENT_TYPE") + "=" + req.getHeader(H_CONTENT_TYPE)).c_str()));
-	v.push_back(strdup((std::string("GATEWAY_INTERFACE") + "=CGI/1.1").c_str()));
+	v.push_back(strdup((std::string("CONTENT_TYPE=") + req.getHeader(H_CONTENT_TYPE)).c_str()));
+	v.push_back(strdup(std::string("GATEWAY_INTERFACE=CGI/1.1").c_str()));
 
-	v.push_back(strdup((std::string("PATH_INFO") + "=" + req.getPath().substr(0, n)).c_str()));
-	v.push_back(strdup((std::string("PATH_TRANSLATED") + "=" + filePath).c_str()));
-	v.push_back(strdup((std::string("REMOTE_ADDR") + "=" + conf->getServerIp()).c_str()));
-	v.push_back(strdup((std::string("REMOTE_HOST") + "=" + req.getHeader("host").substr(0, req.getHeader("host").find_first_of(':'))).c_str()));
+	v.push_back(strdup((std::string("PATH_INFO=") + req.getPath()).c_str()));
+	v.push_back(strdup((std::string("PATH_TRANSLATED=") + filePath).c_str()));
+	v.push_back(strdup((std::string("REMOTE_ADDR=") + conf->getServerIp()).c_str()));
+	v.push_back(strdup((std::string("REMOTE_HOST=") + req.getHeader("host").substr(0, req.getHeader("host").find_first_of(':'))).c_str()));
 
-	v.push_back(strdup((std::string("SERVER_NAME") + "=" + conf->getServerName()).c_str()));
-	v.push_back(strdup((std::string("SERVER_PORT") + "=" + toString<int>(conf->getPort())).c_str()));
-	v.push_back(strdup((std::string("SERVER_PROTOCOL") + "=HTTP/1.1").c_str()));
-	v.push_back(strdup((std::string("SERVER_SOFTWARE") + "=" + SERVER_VERSION).c_str()));
+	v.push_back(strdup((std::string("SERVER_NAME=") + conf->getServerName()).c_str()));
+	v.push_back(strdup((std::string("SERVER_PORT=") + toString<int>(conf->getPort())).c_str()));
+	v.push_back(strdup(std::string("SERVER_PROTOCOL=HTTP/1.1").c_str()));
+	v.push_back(strdup((std::string("SERVER_SOFTWARE=") + SERVER_VERSION).c_str()));
 
-	v.push_back(strdup((std::string("QUERY_STRING") + "=" + req.getPath().substr(n)).c_str()));
-	v.push_back(strdup((std::string("HTTP_COOKIE") + "=" + req.getHeader("Cookie")).c_str()));
-	v.push_back(strdup((std::string("REDIRECT_STATUS") + "=").c_str()));
+	v.push_back(strdup((std::string("QUERY_STRING=") + req.getQueries()).c_str()));
+	v.push_back(strdup(std::string("REDIRECT_STATUS=").c_str()));
 	v.push_back(NULL);
 
-	std::string _cgiPath = FileHandler::getFullPath(_root, getCGIPath(FileHandler::getFileExtension(filePath)));
+	std::string _cgiPath = FileHandler::getFullPath(_root, getCGIPath(std::map<std::string, std::string>(), FileHandler::getFileExtension(filePath))); // TODO: replace with map from _loc
 
 	std::string _cgiResponse = "cgi(_cgiPath, filePath, const_cast<char *const*>(v.data()));";
 
@@ -229,7 +222,7 @@ Response ResponseHandler::_createFileCGIResponse( const Request& req, ServerConf
 
 	r.addHeader("Server", SERVER_VERSION);
 	std::string _conn = req.getHeader(H_CONNECTION);
-	r.addHeader(H_CONNECTION, !_conn.empty() ? _conn : "close");
+	r.addHeader(H_CONNECTION, !_conn.empty() ? _conn : "keep-alive");
 
 	return r;
 }
@@ -240,11 +233,6 @@ Response ResponseHandler::_createFileCGIResponse( const Request& req, ServerConf
 std::pair<ServerConfig *, Location *> ResponseHandler::_getMatchingConfig( const Request& req, ServerConfig& serverConfig ) {
 
 	// match Server & Location with same HOST & PATH
-	// std::cerr << "CONF IP: |" << serverConfig.getServerIp() << "|" << std::endl;
-	// std::cerr << "REQ  IP: |" << req.getHost() << "|" << std::endl;
-	// std::cerr << "CONF PORT: |" << serverConfig.getPort() << "|" << std::endl;
-	// std::cerr << "REQ  PORT: |" << req.getPort() << "|" << std::endl;
-
 	if (isSameHost(serverConfig.getServerIp(), req.getHost()) && serverConfig.getPort() == req.getPort()) {
 		std::vector<Location *> _locations = serverConfig.getLocations();
 		Location* _l = matchLocation(_locations, req.getPath());
@@ -336,7 +324,7 @@ Response ResponseHandler::_handleGETFile( const Request& req, const std::pair<Se
 	Location* _loc = config.second;
 
 	// cgi
-	if (FileHandler::requiresCGI(requestPath)) {
+	if (FileHandler::requiresCGI(std::map<std::string, std::string>(), requestPath)) { // TODO: replace with map from _loc
 		return _createFileCGIResponse(req, _conf, _loc, requestPath);
 	}
 
@@ -375,7 +363,7 @@ Response ResponseHandler::_handleGETDirectory( const Request& req, const std::pa
 	}
 
 	// if index not empty
-	if (FileHandler::requiresCGI(_indexPath)) {
+	if (FileHandler::requiresCGI(std::map<std::string, std::string>(), _indexPath)) { // TODO: replace with map from _loc
 		return _createFileCGIResponse(req, _conf, _loc, _indexPath);
 	}
 
@@ -483,7 +471,7 @@ Response ResponseHandler::handleDELETERequest( const Request& req, const std::pa
 	}
 
 	// check if path is file or dir
-	if (_type == T_FILE && FileHandler::requiresCGI(_requestPath)) {
+	if (_type == T_FILE && FileHandler::requiresCGI(std::map<std::string, std::string>(), _requestPath)) { // TODO: replace with map from _loc
 		return _createFileCGIResponse(req, _conf, _loc, _requestPath);
 	}
 
@@ -538,7 +526,7 @@ Response ResponseHandler::handlePOSTRequest( const Request& req, const std::pair
 			return _createErrorResponse(req, Forbidden, config, "INDEX EMPTY\n");
 		}
 
-		if (!FileHandler::requiresCGI(_indexPath)) {
+		if (!FileHandler::requiresCGI(std::map<std::string, std::string>(), _indexPath)) { // TODO: replace with map from _loc
 			return _createErrorResponse(req, Forbidden, config, "INDEX DON'T REQUIRE CGI\n");
 		}
 
@@ -547,7 +535,7 @@ Response ResponseHandler::handlePOSTRequest( const Request& req, const std::pair
 
 	if (_type == T_FILE) {
 
-		if (!FileHandler::requiresCGI(_requestPath)) {
+		if (!FileHandler::requiresCGI(std::map<std::string, std::string>(), _requestPath)) { // TODO: replace with map from _loc
 			return _createErrorResponse(req, Forbidden, config, "FILE DON'T REQUIRE CGI\n");
 		}
 
@@ -556,4 +544,3 @@ Response ResponseHandler::handlePOSTRequest( const Request& req, const std::pair
 
 	return _createErrorResponse(req, InternalServerError, config, "PATH NOT FILE NOR DIR\n");
 }
-

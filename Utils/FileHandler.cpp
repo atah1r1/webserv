@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   FileHandler.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/29 00:57:02 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/07 22:11:49 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/08/18 01:30:10 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -148,8 +148,8 @@ size_t FileHandler::getFileSize(const std::string& path ) {
     return st.st_size;   
 }
 
-bool FileHandler::requiresCGI( const std::string& path ) {
-	return !getCGIPath(getFileExtension(path)).empty();
+bool FileHandler::requiresCGI( const std::map<std::string, std::string>& cgiPaths, const std::string& path ) {
+	return !getCGIPath(cgiPaths, getFileExtension(path)).empty();
 }
 
 bool FileHandler::pathExists( const std::string& path ) {

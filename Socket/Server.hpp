@@ -43,9 +43,19 @@ public:
     Server( void );
     ~Server();
     void setServConf(std::vector<ServerConfig> &servConf);
+    void setPorts( void );
+    void initSets(fd_set& tmpReadSet, fd_set& tmpWriteSet);
     std::map<size_t, std::string> getPorts() const;
     std::vector<ServerConfig> getServConf() const;
     bool findResponse(int sockFd);
+    void setupServerSockets( void );
+    void acceptClients( fd_set& tmpReadSet );
+    void readRequest( int& fd, size_t& index, fd_set& tmpReadSet, fd_set& tmpWriteSet );
+    void writeResponseHeaders( int& fd, size_t& index );
+    void writeResponseBody( int& fd, size_t& index );
+    void terminateClient( int& fd, size_t& index, fd_set& tmpReadSet, fd_set& tmpWriteSet );
+    void keepAlive( int& fd, size_t& index, fd_set& tmpReadSet, fd_set& tmpWriteSet );
+    void listen( fd_set& tmpReadSet, fd_set& tmpWriteSet );
     int start();
 };
 
