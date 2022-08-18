@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/01 22:24:39 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/18 20:10:56 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/19 00:08:05 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -201,7 +201,7 @@ Response ResponseHandler::_createFileCGIResponse( const Request& req, ServerConf
 	v.push_back(strdup((std::string("REMOTE_ADDR=") + conf->getServerIp()).c_str()));
 	v.push_back(strdup((std::string("REMOTE_HOST=") + req.getHeader("host").substr(0, req.getHeader("host").find_first_of(':'))).c_str()));
 
-	v.push_back(strdup((std::string("SERVER_NAME=") + conf->getServerName()).c_str()));
+	v.push_back(strdup((std::string("SERVER_NAME=") + conf->getServerNames().front()).c_str()));
 	v.push_back(strdup((std::string("SERVER_PORT=") + toString<int>(conf->getPort())).c_str()));
 	v.push_back(strdup(std::string("SERVER_PROTOCOL=HTTP/1.1").c_str()));
 	v.push_back(strdup((std::string("SERVER_SOFTWARE=") + SERVER_VERSION).c_str()));
@@ -244,7 +244,7 @@ std::pair<ServerConfig *, Location *> ResponseHandler::_getMatchingConfig( const
 
 	// match Server & Location with same SERVERNAME & PATH
 	for(std::vector<ServerConfig>::iterator it = serverConfigs.begin(); it != serverConfigs.end(); ++it) {
-		if (it->getServerName() == req.getHost() && it->getPort() == req.getPort()) {
+		if ( matchServerName(it->getServerNames(), req.getHost()) && it->getPort() == req.getPort()) {
 			std::vector<Location *> _locations = it->getLocations();
 			Location* _l = matchLocation(_locations, req.getPath());
 			if (_l != NULL)

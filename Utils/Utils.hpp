@@ -56,6 +56,7 @@ std::string decodeUrl(const std::string& str);
 bool isMethodAllowed(std::vector<std::string> allowedMethods, const std::string &method);
 bool isMethodImplemented(const std::string &method);
 bool isSameHost( const std::string& host1, const std::string& host2 );
+bool matchServerName( const std::vector<std::string>& names, const std::string& name );
 
 template <typename T>
 T toNumber(const std::string &str)
