@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 16:04:34 by atahiri           #+#    #+#             */
-/*   Updated: 2022/08/17 16:31:53 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/08/18 20:03:21 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,7 +89,7 @@ void Config::checkErrors(std::vector<ServerConfig> config)
             for (std::vector<Location *>::iterator itl = _locations.begin(); itl != _locations.end(); ++itl)
             {
                 // std::cout << (*itl)->_location << std::endl;
-                if ((*itl)->_location[0] == '.')
+                if ((*itl)->_location[0] != '/')
                 {
                     std::cout << "Error: Location must start with /" << std::endl;
                     exit(1);
@@ -104,12 +104,6 @@ void Config::checkErrors(std::vector<ServerConfig> config)
             std::vector<Location *> _locations = it->getLocations();
             for (std::vector<Location *>::iterator itl = _locations.begin(); itl != _locations.end(); ++itl)
             {
-                int count = std::count((*itl)->_location.begin(), (*itl)->_location.end(), '/');
-                if (count > 1)
-                {
-                    std::cout << "Error: Location must start with /" << std::endl;
-                    exit(1);
-                }
                 if ((*itl)->_location[0] != '/')
                 {
                     std::cout << "Error: Location must start with /" << std::endl;
