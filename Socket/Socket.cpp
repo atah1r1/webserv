@@ -3,220 +3,158 @@
 /*                                                        :::      ::::::::   */
 /*   Socket.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
+/*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/06/12 15:40:19 by atahiri           #+#    #+#             */
-/*   Updated: 2022/08/07 23:38:06 by ehakam           ###   ########.fr       */
+/*   Created: 2022/08/11 12:21:13 by atahiri           #+#    #+#             */
+/*   Updated: 2022/08/15 15:21:16 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Socket.hpp"
-#include "../Request/Request.hpp"
-#include "../Request/Utils.hpp"
-#include "../Response/ResponseHandler.hpp"
 
-Socket::Socket(std::vector<ServerConfig> servers) : address_len(sizeof(address))
+Socket::Socket(bool isServ) : _isServSock(isServ), _keepAlive(false), opt(1), _accepted(false)
 {
-	std::vector<ServerConfig>::iterator it(servers.begin());
-	size_t size = servers.size();
-	for (size_t i = 0; i < size; i++)
-	{
-		this->_init((*it).getServerIp(), (*it).getPort());
-		if ((this->server_fd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
+}
+
+Socket::~Socket()
+{
+}
+
+Socket::Socket(const Socket &rhs)
+{
+    *this = rhs;
+}
+
+Socket &Socket::operator=(const Socket &rhs)
+{
+    if (this != &rhs)
+    {
+        this->_sockfd = rhs._sockfd;
+        this->_port = rhs._port;
+        this->_serv_addr = rhs._serv_addr;
+        this->_isServSock = rhs._isServSock;
+        this->_keepAlive = rhs._keepAlive;
+        this->_host = rhs._host;
+        this->opt = rhs.opt;
+        this->_accepted = rhs._accepted;
+    }
+    return *this;
+}
+
+bool Socket::operator==(const Socket &a)
+{
+    return (a.getSockFd() == this->getSockFd());
+}
+
+void Socket::launchSock()
+{
+    if (this->_isServSock)
+    {
+        // create socket
+        if ((_sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
+        {
+            std::cout << "socket failed: " << strerror(errno) << std::endl;
+            exit(EXIT_FAILURE);
+        }
+        // assign  Ip, convert port to network byte order and assign local address
+        memset(&this->_serv_addr, 0, sizeof(this->_serv_addr));
+        this->_serv_addr.sin_family = AF_INET;
+        this->_serv_addr.sin_port = htons(this->_port);
+        if (this->_host == "localhost")
+            this->_host = "127.0.0.1";
+        this->_serv_addr.sin_addr.s_addr = inet_addr(this->_host.c_str());
+
+        // set socket to non-blocking
+		if (fcntl(this->_sockfd, F_SETFL, O_NONBLOCK) < 0)
 		{
-			std::cout << "socket failed" << std::endl;
-			exit(EXIT_FAILURE);
-		}
-		servers_fds.push_back(this->server_fd);
-		it++;
-		// set socket to non-blocking
-		if (fcntl(this->server_fd, F_SETFL, O_NONBLOCK) < 0)
-		{
-			std::cerr << "non_blocking error" << std::endl;
+			std::cerr << "non_blocking error" << strerror(errno) << std::endl;
 			exit(EXIT_FAILURE);
 		}
 		// set default socket options (reuse address)
-		if (setsockopt(this->server_fd, SOL_SOCKET, SO_REUSEADDR, &this->opt, sizeof(int)))
+		if (setsockopt(this->_sockfd, SOL_SOCKET, SO_REUSEADDR, &this->opt, sizeof(int)))
 		{
 			std::cout << "setsockopt error" << std::endl;
 			exit(EXIT_FAILURE);
 		}
-		this->_bind();
-		this->_listen();
-	}
+
+        // asign address to socket
+        if (bind(this->_sockfd, (struct sockaddr *)&this->_serv_addr, sizeof(this->_serv_addr)) == -1)
+        {
+            std::cout << "bind failed: " << strerror(errno) << std::endl;
+            exit(EXIT_FAILURE);
+        }
+        // prepare the server for incoming clients requests
+        if (listen(this->_sockfd, QUEUE_SIZE) == -1)
+        {
+            std::cout << "listen failed: " << strerror(errno) << std::endl;
+            exit(EXIT_FAILURE);
+        }
+    }
 }
 
-void Socket::_init(std::string host, int port)
+bool Socket::isServSock() const
 {
-	this->opt = 1;
-	this->port = port;
-	this->ip = host;
-	this->hello = "HTTP/1.1 200 OK\nContent-Type:text/html\nContent-Length: 16\n\n<h1>testing</h1>";
+    return this->_isServSock;
 }
 
-// AF_INET ipv4
-// SOCK_STREAM tcp
-// 0 indicates that the caller does not want to specify the protocol and will leave it up to the service provider.
-
-// set option for socket level SOL_SOCKET
-// SO_REUSEADDR allows the socket to be bound to the address even if it is already in use.
-
-void Socket::_socket()
-{
+void Socket::setServSock(bool serve) {
+    this->_isServSock = serve;
 }
 
-void Socket::_bind()
+bool Socket::keepAlive() const
 {
-	memset(&this->address, 0, address_len);
-	this->address.sin_family = AF_INET;
-	this->address.sin_addr.s_addr = inet_addr(this->ip.c_str());
-	this->address.sin_port = htons(this->port);
-
-	vec_addresses.push_back(this->address);
-
-	// Forcefully attaching socket to the port 8080
-	if (bind(this->server_fd, (struct sockaddr *)&this->address, address_len) < 0)
-	{
-		std::cout << "bind failed" << std::endl;
-		exit(EXIT_FAILURE);
-	}
+    return this->_keepAlive;
 }
 
-// 128 backlogs
-
-void Socket::_listen()
+void Socket::m_close() const
 {
-	if (listen(this->server_fd, 128) < 0)
-	{
-		std::cout << "listen failed" << std::endl;
-		exit(EXIT_FAILURE);
-	}
+    close(this->_sockfd);
 }
 
-void Socket::_accept()
+void Socket::setPort(int port)
 {
-	if ((new_socket = accept(this->server_fd, (struct sockaddr *)&this->address, (socklen_t *)&(this->address))) < 0)
-	{
-		std::cout << "accept failed" << std::endl;
-		exit(EXIT_FAILURE);
-	}
+   this->_port = port; 
 }
 
-void Socket::_send(int my_socket, const char * msg, size_t length)
+void Socket::setHost(std::string host)
 {
-	if (send(my_socket, msg, length, 0) < 0)
-	{
-		std::cout << "send failed" << std::endl;
-		exit(EXIT_FAILURE);
-	}
+    this->_host = host;
 }
 
-void Socket::_recv()
+struct sockaddr_in Socket::getSockAddr()
 {
-	memset(this->buffer, 0, 1024);
-	this->valread = read(this->new_socket, this->buffer, 1024);
-	std::cout << "How much line i read: " << valread << std::endl;
-	std::cout << this->buffer << std::endl;
+    return this->_serv_addr;
 }
 
-void Socket::_close()
+void Socket::setSockFd(int fd)
 {
-	close(this->new_socket);
+    this->_sockfd = fd;
 }
 
-std::vector<int> Socket::getServersFds()
+void Socket::setSockAddr(struct sockaddr_in servAddr)
 {
-	return this->servers_fds;
+    this->_serv_addr = servAddr;
 }
 
-int Socket::acceptNewConnection(std::pair<int, size_t> pair)
+int Socket::getSockFd() const
 {
-	// pair<server, position>
-	int new_socket;
-	if ((new_socket = accept(pair.first, (struct sockaddr *)&this->vec_addresses[pair.second], (socklen_t *)&address_len)) < 0)
-	{
-		std::cerr << "In accept" << std::endl;
-		exit(EXIT_FAILURE);
-	}
-	return new_socket;
+    return this->_sockfd;
 }
 
-bool Socket::handleConnection(ServerConfig server_setup, int new_socket)
+int Socket::getPort() const
 {
-	// ---------------------- Reading Request --------------------------- //
-	Request request = receiveRequest(new_socket);
-
-	Response r = ResponseHandler::handleRequests(request, server_setup);
-
-	std::string _res = r.toString();
-
-	this->_send(new_socket, _res.c_str(), _res.length());
-
-	char buffer[BUFFER_SIZE] = {0};
-	size_t len = 0;
-
-	if (r.isChunked()) {
-		while ((len = r.getNextChunk(buffer)) > 0) {
-			this->_send(new_socket, buffer, len);
-			bzero(buffer, BUFFER_SIZE);
-		}
-	}
-
-	this->_send(new_socket, CRLF, 2);
-
-	r.clearAll();
-	// --------------------- Parsing The Request ------------------------- //
-	// if (!request.isCompleted()) // if the request is not completed, we return false
-	//     return false;
-	// else if (request.getBuffer() == "error")
-	// {
-	//     std::cerr << "Error in request" << std::endl;
-	//     close(new_socket);
-	//     this->requests.erase(new_socket); // request completed
-	//     return true;
-	// }
-	return true;
+    return this->_port;
 }
 
-bool Socket::isThisRequestExist(int fd)
+void Socket::updateConnection(bool connec)
 {
-	return this->requests.find(fd) != this->requests.end();
+    this->_keepAlive = connec;
 }
 
-void Socket::pushNewRequest(int fd)
-{
-	this->requests.insert(std::pair<int, Request>(fd, Request()));
+bool Socket::isAccepted() const {
+    return this->_accepted;
 }
 
-void Socket::removeRequest(int fd)
-{
-	if (this->requests.find(fd) != this->requests.end())
-		this->requests.erase(fd);
-}
-
-Request Socket::receiveRequest(int fd)
-{
-	char buffer[1024] = {0};
-	long valread = 0;
-	valread = recv(fd, buffer, 1024, 0);
-	(void)valread;
-	// std::cout << buffer << std::endl;
-
-	parseRequest(requests[fd], buffer);
-	return requests[fd];
-}
-
-// Socket::Socket(Socket const &rhs)
-// {
-//     *this = rhs;
-// }
-
-// Socket &Socket::operator=(Socket const &rhs)
-// {
-//     (void)rhs;
-//     return (*this);
-// }
-
-Socket::~Socket()
-{
+void Socket::setAccepted( bool accepted ) {
+    this->_accepted = accepted;
 }

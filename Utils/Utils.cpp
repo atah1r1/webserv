@@ -10,6 +10,27 @@ const std::string http_methods[3] = {
 	POST,
 	DELETE};
 
+int hexToDecimal(const std::string& str) {
+	int x;   
+	std::stringstream ss;
+	ss << std::hex << str;
+	ss >> x;
+	return x;
+}
+
+std::string decodeUrl(const std::string& str) {
+	std::stringstream ss;
+	for (size_t i = 0; i < str.length(); i++) {
+		if (str[i] == '%') {
+			ss << (char)hexToDecimal(str.substr(i + 1, 2));
+			i += 2;
+		} else {
+			ss << str[i];
+		}
+	}
+	return ss.str();
+}
+
 bool beginsWith(const std::string &haystack, const std::string &needle)
 {
 	if (haystack.empty() || needle.empty())
@@ -32,9 +53,9 @@ std::string trim(const std::string &str)
 		return str;
 	size_t _begin = 0;
 	size_t _end = str.length() - 1;
-	while (_begin < str.length() && str[_begin] == ' ')
+	while (_begin < str.length() && (str[_begin] == ' ' || str[_begin] == '\t' || str[_begin] == '\r' || str[_begin] == '\n'))
 		++_begin;
-	while (_end > _begin && str[_end] == ' ')
+	while (_end > _begin && (str[_end] == ' ' || str[_end] == '\t' || str[_end] == '\r' || str[_end] == '\n'))
 		--_end;
 	return str.substr(_begin, _end - _begin + 1);
 }
@@ -146,14 +167,18 @@ void _fillCGIs(void)
 	CGIs.insert(std::make_pair("py", "/CGI/bin/PY_CGI"));
 }
 
-std::string getCGIPath(const std::string &extension)
+std::string getCGIPath( const std::map<std::string, std::string>& cgiPaths, const std::string &extension )
 {
-	_fillCGIs();
-
-	std::map<std::string, std::string>::iterator it =
-		CGIs.find(toLowerCase(trim(extension)));
-	if (it != CGIs.end())
-		return it->second;
+	if (cgiPaths.empty()) {
+		_fillCGIs();
+		std::map<std::string, std::string>::iterator it = CGIs.find(toLowerCase(trim(extension)));
+		if (it != CGIs.end())
+			return it->second;
+	} else {
+		std::map<std::string, std::string>::const_iterator it = cgiPaths.find(toLowerCase(trim(extension)));
+		if (it != cgiPaths.end())
+			return it->second;
+	}
 	return "";
 }
 
@@ -580,4 +605,17 @@ std::string randomFileName(void)
 		return randomFileName();
 	else
 		return path;
+}
+
+bool isSameHost( const std::string& host1, const std::string& host2 ) {
+	std::string h1 = toLowerCase(trim(host1));
+	std::string h2 = toLowerCase(trim(host2));
+
+	if (h1 == "0.0.0.0") return true;
+
+	if ((h1 == "localhost" || h1 == "127.0.0.1") &&
+		(h2 == "localhost" || h2 == "127.0.0.1"))
+		return true;
+
+	return h1 == h2;
 }

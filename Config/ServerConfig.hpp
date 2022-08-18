@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerConfig.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
+/*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 16:08:26 by atahiri           #+#    #+#             */
-/*   Updated: 2022/08/01 22:54:21 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/17 16:30:10 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ struct Location
 class ServerConfig
 {
 private:
-	std::string _name;
+	std::vector<std::string> _server_names;
 	std::string _ip;
 	int _port;
 	std::string _root;
@@ -47,8 +47,8 @@ private:
 public:
 	ServerConfig(/* args */);
 	~ServerConfig();
-	std::string getServerName(void) const;
-	void setServerName(std::string _name);
+	std::vector<std::string> getServerNames(void) const;
+	void setServerNames(std::vector<std::string> server_names);
 	std::string getServerIp() const;
 	void setServerIp(std::string _ip);
 	int getPort() const;

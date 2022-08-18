@@ -6,7 +6,7 @@
 /*   By: aes-salm <aes-salm@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/24 12:22:25 by aes-salm          #+#    #+#             */
-/*   Updated: 2022/08/17 23:48:43 by aes-salm         ###   ########.fr       */
+/*   Updated: 2022/08/19 00:04:04 by aes-salm         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,7 +86,7 @@ int parseChunkedBody(Request *request)
 	return 0;
 }
 
-int parseRequest(Request &request, std::string buffer)
+int parseRequest(Request &request, const std::string &buffer)
 {
 	std::istringstream is(buffer);
 	std::string line;
@@ -103,7 +103,7 @@ int parseRequest(Request &request, std::string buffer)
 			if (line == "\r")
 			{
 				request.setState(Request::BEFORE_BODY);
-				if (request.getMethod() == "GET" || request.getMethod() == "DELETE")
+				if (request.getMethod() != "POST")
 				{
 					request.setState(Request::COMPLETED);
 					break;

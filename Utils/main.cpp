@@ -191,7 +191,7 @@ int main(int ac, char **av) {
 	// r.addHeader("Last-Modified", "Wed, 22 Jul 2009 19:15:56 GMT");
 	// r.addHeader("Content-Length", "88");
 	// r.addHeader("Content-Type", "text/html");
-	// r.addHeader("Connection", "Closed");
+	// r.addHeader(H_CONNECTION, "Closed");
 
 	// std::cout << r.toString() << std::endl;
 

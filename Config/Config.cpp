@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 16:04:34 by atahiri           #+#    #+#             */
-/*   Updated: 2022/08/08 02:27:30 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/08/18 20:03:21 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,10 @@ void PrintData(std::vector<ServerConfig> config)
     for (std::vector<ServerConfig>::iterator it = config.begin(); it != config.end(); ++it)
     {
         std::cout << "-------------SERVER--------------" << std::endl;
-        std::cout << "ServerName: " << it->getServerName() << std::endl;
+        for (std::vector<std::string>::iterator it2 = it->getServerNames().begin(); it2 != it->getServerNames().end(); ++it2)
+        {
+            std::cout << "Server name: " << *it2 << std::endl;
+        }
         std::cout << "IP: " << it->getServerIp() << std::endl;
         std::cout << "Port: " << it->getPort() << std::endl;
         std::cout << "Client buffer size: " << it->getClientBufferSize() << std::endl;
@@ -68,22 +71,25 @@ void Config::checkErrors(std::vector<ServerConfig> config)
     {
         for (std::vector<ServerConfig>::iterator it = config.begin(); it != config.end(); ++it)
         {
-            if ((*it).getServerName() != "" && (*it).getPort() != 0)
-            {
-                std::string server_name = (*it).getServerName();
-                int port = (*it).getPort();
-                ++it;
-                if (server_name == (*it).getServerName() && port == (*it).getPort())
-                {
-                    std::cout << "Error: Server name and port are duplicated" << std::endl;
-                    exit(1);
-                }
-            }
+            // if (!(*it).getServerNames().empty() && (*it).getPort() != 0)
+            // {
+            //     std::vector<std::string> server_names = (*it).getServerNames();
+            //     int port = (*it).getPort();
+            //     ++it;
+            //     for (std::vector<std::string>::iterator it; it != server_names.end(); ++it)
+            //     {
+            //         if ((*it) == (*it))
+            //         {
+            //             std::cout << "Error: Server name " << *it << " is already defined" << std::endl;
+            //             exit(1);
+            //         }
+            //     }
+            // }
             std::vector<Location *> _locations = it->getLocations();
             for (std::vector<Location *>::iterator itl = _locations.begin(); itl != _locations.end(); ++itl)
             {
                 // std::cout << (*itl)->_location << std::endl;
-                if ((*itl)->_location[0] == '.')
+                if ((*itl)->_location[0] != '/')
                 {
                     std::cout << "Error: Location must start with /" << std::endl;
                     exit(1);
@@ -98,12 +104,6 @@ void Config::checkErrors(std::vector<ServerConfig> config)
             std::vector<Location *> _locations = it->getLocations();
             for (std::vector<Location *>::iterator itl = _locations.begin(); itl != _locations.end(); ++itl)
             {
-                int count = std::count((*itl)->_location.begin(), (*itl)->_location.end(), '/');
-                if (count > 1)
-                {
-                    std::cout << "Error: Location must start with /" << std::endl;
-                    exit(1);
-                }
                 if ((*itl)->_location[0] != '/')
                 {
                     std::cout << "Error: Location must start with /" << std::endl;
@@ -148,7 +148,7 @@ std::vector<ServerConfig> Config::getServers(std::string file_name)
     Parser parser(lexer);
     std::vector<ServerConfig> config = parser.parse();
     checkErrors(config);
-    // PrintData(config);
+    PrintData(config);
     return config;
 }
 

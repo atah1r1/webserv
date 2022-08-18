@@ -5,58 +5,61 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/06/12 15:40:18 by atahiri           #+#    #+#             */
-/*   Updated: 2022/08/07 22:04:19 by atahiri          ###   ########.fr       */
+/*   Created: 2022/08/11 12:21:06 by atahiri           #+#    #+#             */
+/*   Updated: 2022/08/15 15:20:46 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../Config/ServerConfig.hpp"
-#include "../Request/Request.hpp"
-#include <netinet/in.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#ifndef __SOCKET_HPP__
+#define __SOCKET_HPP__
+
+#include <iostream>
 #include <sys/socket.h>
+#include <netinet/in.h>
 #include <unistd.h>
 #include <arpa/inet.h>
-#include <iostream>
 #include <fcntl.h>
+#include <cerrno>
+#include <cstring>
+
+#define QUEUE_SIZE 1024
 
 class Socket
 {
 private:
-    int server_fd;
-    int new_socket;
-    int valread;
-    bool opt;
-    char buffer[1024];
-    std::string hello;
-    struct sockaddr_in address;
-    int port;
-    std::string ip;
-    std::vector<int> servers_fds;
-    std::vector<struct sockaddr_in> vec_addresses;
-    int address_len;
-    std::map<int, Request> requests;
+    int _sockfd;
+    int _port;
+    struct sockaddr_in _serv_addr;
+    bool _isServSock;
+    bool _keepAlive;
+    std::string _host;
+    int opt;
+    bool _accepted;
 
 public:
-    Socket(std::vector<ServerConfig> servers);
+    Socket(bool isServ);
+    Socket(const Socket &);
+    Socket &operator=(const Socket &);
     ~Socket();
-    // Socket(Socket const &rhs);
-    // Socket &operator=(Socket const &rhs);
-    std::vector<int> getServersFds();
-    void _init(std::string host, int port);
-    void _socket();
-    void _bind();
-    void _listen();
-    void _accept();
-    int acceptNewConnection(std::pair<int, size_t> pair);
-    void _send(int my_socket, const char * msg, size_t length);
-    bool handleConnection(ServerConfig server_setup, int new_socket);
-    void _recv();
-    void _close();
-    bool isThisRequestExist(int fd);
-    void pushNewRequest(int fd);
-    void removeRequest(int fd);
-    Request receiveRequest(int fd);
+
+    bool operator==(const Socket &a);
+
+    void launchSock();
+
+    bool isServSock() const;
+    bool keepAlive() const;
+    void m_close() const;
+    void setPort(int port);
+    void setHost(std::string host);
+    struct sockaddr_in getSockAddr();
+    void setSockFd(int fd);
+    void setSockAddr(struct sockaddr_in servAddr);
+    int getSockFd() const;
+    int getPort() const;
+    void setServSock(bool serve);
+    void updateConnection(bool connec);
+    bool isAccepted() const;
+    void setAccepted( bool accepted );
 };
+
+#endif

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/26 01:23:28 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/07 21:56:33 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/08/17 16:37:55 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@
 #include "../Utils/StatusCodes.hpp"
 #include "../Utils/Utils.hpp"
 
-#define BUFFER_SIZE (1024 * 16)
+#define BUFFER_SIZE (1024)
 
 class Response {
 private:
@@ -29,10 +29,11 @@ private:
 	std::string _version;
 	std::string _status;
 	std::string _body;
-	bool _isChunked;
-	bool _isFromCGI;
+	bool _is_buffered;
+	bool is_from_cgi;
+	bool _are_headers_sent;
 	std::fstream* _file;
-	std::string _filePath;
+	std::string _file_path;
 	std::map<std::string, std::string> _headers;
 	static std::vector<std::string> _parseMetaData(const std::string& line);
 	static std::pair<std::string, std::string> _parseHeader(const std::string& line);
@@ -57,15 +58,17 @@ public:
 	void addHeader( const std::pair<std::string, std::string>& header );
 	void addHeader( const std::string& key, const std::string& value );
 	void removeHeader( const std::pair<std::string, std::string>& header );
-	bool isChunked( void ) const;
-	void setChunked( bool isChunked );
+	bool isBuffered( void ) const;
+	void setBuffered( bool isBuffered );
 	bool isFromCGI( void ) const;
 	void setFromCGI( bool isfromCGI );
 	std::fstream* getFile( void ) const;
 	bool setupFile( void );
 	void setFilePath( const std::string& path );
 	std::string getFilePath( void ) const;
-	size_t getNextChunk(char *buffer);
+	size_t getNextBuffer(char *buffer);
+	bool areHeadersSent() const;
+	void setHeadersSent( bool sent );
 
 	void clearAll( void );
 	std::string toString( void );

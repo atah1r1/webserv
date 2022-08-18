@@ -45,14 +45,17 @@ Location *matchLocation(std::vector<Location *> locations, const std::string &pa
 std::string getCurrentDate(void);
 std::string toHeaderCase(const std::string &header);
 std::string getMimeType(const std::string &extension);
-std::string getCGIPath(const std::string &extension);
+std::string getCGIPath( const std::map<std::string, std::string>& cgiPaths, const std::string &extension );
 std::string trim(const std::string &str);
 std::string toUpperCase(const std::string &str);
 std::string toLowerCase(const std::string &str);
 std::string randomFileName(void);
+int hexToDecimal(const std::string& str);
+std::string decodeUrl(const std::string& str);
 
 bool isMethodAllowed(std::vector<std::string> allowedMethods, const std::string &method);
 bool isMethodImplemented(const std::string &method);
+bool isSameHost( const std::string& host1, const std::string& host2 );
 
 template <typename T>
 T toNumber(const std::string &str)
