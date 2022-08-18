@@ -3,38 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   Utils.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
+/*   By: aes-salm <aes-salm@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/24 12:22:25 by aes-salm          #+#    #+#             */
-/*   Updated: 2022/08/18 20:10:36 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/19 00:04:04 by aes-salm         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Request.hpp"
-
-void printRequest(const Request& request)
-{
-	std::cout << C_BLUE;
-	std::cout << "-------------- Print Request Object --------------" << std::endl;
-	std::cout << "StatusCode: " << request.getStatusCode() << std::endl;
-	std::cout << "Method: " << request.getMethod() << std::endl;
-	std::cout << "Path: " << request.getPath() << std::endl;
-	std::cout << "Queries: " << request.getQueries() << std::endl;
-	std::cout << "Version: " << request.getVersion() << std::endl;
-	std::cout << "Host: " << request.getHost() << std::endl;
-	std::cout << "Port: " << request.getPort() << std::endl;
-	std::cout << "ParseState: " << request.getState() << std::endl;
-	std::cout << "Headers: " << std::endl;
-	std::map<std::string, std::string> headers = request.getHeaders();
-	std::map<std::string, std::string>::iterator it = headers.begin();
-	while (it != headers.end())
-	{
-		std::cout << it->first << ": " << it->second << std::endl;
-		it++;
-	}
-	std::cout << "---------------------- End -----------------------" << std::endl;
-	std::cout << C_RESET;
-}
 
 void parseFirstLine(std::string line, Request *request)
 {
@@ -93,19 +69,30 @@ void parseHeaders(std::string line, Request *request)
 		request->setHeader(key, value);
 }
 
-void parseBody(std::string line, Request *request)
+int parseChunkedBody(Request *request)
 {
-	if (request->getState() == Request::BEFORE_BODY)
-		request->setState(Request::BODY);
-
-	std::cout << "Body: " << line << std::endl;
+	std::fstream &body = request->getBodyFile();
+	if (!body.is_open())
+		return request->parseRequestError("Body file is not open!!", 500);
+	request->setBodyLength(request->getBodyLength() + request->getBodyTmp().length());
+	body << request->getBodyTmp();
+	request->setBodyTmp("");
+	if (request->getHeader("Content-Length").compare("") && request->getBodyLength() >= toNumber<int>(request->getHeader("Content-Length")))
+	{
+		body << "\n";
+		body.close();
+		request->setState(Request::COMPLETED);
+	}
+	return 0;
 }
 
-void parseRequest(Request &request, const std::string& buffer)
+int parseRequest(Request &request, const std::string &buffer)
 {
 	std::istringstream is(buffer);
 	std::string line;
 	int i = 0;
+
+	// std::cout << buffer << std::endl;
 
 	while (std::getline(is, line))
 	{
@@ -125,9 +112,34 @@ void parseRequest(Request &request, const std::string& buffer)
 			}
 			parseHeaders(line, &request);
 		}
-		else if (request.getState() == Request::BEFORE_BODY || request.getState() == Request::BODY)
-			parseBody(line, &request);
+		else if (request.getState() == Request::BEFORE_BODY)
+		{
+			request.setBodyFileName(randomFileName());
+			std::cout << "[ logs ] : Setup request body file \"" << request.getBodyFileName() << "\"" << std::endl;
+			std::fstream &bodyFile = request.getBodyFile();
+			bodyFile.open(request.getBodyFileName(), std::fstream::in | std::fstream::out | std::fstream::trunc);
+
+			// remove the headers part
+			request.setBodyTmp(buffer.substr(buffer.find("\r\n\r\n") + 4, buffer.size()));
+
+			if (request.getHeader("Transfer-Encoding") == "chunked")
+				request.setState(Request::CHUNKED_BODY);
+			else
+				request.setState(Request::UNCHUNKED_BODY);
+			break;
+		}
 		i++;
 	}
-	// printRequest(request);
+
+	if (request.getState() == Request::UNCHUNKED_BODY)
+		return parseChunkedBody(&request);
+	else if (request.getState() == Request::CHUNKED_BODY)
+	{
+		// std::cout << "[ logs ] : Write chunked body to file" << std::endl;
+		// std::fstream &bodyFile = request.getBodyFile();
+		// bodyFile.write(request.getBodyTmp().c_str(), request.getBodyTmp().size());
+		// bodyFile.close();
+	}
+	// request.printRequest();
+	return 0;
 }

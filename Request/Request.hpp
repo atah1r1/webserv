@@ -6,7 +6,7 @@
 /*   By: aes-salm <aes-salm@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/23 15:55:34 by aes-salm          #+#    #+#             */
-/*   Updated: 2022/08/08 11:39:14 by aes-salm         ###   ########.fr       */
+/*   Updated: 2022/08/12 18:13:16 by aes-salm         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,11 +28,12 @@ public:
 	// ENUM
 	enum state
 	{
-		FIRST_LINE = 0,
-		HEADERS = 1,
-		BEFORE_BODY = 2,
-		BODY = 3,
-		COMPLETED = 4
+		FIRST_LINE,
+		HEADERS,
+		BEFORE_BODY,
+		UNCHUNKED_BODY,
+		CHUNKED_BODY,
+		COMPLETED
 	};
 
 	// GETTERS
@@ -46,6 +47,10 @@ public:
 	Request::state getState() const;
 	int getStatusCode() const;
 	std::string getQueries() const;
+	std::fstream &getBodyFile();
+	std::string getBodyFileName() const;
+	std::string getBodyTmp() const;
+	int getBodyLength() const;
 
 	// SETTERS
 	void setMethod(std::string method);
@@ -57,6 +62,14 @@ public:
 	void setState(Request::state state);
 	void setStatusCode(int statusCode);
 	void setQueries(std::string queries);
+	// void setBodyFile(std::fstream &body);
+	void setBodyFileName(std::string bodyFileName);
+	void setBodyTmp(std::string tmp);
+	void setBodyLength(int length);
+
+	// METHODS
+	void printRequest(void);
+	int parseRequestError(std::string error, int statusCode);
 
 private:
 	Request::state _state;
@@ -69,6 +82,10 @@ private:
 	int _port;
 	std::map<std::string, std::string>
 		_headers;
+	std::fstream _body;
+	std::string _bodyFileName;
+	std::string _bodyTmp;
+	int _bodyLength;
 };
 
 #endif
