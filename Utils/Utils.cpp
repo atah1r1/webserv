@@ -10,7 +10,7 @@ const std::string http_methods[3] = {
 	POST,
 	DELETE};
 
-int hexToDecimal(const std::string& str) {
+int hexToDecimal( const std::string& str ) {
 	int x;   
 	std::stringstream ss;
 	ss << std::hex << str;
@@ -618,4 +618,13 @@ bool isSameHost( const std::string& host1, const std::string& host2 ) {
 		return true;
 
 	return h1 == h2;
+}
+
+bool matchServerName( const std::vector<std::string>& names, const std::string& name ) {
+
+	for( size_t i = 0; i < names.size(); ++i ) {
+		if (toLowerCase(trim(names[i])) == toLowerCase(trim(name)))
+			return true;
+	}
+	return false;
 }
