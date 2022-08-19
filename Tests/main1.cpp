@@ -43,7 +43,7 @@ int main(int ac, char **av) {
 	req.setHost("0.0.0.0");
 	req.setHeader(H_HOST, "0.0.0.0");
 	req.setHeader(H_CONTENT_LENGTH, "0");
-	req.setVersion("HTTP/1.1");
+	req.setVersion(HTTP_VERSION);
 
 	// now test the stuff
 	Response r = ResponseHandler::handleRequests(req, co);

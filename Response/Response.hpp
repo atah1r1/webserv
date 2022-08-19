@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/26 01:23:28 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/17 16:37:55 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/19 19:52:28 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,7 @@ public:
 	void setHeaders( std::map<std::string, std::string>& headers );
 	void addHeader( const std::pair<std::string, std::string>& header );
 	void addHeader( const std::string& key, const std::string& value );
-	void removeHeader( const std::pair<std::string, std::string>& header );
+	void removeHeader( const std::string& key );
 	bool isBuffered( void ) const;
 	void setBuffered( bool isBuffered );
 	bool isFromCGI( void ) const;
@@ -73,7 +73,7 @@ public:
 	void clearAll( void );
 	std::string toString( void );
 
-	static Response parseFrom( const std::string& response );
+	static std::pair<bool, Response> parseFrom( const std::string& filePath );
 };
 
 #endif

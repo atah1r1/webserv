@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   cgi.cpp                                            :+:      :+:    :+:   */
+/*   CGI.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aes-salm <aes-salm@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/20 12:35:16 by aes-salm          #+#    #+#             */
-/*   Updated: 2022/08/05 13:14:22 by aes-salm         ###   ########.fr       */
+/*   Updated: 2022/08/19 20:40:20 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,41 +21,43 @@ char **CGI::generateExecveArgs(const std::string &cgiPath, const std::string &fi
 	return args;
 }
 
-std::string CGI::execute(const std::string &cgiPath, const std::string &filePath, char **env)
+std::string CGI::execute(const std::string &cgiPath, const std::string &filePath, const std::string& inputPath, char *const* env )
 {
 	int status;
-	int fd[2];
-	struct stat sb;
-	std::string result;
+	//int fd[2];
 	std::string outFilePath = randomFileName();
-	std::ofstream outFile(outFilePath);
 
-	pipe(fd);
+	(void)inputPath; // TODO: use this as input for the cgi
+
+	// pipe(fd);
 	pid_t pid = fork();
 
 	if (pid == -1)
 	{
-		std::cout << "Error: fork() failed" << std::endl;
+		std::cerr << "Error: fork() failed" << std::endl;
 		exit(EXIT_FAILURE);
 	}
 	else if (pid == 0)
 	{
-		close(fd[0]);
-		dup2(fd[1], STDOUT_FILENO);
+		int ffd = open(outFilePath.c_str(), O_RDWR | O_CREAT | O_TRUNC, 0644);
+		if (ffd < 0)
+		{
+			std::cerr << "Error: open() failed" << std::endl;
+			exit(EXIT_FAILURE);
+		}
+		dup2(ffd, STDOUT_FILENO);
 		char **args = CGI::generateExecveArgs(cgiPath, filePath);
 		execve(args[0], args, env);
+
+		std::cerr << "Error: execve() failed." << strerror(errno) << std::endl;
+		close(ffd);
+		exit(EXIT_FAILURE);
 	}
 	else
 	{
 		waitpid(pid, &status, 0);
-		close(fd[1]);
-
-		fstat(fd[0], &sb);		   // get file size
-		result.resize(sb.st_size); // resize string to file size
-		read(fd[0], (char *)(result.data()), sb.st_size);
-		close(fd[0]);
+		if (WEXITSTATUS(status) == 1)
+			return "";
 	}
-	outFile << result;
-	outFile.close();
 	return outFilePath;
 }

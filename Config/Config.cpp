@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Config.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 16:04:34 by atahiri           #+#    #+#             */
-/*   Updated: 2022/08/19 17:50:07 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/08/19 20:51:15 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -154,7 +154,7 @@ std::vector<ServerConfig> Config::getServers(std::string file_name)
     Parser parser(lexer);
     std::vector<ServerConfig> config = parser.parse();
     checkErrors(config);
-    PrintData(config);
+    //PrintData(config);
     return config;
 }
 

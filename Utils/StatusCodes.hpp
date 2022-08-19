@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/26 01:32:29 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/02 15:19:05 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/19 20:41:21 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,8 @@
 
 #define CRLF "\r\n"
 #define SERVER_VERSION "Webserv/0.0.1 (MacOS)"
+#define HTTP_VERSION "HTTP/1.1"
+
 #define H_TRANSFER_ENCODING "Transfer-Encoding"
 #define H_CONTENT_LENGTH "Content-Length"
 #define H_CONTENT_TYPE "Content-Type"
@@ -25,6 +27,29 @@
 #define H_SERVER "Server"
 #define H_HOST "Host"
 #define H_CONNECTION "Connection"
+#define H_ALLOW "Allow"
+#define H_AUTHORIZATION "Authorization"
+#define H_STATUS "Status"
+#define H_WWW_AUTHENTICATE "WWW-Authenticate"
+#define H_COOKIE "Cookie"
+#define H_SET_COOKIE "Set-Cookie"
+#define H_CONTENT_LANGUAGE "Content-Language"
+#define H_CONTENT_LOCATION "Content-Location"
+#define H_CONTENT_RANGE "Content-Range"
+#define H_EXPIRES "Expires"
+#define H_LAST_MODIFIED "Last-Modified"
+#define H_ACCEPT_RANGES "Accept-Ranges"
+#define H_AGE "Age"
+#define H_ETAG "ETag"
+#define H_PROXY_AUTHENTICATE "Proxy-Authenticate"
+#define H_PROXY_AUTHORIZATION "Proxy-Authorization"
+#define H_RETRY_AFTER "Retry-After"
+#define H_VARY "Vary"
+#define H_VIA "Via"
+#define H_WARNING "Warning"
+#define H_X_POWERED_BY "X-Powered-By"
+#define H_ALLOW_ORIGIN "Access-Control-Allow-Origin"
+#define H_ALLOW_CREDENTIALS "Access-Control-Allow-Credentials"
 
 enum StatusCodes {
 	None			   			= 0,

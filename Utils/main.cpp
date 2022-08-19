@@ -181,7 +181,7 @@ int main(int ac, char **av) {
 
 	// Response r;
 
-	// r.setVersion("HTTP/1.1");
+	// r.setVersion(HTTP_VERSION);
 	// r.setStatusCode(200);
 	// r.setStatus("OK");
 	// r.setBody("<html>\n<body>\n<h1>Hello, World!</h1>\n</body>\n</html>");
