@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/01 22:24:39 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/19 00:08:05 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/19 01:18:43 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -501,11 +501,22 @@ Response ResponseHandler::handlePOSTRequest( const Request& req, const std::pair
 			return _createErrorResponse(req, InternalServerError, config, "STORE PATH = FILE OR DON'T EXIST\n");
 		}
 
+		std::string _ext = getExtension(req.getHeader(H_CONTENT_TYPE));
+		std::string _fileName = FileHandler::getFullPath(_storePath, "file_" + randomFileName(false) + (_ext.empty() ? "" : "." + _ext));
+
+		std::cerr << "FILE NAME: " << _fileName << std::endl;
+
 		// TODO: copy req body file to _storePath with name depends on file type
-		// std::ifstream  src("from.ogv", std::ios::binary);
-    	// std::ofstream  dst("to.ogv",   std::ios::binary);
-		// dst << src.rdbuf();
+		std::ifstream  src(req.getBodyFileName(), std::ifstream::binary | std::ifstream::in );
+    	std::ofstream  dst(_fileName, std::ios::binary | std::ofstream::out | std::ios::trunc );
+		if (!src.is_open() || !dst.is_open()) {
+			return _createErrorResponse(req, InternalServerError, config, "SRC || DST FILE NOT OPEN\n");
+		}
+		dst << src.rdbuf();
+		src.close();
+		dst.close();
 		// TODO: after copying delete source file.
+		remove(req.getBodyFileName().c_str());
 
 		return _createBodylessErrorResponse(req, Created, config, "CREATED! SUCCESS\n");
 	}
