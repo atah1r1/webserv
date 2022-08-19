@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 09:38:49 by atahiri           #+#    #+#             */
-/*   Updated: 2022/08/19 15:42:02 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/08/19 17:47:06 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -252,6 +252,20 @@ bool Parser::parseAutoIndex()
     return (auto_index == "on" ? true : false);
 }
 
+std::pair<std::string, std::string> Parser::parseCgis()
+{
+    std::pair<std::string, std::string> cgi;
+    this->grab(WORD); // cgis
+    while (current_token.type == WORD)
+    {
+        cgi.first = current_token.value;
+        this->grab(WORD);
+        cgi.second = current_token.value;
+        this->grab(WORD);
+    }
+    return (cgi);
+}
+
 Location *Parser::parseLocations()
 {
     Location *location = new Location();
@@ -273,6 +287,8 @@ Location *Parser::parseLocations()
             location->_redirection_path = parseRedirection();
         else if (!current_token.value.compare("upload_store"))
             location->_upload_store = parseUploadStore();
+        else if (!current_token.value.compare("cgi"))
+            location->_cgis.insert(parseCgis());
         else
         {
             std::cout << "Invalid Token" << std::endl;

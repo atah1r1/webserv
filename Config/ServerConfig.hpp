@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 16:08:26 by atahiri           #+#    #+#             */
-/*   Updated: 2022/08/17 16:30:10 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/08/19 17:46:11 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@ struct Location
 	std::string _root;
 	std::string _redirection_path;
 	std::string _upload_store;
+	std::map<std::string, std::string> _cgis;
 };
 
 class ServerConfig
