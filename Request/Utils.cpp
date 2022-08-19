@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Utils.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aes-salm <aes-salm@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/24 12:22:25 by aes-salm          #+#    #+#             */
-/*   Updated: 2022/08/19 00:04:04 by aes-salm         ###   ########.fr       */
+/*   Updated: 2022/08/19 01:12:30 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,20 +69,31 @@ void parseHeaders(std::string line, Request *request)
 		request->setHeader(key, value);
 }
 
-int parseChunkedBody(Request *request)
+int parseUnchunkedBody(Request *request)
 {
 	std::fstream &body = request->getBodyFile();
+
+	if (request->getBodyTmp().empty())
+	{
+		body.close();
+		request->setState(Request::COMPLETED);
+		return 0;
+	}
+
 	if (!body.is_open())
 		return request->parseRequestError("Body file is not open!!", 500);
 	request->setBodyLength(request->getBodyLength() + request->getBodyTmp().length());
 	body << request->getBodyTmp();
 	request->setBodyTmp("");
-	if (request->getHeader("Content-Length").compare("") && request->getBodyLength() >= toNumber<int>(request->getHeader("Content-Length")))
-	{
-		body << "\n";
-		body.close();
-		request->setState(Request::COMPLETED);
-	}
+	
+	// std::cerr << "Body length: " << request->getBodyLength() << std::endl;
+	// std::cerr << "Content-length" << request->getHeader("Content-Length") << std::endl;
+
+	// if (!request->getHeader("Content-Length").empty() && request->getBodyLength() >= toNumber<int>(request->getHeader("Content-Length")))
+	// {
+	// 	body.close();
+	// 	request->setState(Request::COMPLETED);
+	// }
 	return 0;
 }
 
@@ -91,8 +102,6 @@ int parseRequest(Request &request, const std::string &buffer)
 	std::istringstream is(buffer);
 	std::string line;
 	int i = 0;
-
-	// std::cout << buffer << std::endl;
 
 	while (std::getline(is, line))
 	{
@@ -117,7 +126,7 @@ int parseRequest(Request &request, const std::string &buffer)
 			request.setBodyFileName(randomFileName());
 			std::cout << "[ logs ] : Setup request body file \"" << request.getBodyFileName() << "\"" << std::endl;
 			std::fstream &bodyFile = request.getBodyFile();
-			bodyFile.open(request.getBodyFileName(), std::fstream::in | std::fstream::out | std::fstream::trunc);
+			bodyFile.open(request.getBodyFileName(), std::fstream::binary | std::fstream::in | std::fstream::out | std::fstream::trunc);
 
 			// remove the headers part
 			request.setBodyTmp(buffer.substr(buffer.find("\r\n\r\n") + 4, buffer.size()));
@@ -131,15 +140,17 @@ int parseRequest(Request &request, const std::string &buffer)
 		i++;
 	}
 
-	if (request.getState() == Request::UNCHUNKED_BODY)
-		return parseChunkedBody(&request);
+	if (request.getState() == Request::UNCHUNKED_BODY) {
+		//request.printRequest();
+		return parseUnchunkedBody(&request);
+	}
 	else if (request.getState() == Request::CHUNKED_BODY)
 	{
+		throw std::runtime_error("Not implemented yet");
 		// std::cout << "[ logs ] : Write chunked body to file" << std::endl;
 		// std::fstream &bodyFile = request.getBodyFile();
 		// bodyFile.write(request.getBodyTmp().c_str(), request.getBodyTmp().size());
 		// bodyFile.close();
 	}
-	// request.printRequest();
 	return 0;
 }

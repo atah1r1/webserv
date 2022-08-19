@@ -537,8 +537,18 @@ void _fillMimes(void)
 	mimes.insert(std::make_pair("zip", "application/zip"));
 }
 
-std::string getMimeType(const std::string &extension)
-{
+std::string getExtension(const std::string& mimeType ) {
+	_fillMimes();
+
+	for (std::map<std::string, std::string>::iterator it = mimes.begin(); it != mimes.end(); ++it)
+	{
+		if (it->second == toLowerCase(trim(mimeType)))
+			return it->first;
+	}
+	return "";
+}
+
+std::string getMimeType(const std::string &extension) {
 	_fillMimes();
 
 	std::map<std::string, std::string>::iterator it =
@@ -594,15 +604,15 @@ bool isMethodImplemented(const std::string &method)
 	return false;
 }
 
-std::string randomFileName(void)
+std::string randomFileName( bool prefix )
 {
 	struct timeval time;
 	gettimeofday(&time, NULL);
 	int rnd = time.tv_usec;
-	std::string path = "/tmp/" + toString<int>(rnd) + ".tmp";
+	std::string path = (prefix ? "/tmp/" : "") + toString<int>(rnd);
 
 	if (FileHandler::pathExists(path))
-		return randomFileName();
+		return randomFileName(prefix);
 	else
 		return path;
 }
