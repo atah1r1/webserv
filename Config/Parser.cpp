@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 09:38:49 by atahiri           #+#    #+#             */
-/*   Updated: 2022/08/18 19:27:18 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/08/19 15:42:02 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -230,20 +230,6 @@ std::vector<std::string> Parser::parseAllowMethods()
         // std::cout << "ETET: " << current_token.value << std::endl;
         allow_methods.push_back(current_token.value);
         this->grab(WORD);
-    }
-    if (!allow_methods.empty())
-    {
-        for (std::vector<std::string>::iterator it = allow_methods.begin(); it != allow_methods.end(); ++it)
-        {
-            if (*it != "DELETE" && *it != "GET" && *it != "POST")
-            {
-                std::cout << "Error: expected valid method but got " << *it << std::endl;
-                exit(1);
-            }
-        }
-    } else {
-        std::cout << "Error: expected valid method but got " << this->current_token.type << std::endl;
-        exit(1);
     }
 
     return (allow_methods);
