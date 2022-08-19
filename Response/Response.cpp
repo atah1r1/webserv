@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/26 03:00:15 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/16 03:20:14 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/19 20:04:22 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,7 @@ Response& Response::operator= ( const Response& rhs )  {
 	this->_is_buffered = rhs.isBuffered();
 	this->is_from_cgi = rhs.isFromCGI();
 	this->_are_headers_sent = rhs.areHeadersSent();
+	this->_file_path = rhs.getFilePath();
 	if (this->_file != NULL) {
 		if (this->_file->is_open())
 			this->_file->close();
@@ -96,16 +97,16 @@ void Response::setHeaders( std::map<std::string, std::string>& headers )  {
 }
 
 void Response::addHeader( const std::pair<std::string, std::string>& header )  {
-	this->_headers.insert(header);
+	this->_headers[header.first] = header.second;
 }
 
 void Response::addHeader( const std::string& key, const std::string& value ) {
 	this->addHeader(std::make_pair(toHeaderCase(trim(key)), trim(value)));
 }
 
-void Response::removeHeader( const std::pair<std::string, std::string>& header )  {
+void Response::removeHeader( const std::string& key )  {
 	if (this->_headers.empty()) return;
-	this->_headers.erase(header.first);
+	this->_headers.erase(key);
 }
 
 bool Response::isBuffered( void ) const {
@@ -211,29 +212,7 @@ std::string Response::toString( void ) {
 	return results.str();
 }
 
-std::vector<std::string> Response::_parseMetaData(const std::string& line) {
-	std::vector<std::string> res;
-	size_t _beg = 0, _end = 0;
-
-	std::string _line = trim(line);
-	// version
-	while (_end < _line.length() && _line[_end] != ' ')	++_end;
-	res.push_back(_line.substr(_beg, _end - _beg));
-	if (_end < _line.length()) _beg = ++_end;
-
-	// status_code
-	while (_end < _line.length() && _line[_end] != ' ')	++_end;
-	res.push_back(_line.substr(_beg, _end - _beg));
-	if (_end < _line.length()) _beg = ++_end;
-
-	// status
-	while (_end < _line.length()) ++_end;
-	res.push_back(_line.substr(_beg, _end - _beg));
-
-	return res;
-}
-
-std::pair<std::string, std::string> Response::_parseHeader(const std::string& line)  {
+std::pair<std::string, std::string> Response::_parseHeader( const std::string& line )  {
 	std::string _key, _value;
 	size_t _end = 0;
 
@@ -249,41 +228,50 @@ std::pair<std::string, std::string> Response::_parseHeader(const std::string& li
 	return std::make_pair(_key, _value);
 }
 
-Response Response::parseFrom(const std::string& response) {
+std::pair<bool, Response> Response::parseFrom( const std::string& filePath ) {
 	Response r;
-	size_t _beg = 0;
 	std::string _line;
-	std::pair<size_t, std::string> _ret;
 
-	const std::string _resp = trim(response);
+	std::ifstream ifile(filePath.c_str(), std::ifstream::in | std::ifstream::binary);
 
-	r.setVersion("HTTP/1.1");
+	if (!ifile.is_open())
+		return std::make_pair(false, r);
+
+	while (std::getline(ifile, _line)) {
+		_line = trim(_line);
+		if (_line.empty()) break;
+		std::pair<std::string, std::string> _header = _parseHeader(_line);
+		r.addHeader(_header);
+	}
+
+	r.setVersion(HTTP_VERSION);
 	r.setStatusCode(OK);
 	r.setStatus(getReason(OK));
+	std::string _status = r.getHeader(H_STATUS);
+	if (!_status.empty()) {
+		r.setStatusCode(toNumber<int>(trim(_status)));
+		r.setStatus(getReason(r.getStatusCode()));
+	}
+	r.removeHeader(H_STATUS);
+	r.removeHeader(H_X_POWERED_BY);
 
-	// headers
-	while (_beg < _resp.length()) {
-		_ret = nextLine(_resp, _beg);
-		_beg = _ret.first;
-		_line = _ret.second;
-		if (_beg >= _resp.length() || _line.empty()) break;
-		std::pair<std::string, std::string> _h = _parseHeader(_line);
-		r.addHeader(_h);
+	if (ifile.eof()) {
+		ifile.close();
+		remove(filePath.c_str());
+		return std::make_pair(true, r);
 	}
 
-	// set status based on Status header.
-	std::string code = r.getHeader("Status");
-	if (!code.empty()) {
-		int codeInt = toNumber<int>(code);
-		r.setStatusCode(codeInt);
-		r.setStatus(getReason(codeInt));
-	}
-
-	// body
-	if (_beg < _resp.length()) {
-		r.setBody(trim(_resp.substr(_beg)));
-	}
-
-	return r;
+	std::string _ofilePath = filePath + "_proccessed";
+	std::ofstream ofile(_ofilePath.c_str(), std::ofstream::out | std::ofstream::binary);
+	if (!ofile.is_open())
+		return std::make_pair(false, r);
+	ofile << ifile.rdbuf();
+	ifile.close();
+	ofile.close();
+	remove(filePath.c_str());
+	r.setFilePath(_ofilePath);
+	r.setBuffered(true);
+	r.setFromCGI(true);
+	return std::make_pair(true, r);
 }
 

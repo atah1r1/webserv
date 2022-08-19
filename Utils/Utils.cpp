@@ -162,9 +162,14 @@ void _fillCGIs(void)
 {
 	if (!CGIs.empty())
 		return;
+	char buffer[1024] = {0};
+	if (getcwd(buffer, 256) == NULL)
+		strcpy(buffer, ".");
 
-	CGIs.insert(std::make_pair("php", "/CGI/bin/PHP_CGI"));
-	CGIs.insert(std::make_pair("py", "/CGI/bin/PY_CGI"));
+	std::string _cgiPathPrefix = std::string(buffer) + "/CGI/bin/";
+
+	CGIs.insert(std::make_pair("php",  _cgiPathPrefix + "PHP_CGI"));
+	CGIs.insert(std::make_pair("py", _cgiPathPrefix + "PY_CGI"));
 }
 
 std::string getCGIPath( const std::map<std::string, std::string>& cgiPaths, const std::string &extension )
