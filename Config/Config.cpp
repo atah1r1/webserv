@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 16:04:34 by atahiri           #+#    #+#             */
-/*   Updated: 2022/08/19 15:55:23 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/19 20:51:15 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,6 +58,12 @@ void PrintData(std::vector<ServerConfig> config)
             {
                 std::cout << "Index file"
                           << "[" << iti - _index.begin() << "]: " << *iti << std::endl;
+            }
+            std::map<std::string, std::string> _cgis = (*itl)->_cgis;
+            for (std::map<std::string, std::string>::iterator itc = _cgis.begin(); itc != _cgis.end(); ++itc)
+            {
+                std::cout << "CGI "
+                          << "Extension: " << itc->first << " Path: " << itc->second << std::endl;
             }
             std::cout << "-------------LOCATIONS--------------" << std::endl;
         }
