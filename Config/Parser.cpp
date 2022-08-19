@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 09:38:49 by atahiri           #+#    #+#             */
-/*   Updated: 2022/08/18 19:27:18 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/08/19 17:47:06 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -231,20 +231,6 @@ std::vector<std::string> Parser::parseAllowMethods()
         allow_methods.push_back(current_token.value);
         this->grab(WORD);
     }
-    if (!allow_methods.empty())
-    {
-        for (std::vector<std::string>::iterator it = allow_methods.begin(); it != allow_methods.end(); ++it)
-        {
-            if (*it != "DELETE" && *it != "GET" && *it != "POST")
-            {
-                std::cout << "Error: expected valid method but got " << *it << std::endl;
-                exit(1);
-            }
-        }
-    } else {
-        std::cout << "Error: expected valid method but got " << this->current_token.type << std::endl;
-        exit(1);
-    }
 
     return (allow_methods);
 }
@@ -264,6 +250,20 @@ bool Parser::parseAutoIndex()
         exit(1);
     }
     return (auto_index == "on" ? true : false);
+}
+
+std::pair<std::string, std::string> Parser::parseCgis()
+{
+    std::pair<std::string, std::string> cgi;
+    this->grab(WORD); // cgis
+    while (current_token.type == WORD)
+    {
+        cgi.first = current_token.value;
+        this->grab(WORD);
+        cgi.second = current_token.value;
+        this->grab(WORD);
+    }
+    return (cgi);
 }
 
 Location *Parser::parseLocations()
@@ -287,6 +287,8 @@ Location *Parser::parseLocations()
             location->_redirection_path = parseRedirection();
         else if (!current_token.value.compare("upload_store"))
             location->_upload_store = parseUploadStore();
+        else if (!current_token.value.compare("cgi"))
+            location->_cgis.insert(parseCgis());
         else
         {
             std::cout << "Invalid Token" << std::endl;

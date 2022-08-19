@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 09:38:10 by atahiri           #+#    #+#             */
-/*   Updated: 2022/08/17 16:21:59 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/08/19 17:47:38 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,6 +47,7 @@ public:
     Location * parseLocations();
     std::string parseRedirection();
     std::string parseUploadStore();
+    std::pair<std::string, std::string> parseCgis();
 };
 
 
