@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/01 22:24:39 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/20 01:15:45 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/20 15:44:37 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -206,29 +206,31 @@ Response ResponseHandler::_createFileCGIResponse( const Request& req, ServerConf
 	v.push_back(strdup("REDIRECT_STATUS="));
 	v.push_back(NULL);
 
-	// TODO: replace with map from _loc
+	// get cgi path.
 	std::string _cgiPath = getCGIPath( loc->_cgis, FileHandler::getFileExtension(filePath));
 
-	std::cerr << "CGI PATH: " << _cgiPath << std::endl;
-
+	// execute cgi on filePath and get filePath of response.
 	std::string _filePath = CGI::execute(_cgiPath, filePath, req.getBodyFileName(), const_cast<char *const*>(v.data()));
 
+	// if no file was returned, return error. 500
 	if (_filePath.empty())
 		return _createErrorResponse(req, InternalServerError, std::pair<ServerConfig *, Location *>(conf, loc), "CGI ERROR<br/>");
 
+	// parse the response file and return the response.
 	std::pair<bool, Response> res = Response::parseFrom(_filePath);
+
+	// if parsing failed return error. 500
 	if (!res.first) {
+		res.second.clearAll();
 		return _createErrorResponse(req, InternalServerError, std::pair<ServerConfig *, Location *>(conf, loc), "COULDN'T NOT OPEN FILE");
 	}
 
+	// add headers to response.
 	res.second.addHeader(H_SERVER, SERVER_VERSION);
 	std::string _conn = req.getHeader(H_CONNECTION);
 	res.second.addHeader(H_CONNECTION, !_conn.empty() ? _conn : "keep-alive");
-	size_t _contentLength = !res.second.getFilePath().empty() ? FileHandler::getFileSize(res.second.getFilePath()) : res.second.getBody().size();
-	res.second.addHeader(H_CONTENT_LENGTH, toString(_contentLength));
-	if (!res.second.setupFile())
-		return _createErrorResponse(req, InternalServerError, std::pair<ServerConfig *, Location *>(conf, loc),
-			std::string("COULDN'T NOT OPEN FILE<br/>" + filePath));
+
+	// return response.
 	return res.second;
 }
 
