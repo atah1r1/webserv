@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/20 12:35:16 by aes-salm          #+#    #+#             */
-/*   Updated: 2022/08/19 20:40:20 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/19 23:48:12 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,12 +24,8 @@ char **CGI::generateExecveArgs(const std::string &cgiPath, const std::string &fi
 std::string CGI::execute(const std::string &cgiPath, const std::string &filePath, const std::string& inputPath, char *const* env )
 {
 	int status;
-	//int fd[2];
 	std::string outFilePath = randomFileName();
 
-	(void)inputPath; // TODO: use this as input for the cgi
-
-	// pipe(fd);
 	pid_t pid = fork();
 
 	if (pid == -1)
@@ -46,6 +42,12 @@ std::string CGI::execute(const std::string &cgiPath, const std::string &filePath
 			exit(EXIT_FAILURE);
 		}
 		dup2(ffd, STDOUT_FILENO);
+		if (!inputPath.empty())
+		{
+			int infd = open(inputPath.c_str(), O_RDONLY, 0644);
+			if (infd != -1)
+				dup2(infd, STDIN_FILENO);
+		}
 		char **args = CGI::generateExecveArgs(cgiPath, filePath);
 		execve(args[0], args, env);
 
