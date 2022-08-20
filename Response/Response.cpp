@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/26 03:00:15 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/20 15:36:26 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/20 18:44:31 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -264,15 +264,7 @@ std::pair<bool, Response> Response::parseFrom( const std::string& filePath ) {
 		return std::make_pair(true, r);
 	}
 
-	// std::string _ofilePath = filePath + "_proccessed";
-	// std::ofstream ofile(_ofilePath.c_str(), std::ofstream::out | std::ofstream::binary);
-	// if (!ofile.is_open())
-	// 	return std::make_pair(false, r);
-	// ofile << ifile.rdbuf();
 	ifile.close();
-	// ofile.close();
-	// remove(filePath.c_str());
-
 	r.setFilePath(filePath);
 	size_t _contentLength = !r.getFilePath().empty() ? FileHandler::getFileSize(r.getFilePath()) : r.getBody().size();
 	r.addHeader(H_CONTENT_LENGTH, toString<size_t>(_contentLength > 0 ? (_contentLength - _seek) : 0));
