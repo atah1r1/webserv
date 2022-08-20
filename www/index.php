@@ -1,10 +1,10 @@
 <?php
 // open the file in a binary mode
-$name = './video.mp4';
+$name = './image.jpeg';
 $fp = fopen($name, 'rb');
 
 // send the right headers
-header("Content-Type: video/mp4");
+header("Content-Type: image/jpeg");
 header("Content-Length: " . filesize($name));
 
 // dump the picture and stop the script

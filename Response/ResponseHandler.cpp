@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/01 22:24:39 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/19 20:45:42 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/20 01:15:45 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -207,7 +207,10 @@ Response ResponseHandler::_createFileCGIResponse( const Request& req, ServerConf
 	v.push_back(NULL);
 
 	// TODO: replace with map from _loc
-	std::string _cgiPath = getCGIPath( std::map<std::string, std::string>(), FileHandler::getFileExtension(filePath));
+	std::string _cgiPath = getCGIPath( loc->_cgis, FileHandler::getFileExtension(filePath));
+
+	std::cerr << "CGI PATH: " << _cgiPath << std::endl;
+
 	std::string _filePath = CGI::execute(_cgiPath, filePath, req.getBodyFileName(), const_cast<char *const*>(v.data()));
 
 	if (_filePath.empty())
@@ -264,7 +267,7 @@ std::pair<bool, Response> ResponseHandler::_handleRequestErrors( const Request& 
 
 	// If Request is not valid
 	if (req.getStatusCode() != 0) {
-		Response r = _createErrorResponse(req, BadRequest, config, "REQ NOT VALID\n"); // 400
+		Response r = _createErrorResponse(req, req.getStatusCode(), config, "REQ NOT VALID\n"); // 400
 		return std::make_pair(true, r);
 	}
 
@@ -283,17 +286,16 @@ std::pair<bool, Response> ResponseHandler::_handleRequestErrors( const Request& 
 
 	// If request PATH too long
 	if (req.getPath().length() > 2048) {
-		Response r = _createErrorResponse(req, URITooLong, config, "URL LONG\n"); // 414
+		Response r = _createErrorResponse(req, URITooLong, config, "URL TOO LONG\n"); // 414
 		return std::make_pair(true, r);
 	}
 
 	// if bodySize > clientmaxbuffersize
-	// TODO: fix and uncomment
-	// if (_conf != NULL && _conf->getClientBufferSize() > 0
-	// 	/*&& req.bodySize() > _conf->getClientBufferSize()*/) {
-	// 	Response r = _createErrorResponse(PayloadTooLarge, config, "MAXBODY SIZE"); // 413
-	// 	return std::make_pair(true, r);
-	// }
+	size_t _bodySize = !req.getBodyFileName().empty() ? FileHandler::getFileSize(req.getBodyFileName()) : 0;
+	if (_conf != NULL && _conf->getClientBufferSize() > 0 && _bodySize > (size_t)_conf->getClientBufferSize()) {
+		Response r = _createErrorResponse(req, PayloadTooLarge, config, "MAXBODY SIZE"); // 413
+		return std::make_pair(true, r);
+	}
 
 	// If no location matches request
 	if (_conf == NULL || _loc == NULL) {
@@ -332,7 +334,7 @@ Response ResponseHandler::_handleGETFile( const Request& req, const std::pair<Se
 	Location* _loc = config.second;
 
 	// cgi
-	if (FileHandler::requiresCGI(std::map<std::string, std::string>(), requestPath)) { // TODO: replace with map from _loc
+	if (FileHandler::requiresCGI(_loc->_cgis, requestPath)) { // TODO: replace with map from _loc
 		return _createFileCGIResponse(req, _conf, _loc, requestPath);
 	}
 
@@ -371,7 +373,7 @@ Response ResponseHandler::_handleGETDirectory( const Request& req, const std::pa
 	}
 
 	// if index not empty
-	if (FileHandler::requiresCGI(std::map<std::string, std::string>(), _indexPath)) { // TODO: replace with map from _loc
+	if (FileHandler::requiresCGI(_loc->_cgis, _indexPath)) { // TODO: replace with map from _loc
 		return _createFileCGIResponse(req, _conf, _loc, _indexPath);
 	}
 
@@ -475,7 +477,7 @@ Response ResponseHandler::handleDELETERequest( const Request& req, const std::pa
 	}
 
 	// check if path is file or dir
-	if (_type == T_FILE && FileHandler::requiresCGI(std::map<std::string, std::string>(), _requestPath)) { // TODO: replace with map from _loc
+	if (_type == T_FILE && FileHandler::requiresCGI(_loc->_cgis, _requestPath)) { // TODO: replace with map from _loc
 		return _createFileCGIResponse(req, _conf, _loc, _requestPath);
 	}
 
@@ -541,7 +543,7 @@ Response ResponseHandler::handlePOSTRequest( const Request& req, const std::pair
 			return _createErrorResponse(req, Forbidden, config, "INDEX EMPTY\n");
 		}
 
-		if (!FileHandler::requiresCGI(std::map<std::string, std::string>(), _indexPath)) { // TODO: replace with map from _loc
+		if (!FileHandler::requiresCGI(_loc->_cgis, _indexPath)) { // TODO: replace with map from _loc
 			return _createErrorResponse(req, Forbidden, config, "INDEX DON'T REQUIRE CGI\n");
 		}
 
@@ -550,7 +552,7 @@ Response ResponseHandler::handlePOSTRequest( const Request& req, const std::pair
 
 	if (_type == T_FILE) {
 
-		if (!FileHandler::requiresCGI(std::map<std::string, std::string>(), _requestPath)) { // TODO: replace with map from _loc
+		if (!FileHandler::requiresCGI(_loc->_cgis, _requestPath)) { // TODO: replace with map from _loc
 			return _createErrorResponse(req, Forbidden, config, "FILE DON'T REQUIRE CGI\n");
 		}
 
