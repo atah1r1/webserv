@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/20 12:35:16 by aes-salm          #+#    #+#             */
-/*   Updated: 2022/08/19 23:48:12 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/20 18:47:08 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,8 +45,12 @@ std::string CGI::execute(const std::string &cgiPath, const std::string &filePath
 		if (!inputPath.empty())
 		{
 			int infd = open(inputPath.c_str(), O_RDONLY, 0644);
-			if (infd != -1)
-				dup2(infd, STDIN_FILENO);
+			if (infd < 0)
+			{
+				std::cerr << "Error: open() failed" << std::endl;
+				exit(EXIT_FAILURE);
+			}
+			dup2(infd, STDIN_FILENO);
 		}
 		char **args = CGI::generateExecveArgs(cgiPath, filePath);
 		execve(args[0], args, env);

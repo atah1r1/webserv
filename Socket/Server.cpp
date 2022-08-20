@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/15 15:17:10 by atahiri           #+#    #+#             */
-/*   Updated: 2022/08/18 23:41:51 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/20 15:27:05 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,7 +108,7 @@ void Server::writeResponseHeaders( int& fd, size_t& index ) {
     }
     Response& res = _responses[fd];
     if (!res.areHeadersSent()) {
-        std::string resStr = res.toString();
+        std::string resStr = res.toStr();
         if (resStr.length() == 0) {
             throw std::runtime_error("Response is empty.");
         }

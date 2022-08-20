@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/26 01:23:28 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/19 19:52:28 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/20 15:27:05 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 #include <vector>
 #include "../Utils/StatusCodes.hpp"
 #include "../Utils/Utils.hpp"
+#include "../Utils/FileHandler.hpp"
 
 #define BUFFER_SIZE (1024)
 
@@ -71,7 +72,7 @@ public:
 	void setHeadersSent( bool sent );
 
 	void clearAll( void );
-	std::string toString( void );
+	std::string toStr( void );
 
 	static std::pair<bool, Response> parseFrom( const std::string& filePath );
 };

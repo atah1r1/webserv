@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/26 03:00:15 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/19 20:04:22 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/20 18:44:31 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -192,7 +192,7 @@ void Response::clearAll( void )  {
 	this->_are_headers_sent = false;
 }
 
-std::string Response::toString( void ) {
+std::string Response::toStr( void ) {
 	std::stringstream results;
 
 	// append metadata (http-version status-code status-message)
@@ -231,6 +231,7 @@ std::pair<std::string, std::string> Response::_parseHeader( const std::string& l
 std::pair<bool, Response> Response::parseFrom( const std::string& filePath ) {
 	Response r;
 	std::string _line;
+	size_t _seek = 0;
 
 	std::ifstream ifile(filePath.c_str(), std::ifstream::in | std::ifstream::binary);
 
@@ -238,6 +239,7 @@ std::pair<bool, Response> Response::parseFrom( const std::string& filePath ) {
 		return std::make_pair(false, r);
 
 	while (std::getline(ifile, _line)) {
+		_seek += _line.length() + 1;
 		_line = trim(_line);
 		if (_line.empty()) break;
 		std::pair<std::string, std::string> _header = _parseHeader(_line);
@@ -258,18 +260,17 @@ std::pair<bool, Response> Response::parseFrom( const std::string& filePath ) {
 	if (ifile.eof()) {
 		ifile.close();
 		remove(filePath.c_str());
+		r.addHeader(H_CONTENT_LENGTH, "0");
 		return std::make_pair(true, r);
 	}
 
-	std::string _ofilePath = filePath + "_proccessed";
-	std::ofstream ofile(_ofilePath.c_str(), std::ofstream::out | std::ofstream::binary);
-	if (!ofile.is_open())
-		return std::make_pair(false, r);
-	ofile << ifile.rdbuf();
 	ifile.close();
-	ofile.close();
-	remove(filePath.c_str());
-	r.setFilePath(_ofilePath);
+	r.setFilePath(filePath);
+	size_t _contentLength = !r.getFilePath().empty() ? FileHandler::getFileSize(r.getFilePath()) : r.getBody().size();
+	r.addHeader(H_CONTENT_LENGTH, toString<size_t>(_contentLength > 0 ? (_contentLength - _seek) : 0));
+	if (!r.setupFile())
+		return std::make_pair(false, r);
+	r.getFile()->seekg(_seek, std::fstream::beg);
 	r.setBuffered(true);
 	r.setFromCGI(true);
 	return std::make_pair(true, r);
