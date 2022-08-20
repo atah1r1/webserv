@@ -6,13 +6,12 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/29 00:57:02 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/18 01:30:10 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/20 19:01:58 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "FileHandler.hpp"
 
-// TODO: after return if vector is empty, check for ERRNO errors.
 std::map<std::string, std::string> FileHandler::exploreDir( const std::string& root, const std::string& dirPath ) {
 	DIR *dir;
 	struct dirent *entry;

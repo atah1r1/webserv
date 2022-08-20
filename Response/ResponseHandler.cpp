@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/01 22:24:39 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/20 15:44:37 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/20 18:58:06 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,8 +54,10 @@ std::string ResponseHandler::_getDirListingBody( const std::string& root, const 
 	std::stringstream ss;
 
 	std::string _dirPath = FileHandler::disconnectPath(root, dirPath);
+	errno = 0;
 	std::map<std::string, std::string> _paths = FileHandler::exploreDir(root, dirPath);
-
+	if (errno != 0 && _paths.empty())
+		return "";
 	ss << "<html>\n";
 	ss << "<head><title>" << "Directory listing for " << _dirPath << "</title></head>\n";
 	ss << "<body bgcolor=\"white\">\n";
@@ -113,9 +115,15 @@ Response ResponseHandler::_createBodylessErrorResponse( const Request& req, int 
 	return r;
 }
 
-Response ResponseHandler::_createDirListingResponse( const Request& req, const std::string& root, const std::string& dirPath ) {
+Response ResponseHandler::_createDirListingResponse( const Request& req, const std::pair<ServerConfig *, Location *>& config, const std::string& dirPath ) {
+	std::string root = config.second->_root;
 	Response r;
 	std::string body = _getDirListingBody(root, dirPath);
+
+	if (body.empty()) {
+		r.clearAll();
+		return _createErrorResponse(req, 500, config, "EXPORE DIR FAILED!");
+	}
 
 	r.setVersion(HTTP_VERSION);
 	r.setStatusCode(OK);
@@ -336,7 +344,7 @@ Response ResponseHandler::_handleGETFile( const Request& req, const std::pair<Se
 	Location* _loc = config.second;
 
 	// cgi
-	if (FileHandler::requiresCGI(_loc->_cgis, requestPath)) { // TODO: replace with map from _loc
+	if (FileHandler::requiresCGI(_loc->_cgis, requestPath)) {
 		return _createFileCGIResponse(req, _conf, _loc, requestPath);
 	}
 
@@ -366,7 +374,7 @@ Response ResponseHandler::_handleGETDirectory( const Request& req, const std::pa
 	}
 
 	if (_indexPath.empty() && _autoIndexing) {
-		return _createDirListingResponse(req, _root, requestPath);
+		return _createDirListingResponse(req, config, requestPath);
 	}
 
 	// if index readable
@@ -375,7 +383,7 @@ Response ResponseHandler::_handleGETDirectory( const Request& req, const std::pa
 	}
 
 	// if index not empty
-	if (FileHandler::requiresCGI(_loc->_cgis, _indexPath)) { // TODO: replace with map from _loc
+	if (FileHandler::requiresCGI(_loc->_cgis, _indexPath)) {
 		return _createFileCGIResponse(req, _conf, _loc, _indexPath);
 	}
 
@@ -479,7 +487,7 @@ Response ResponseHandler::handleDELETERequest( const Request& req, const std::pa
 	}
 
 	// check if path is file or dir
-	if (_type == T_FILE && FileHandler::requiresCGI(_loc->_cgis, _requestPath)) { // TODO: replace with map from _loc
+	if (_type == T_FILE && FileHandler::requiresCGI(_loc->_cgis, _requestPath)) {
 		return _createFileCGIResponse(req, _conf, _loc, _requestPath);
 	}
 
@@ -512,7 +520,6 @@ Response ResponseHandler::handlePOSTRequest( const Request& req, const std::pair
 
 		std::cerr << "FILE NAME: " << _fileName << std::endl;
 
-		// TODO: copy req body file to _storePath with name depends on file type
 		std::ifstream  src(req.getBodyFileName(), std::ifstream::binary | std::ifstream::in );
     	std::ofstream  dst(_fileName, std::ios::binary | std::ofstream::out | std::ios::trunc );
 		if (!src.is_open() || !dst.is_open()) {
@@ -521,7 +528,7 @@ Response ResponseHandler::handlePOSTRequest( const Request& req, const std::pair
 		dst << src.rdbuf();
 		src.close();
 		dst.close();
-		// TODO: after copying delete source file.
+
 		remove(req.getBodyFileName().c_str());
 
 		return _createBodylessErrorResponse(req, Created, config, "CREATED! SUCCESS\n");
@@ -545,7 +552,7 @@ Response ResponseHandler::handlePOSTRequest( const Request& req, const std::pair
 			return _createErrorResponse(req, Forbidden, config, "INDEX EMPTY\n");
 		}
 
-		if (!FileHandler::requiresCGI(_loc->_cgis, _indexPath)) { // TODO: replace with map from _loc
+		if (!FileHandler::requiresCGI(_loc->_cgis, _indexPath)) {
 			return _createErrorResponse(req, Forbidden, config, "INDEX DON'T REQUIRE CGI\n");
 		}
 
@@ -554,7 +561,7 @@ Response ResponseHandler::handlePOSTRequest( const Request& req, const std::pair
 
 	if (_type == T_FILE) {
 
-		if (!FileHandler::requiresCGI(_loc->_cgis, _requestPath)) { // TODO: replace with map from _loc
+		if (!FileHandler::requiresCGI(_loc->_cgis, _requestPath)) {
 			return _createErrorResponse(req, Forbidden, config, "FILE DON'T REQUIRE CGI\n");
 		}
 
