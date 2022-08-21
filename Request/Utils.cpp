@@ -6,7 +6,7 @@
 /*   By: aes-salm <aes-salm@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/24 12:22:25 by aes-salm          #+#    #+#             */
-/*   Updated: 2022/08/21 14:47:17 by aes-salm         ###   ########.fr       */
+/*   Updated: 2022/08/21 16:21:36 by aes-salm         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,35 +76,34 @@ int parseUnchunkedBody(Request *request)
 	if (!body.is_open())
 		return request->parseRequestError("Body file is not open!!", 500);
 
+	std::cerr << "TMP LENGTH: " << request->getBodyTmp().length() << std::endl;
+	std::cerr << "TMP SIZE: " << request->getBodyTmp().size() << std::endl;
+
 	request->setBodyLength(request->getBodyLength() + request->getBodyTmp().length());
 	body << request->getBodyTmp();
 	request->setBodyTmp("");
 
+	std::cerr << "Content-length: " << request->getHeader("Content-Length") << std::endl;
+	std::cerr << "Body length: " << request->getBodyLength() << std::endl;
+
 	if (request->getBodyLength() == toNumber<int>(request->getHeader("Content-Length")))
 	{
+		std::cout << "Close Body file " << std::endl;
 		body.close();
 		request->setState(Request::COMPLETED);
 	}
-
-	std::cerr << "Body length: " << request->getBodyLength() << std::endl;
-	std::cerr << "Content-length: " << request->getHeader("Content-Length") << std::endl;
-
-	// if (!request->getHeader("Content-Length").empty() && request->getBodyLength() >= toNumber<int>(request->getHeader("Content-Length")))
-	// {
-	// 	body.close();
-	// 	request->setState(Request::COMPLETED);
-	// }
 	return 0;
 }
 
-int parseRequest(Request &request, const std::string &buffer)
+int parseRequest(Request &request, char *buffer, size_t size)
 {
-	std::istringstream is(buffer);
+	std::istringstream is(buffer, size);
+	std::string tmp(buffer, size);
 	std::string line;
 	int i = 0;
 
 	if (request.getState() == Request::CHUNKED_BODY || request.getState() == Request::UNCHUNKED_BODY)
-		request.setBodyTmp(buffer);
+		request.setBodyTmp(tmp);
 	else
 	{
 		while (std::getline(is, line))
@@ -133,7 +132,7 @@ int parseRequest(Request &request, const std::string &buffer)
 				bodyFile.open(request.getBodyFileName(), std::fstream::binary | std::fstream::in | std::fstream::out | std::fstream::trunc);
 
 				// remove the headers part
-				request.setBodyTmp(buffer.substr(buffer.find("\r\n\r\n") + 4, buffer.size()));
+				request.setBodyTmp(tmp.substr(tmp.find("\r\n\r\n") + 4, tmp.size()));
 
 				if (request.getHeader("Transfer-Encoding") == "chunked")
 					request.setState(Request::CHUNKED_BODY);
@@ -150,5 +149,6 @@ int parseRequest(Request &request, const std::string &buffer)
 	else if (request.getState() == Request::CHUNKED_BODY)
 		throw std::runtime_error("Not implemented yet");
 
+	request.printRequest();
 	return 0;
 }

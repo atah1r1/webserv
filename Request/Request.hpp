@@ -6,7 +6,7 @@
 /*   By: aes-salm <aes-salm@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/23 15:55:34 by aes-salm          #+#    #+#             */
-/*   Updated: 2022/08/12 18:13:16 by aes-salm         ###   ########.fr       */
+/*   Updated: 2022/08/21 16:17:11 by aes-salm         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,7 @@ public:
 	void setQueries(std::string queries);
 	// void setBodyFile(std::fstream &body);
 	void setBodyFileName(std::string bodyFileName);
-	void setBodyTmp(std::string tmp);
+	void setBodyTmp(const std::string &tmp);
 	void setBodyLength(int length);
 
 	// METHODS
