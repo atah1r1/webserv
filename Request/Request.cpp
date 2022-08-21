@@ -6,7 +6,7 @@
 /*   By: aes-salm <aes-salm@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/23 15:57:03 by aes-salm          #+#    #+#             */
-/*   Updated: 2022/08/17 23:46:20 by aes-salm         ###   ########.fr       */
+/*   Updated: 2022/08/21 16:17:03 by aes-salm         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -161,7 +161,7 @@ void Request::setBodyFileName(std::string bodyFileName)
 {
 	_bodyFileName = bodyFileName;
 }
-void Request::setBodyTmp(std::string tmp)
+void Request::setBodyTmp(const std::string &tmp)
 {
 	_bodyTmp = tmp;
 }
