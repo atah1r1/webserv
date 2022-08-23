@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   StatusCodes.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aes-salm <aes-salm@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/26 01:32:29 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/21 16:24:24 by aes-salm         ###   ########.fr       */
+/*   Updated: 2022/08/23 00:25:17 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,8 @@
 #define H_CONTENT_LANGUAGE "Content-Language"
 #define H_CONTENT_LOCATION "Content-Location"
 #define H_CONTENT_RANGE "Content-Range"
+#define H_ETAG "ETag"
+#define H_HTTP_COOKIE "Http-Cookie"
 #define H_EXPIRES "Expires"
 #define H_LAST_MODIFIED "Last-Modified"
 #define H_ACCEPT_RANGES "Accept-Ranges"
