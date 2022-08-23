@@ -60,7 +60,7 @@ int main(int ac, char **av) {
 	// Request r;
 	// r.setMethod("POST");
 	// r.setPath("/cgi-l");
-	// r.setVersion("HTTP/1.1");
+	// r.setVersion(HTTP_VERSION);
 	// r.setHost("www.tutorialspoint.com");
 
 	// r.setHeader("Host", "www.tutorialspoint.com");

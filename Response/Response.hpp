@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/26 01:23:28 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/17 16:37:55 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/20 15:27:05 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 #include <vector>
 #include "../Utils/StatusCodes.hpp"
 #include "../Utils/Utils.hpp"
+#include "../Utils/FileHandler.hpp"
 
 #define BUFFER_SIZE (1024)
 
@@ -57,7 +58,7 @@ public:
 	void setHeaders( std::map<std::string, std::string>& headers );
 	void addHeader( const std::pair<std::string, std::string>& header );
 	void addHeader( const std::string& key, const std::string& value );
-	void removeHeader( const std::pair<std::string, std::string>& header );
+	void removeHeader( const std::string& key );
 	bool isBuffered( void ) const;
 	void setBuffered( bool isBuffered );
 	bool isFromCGI( void ) const;
@@ -71,9 +72,9 @@ public:
 	void setHeadersSent( bool sent );
 
 	void clearAll( void );
-	std::string toString( void );
+	std::string toStr( void );
 
-	static Response parseFrom( const std::string& response );
+	static std::pair<bool, Response> parseFrom( const std::string& filePath );
 };
 
 #endif

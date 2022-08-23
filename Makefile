@@ -16,6 +16,7 @@ SRCS	= 	main.cpp\
 			Utils/Debug.cpp\
 			Response/ResponseHandler.cpp\
 			Response/Response.cpp\
+			CGI/CGI.cpp
 
 
 

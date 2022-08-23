@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/26 14:35:35 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/18 16:41:43 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/20 18:57:00 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ private:
 	static std::string _getDirListingBody( const std::string& root, const std::string& dirPath );
 	static Response _createErrorResponse( const Request& req, int statusCode, const std::pair<ServerConfig *, Location *>& config, const std::string& temp );
 	static Response _createBodylessErrorResponse( const Request& req, int statusCode, const std::pair<ServerConfig *, Location *>& config, const std::string& temp );
-	static Response _createDirListingResponse( const Request& req, const std::string& root, const std::string& dirPath );
+	static Response _createDirListingResponse( const Request& req, const std::pair<ServerConfig *, Location *>& config, const std::string& dirPath );
 	static Response _createRedirectionResponse( const Request& req, int statusCode, const std::pair<ServerConfig *, Location *>& config, const std::string& dirPath );
 	static Response _createFileResponse( const Request& req, const std::string& filePath, const std::pair<ServerConfig *, Location *>& config );
 	static Response _createFileCGIResponse( const Request& req, ServerConfig *conf, Location * loc, const std::string& filePath );
