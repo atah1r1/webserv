@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
+/*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 17:17:03 by atahiri           #+#    #+#             */
-/*   Updated: 2022/08/18 18:59:35 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/23 12:07:18 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,17 +17,18 @@
 
 int main(int argc, char *argv[])
 {
-    if (argc < 2) {
-        std::cout << "Usage: ./webserv <config_file>" << std::endl;
-        return (0);
-    }
-
     Config *config = new Config();
-    std::vector<ServerConfig> serverConfigs = config->getServers(argv[1]);
     Server server;
-    server.setServConf(serverConfigs);
+    std::vector<ServerConfig> serverConfigs;
+    if (argc < 2) {
+        std::cout << "Handling sample config..." << std::endl;
+        serverConfigs = config->getServers("./config.conf.sample");
+        server.setServConf(serverConfigs);
+    } else {    
+        serverConfigs = config->getServers(argv[1]);
+        server.setServConf(serverConfigs);
+    }
     signal(SIGPIPE, SIG_IGN);
-
     try {
         server.start();
     } catch (std::exception &e) {
