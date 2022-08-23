@@ -6,7 +6,7 @@
 /*   By: aes-salm <aes-salm@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/24 12:22:25 by aes-salm          #+#    #+#             */
-/*   Updated: 2022/08/21 16:21:36 by aes-salm         ###   ########.fr       */
+/*   Updated: 2022/08/23 18:05:05 by aes-salm         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,7 @@ void parseHeaders(std::string line, Request *request)
 	std::string token;
 	std::string key;
 	std::string value;
-	int port;
+	int port = 80;
 	int j = 0;
 	while (std::getline(iss, token, ':'))
 	{
