@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 17:17:03 by atahiri           #+#    #+#             */
-/*   Updated: 2022/08/23 12:07:18 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/08/24 23:48:30 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@ int main(int argc, char *argv[])
     }
     signal(SIGPIPE, SIG_IGN);
     try {
+        std::cout << C_BLUE "✅ Webserv Server Started ..." C_RESET << std::endl;
         server.start();
     } catch (std::exception &e) {
         server.cleanup();
