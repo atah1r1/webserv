@@ -48,7 +48,7 @@ void parseHeaders(std::string line, Request *request)
 	std::string token;
 	std::string key;
 	std::string value;
-	int port;
+	int port = 80;
 	int j = 0;
 	while (std::getline(iss, token, ':'))
 	{
