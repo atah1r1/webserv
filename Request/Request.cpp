@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/23 15:57:03 by aes-salm          #+#    #+#             */
-/*   Updated: 2022/08/24 21:46:20 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/24 23:14:27 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,21 +76,10 @@ int Request::getPort() const
 {
 	return _port;
 }
-// std::map<std::string, std::string> Request::getHeaders() const
-// {
-// 	return _headers;
-// }
 std::vector<std::pair<std::string, std::string> > Request::getHeaders() const
 {
 	return _headers;
 }
-// std::string Request::getHeader(std::string key) const
-// {
-// 	std::map<std::string, std::string>::const_iterator it = this->_headers.find(key);
-// 	if (it != this->_headers.end())
-// 		return it->second;
-// 	return "";
-// }
 std::string Request::getHeader(std::string key) const
 {
 	std::vector<std::pair<std::string, std::string> >::const_iterator it = this->_headers.begin();
@@ -129,6 +118,9 @@ int Request::getBodyLength() const
 {
 	return _bodyLength;
 }
+bool Request::isChunkSize() const {
+	return _isChunkSize;
+}
 
 // SETTERS
 void Request::setMethod(std::string method)
@@ -157,19 +149,6 @@ void Request::setState(Request::state state)
 }
 void Request::setHeader(const std::string& key, const std::string& value)
 {
-	if (key == H_SET_COOKIE || key == H_COOKIE)
-	{
-		_headers.push_back(std::make_pair(key, value));
-		return;
-	}
-	std::vector<std::pair<std::string, std::string> >::iterator it = this->_headers.begin();
-	for (; it != this->_headers.end(); it++)
-	{
-		if (it->first == key) {
-			*it = std::make_pair(key, value);
-			return;
-		}
-	}
 	_headers.push_back(std::make_pair(key, value));
 }
 void Request::setStatusCode(int statusCode)
@@ -180,10 +159,6 @@ void Request::setQueries(std::string queries)
 {
 	_queries = queries;
 }
-// void Request::setBodyFile(std::fstream &body)
-// {
-// 	_body = std::fstream(body);
-// }
 void Request::setBodyFileName(std::string bodyFileName)
 {
 	_bodyFileName = bodyFileName;
@@ -195,6 +170,9 @@ void Request::setBodyTmp(const std::string &tmp)
 void Request::setBodyLength(int length)
 {
 	_bodyLength = length;
+}
+void Request::setIsChunkSize(bool isChunkSize) {
+	this->_isChunkSize = isChunkSize;
 }
 
 // METHODS
