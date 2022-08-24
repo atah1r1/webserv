@@ -2,59 +2,44 @@
 // #include "ResponseHandler.hpp"
 // #include "../Request/Request.hpp"
 // #include "../Config/ServerConfig.hpp"
-#include "../Utils/FileHandler.hpp"
-#include "../Utils/Utils.hpp"
-#include <unistd.h>
-#include <iostream>
-#include <dirent.h>
-#include <sys/stat.h>
+// #include "../Utils/FileHandler.hpp"
+// #include "../Utils/Utils.hpp"
+// #include <unistd.h>
+// #include <iostream>
+// #include <dirent.h>
+// #include <sys/stat.h>
 
-/*
-POST /cgi-bin/process.cgi HTTP/1.1
-User-Agent: Mozilla/4.0 (compatible; MSIE5.01; Windows NT)
-Host: www.tutorialspoint.com
-Content-Type: application/x-www-form-urlencoded
-Content-Length: length
-Accept-Language: en-us
-Accept-Encoding: gzip, deflate
-Connection: Keep-Alive
+// #define BUFFER_SIZE 1024
 
-licenseID=string&content=string&/paramsXML=string
-*/
+// bool getNextChunk(std::fstream& _file, char *buffer) {
+// 	if (_file.good()) {
+// 		debugPrint(_ERROR, __FILE__, __LINE__, "Reponse: getChunk: _file is bad");
+// 		return false;
+// 	}
+// 	if (_file.eof()) return false;
+// 	_file.read(buffer, BUFFER_SIZE - 1);
+// 	return true;
+// }
 
-#define BUFFER_SIZE 1024
+// int main(int ac, char **av) {
 
-bool getNextChunk(std::fstream& _file, char *buffer) {
+// 	std::fstream _file;
 
-	// char buff[BUFFER_SIZE] = {0};
-	if (_file.good()) {
-		debugPrint(_ERROR, __FILE__, __LINE__, "Reponse: getChunk: _file is bad");
-		return false;
-	}
-	if (_file.eof()) return false;
-	_file.read(buffer, BUFFER_SIZE - 1);
-	return true;
-}
+// 	_file.open(av[1], std::fstream::binary );
 
-int main(int ac, char **av) {
+// 	if (!_file.is_open()) {
+// 		std::cerr << "Error opening file" << std::endl;
+// 	}
 
-	std::fstream _file;
+// 	char buffer[BUFFER_SIZE] = {0};
 
-	_file.open(av[1], std::fstream::binary );
+// 	while(getNextChunk(_file, buffer)) {
+// 		std::cerr << "============= CHUNK BEGIN" << std::endl;
+// 		std::cerr << buffer << std::endl;
+// 		std::cerr << "============= CHUNK END" << std::endl;
+// 	}
 
-	if (!_file.is_open()) {
-		std::cerr << "Error opening file" << std::endl;
-	}
-
-	char buffer[BUFFER_SIZE] = {0};
-
-	while(getNextChunk(_file, buffer)) {
-		std::cerr << "============= CHUNK BEGIN" << std::endl;
-		std::cerr << buffer << std::endl;
-		std::cerr << "============= CHUNK END" << std::endl;
-	}
-
-	_file.close();
+// 	_file.close();
 	//explore(av[1], "", av[2]);
 
 	// Request r;

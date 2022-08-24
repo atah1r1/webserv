@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aes-salm <aes-salm@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/15 15:17:10 by atahiri           #+#    #+#             */
-/*   Updated: 2022/08/21 16:22:27 by aes-salm         ###   ########.fr       */
+/*   Updated: 2022/08/24 22:23:58 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,10 +96,10 @@ void Server::acceptClients(void)
 
 void Server::readRequest(int &fd, size_t &index)
 {
-	char buffer[BUFFER_SIZE] = {0};
+	char buffer[REQ_BUFFER_SIZE] = {0};
 
-	bzero(buffer, BUFFER_SIZE);
-	ssize_t xrecv = recv(fd, buffer, BUFFER_SIZE, 0);
+	bzero(buffer, REQ_BUFFER_SIZE);
+	ssize_t xrecv = recv(fd, buffer, REQ_BUFFER_SIZE, 0);
 	if (xrecv < 0)
 	{
 		std::cerr << C_RED "[" << index << "] RECV_ERROR: STOPPING: CLIENT DISCONNECTED: " << strerror(errno) << C_RESET << std::endl;
