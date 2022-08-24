@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/26 01:23:28 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/20 15:27:05 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/24 21:48:36 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,8 @@ private:
 	bool _are_headers_sent;
 	std::fstream* _file;
 	std::string _file_path;
-	std::map<std::string, std::string> _headers;
+	// std::map<std::string, std::string> _headers;
+	std::vector<std::pair<std::string, std::string> > _headers;
 	static std::vector<std::string> _parseMetaData(const std::string& line);
 	static std::pair<std::string, std::string> _parseHeader(const std::string& line);
 
@@ -53,9 +54,10 @@ public:
 	void setStatusCode( int status_code );
 	std::string getBody( void ) const;
 	void setBody( const std::string& body );
-	std::map<std::string, std::string> getHeaders( void ) const;
+	std::vector<std::pair<std::string, std::string> > getHeaders( void ) const;
 	std::string getHeader( const std::string& key ) const;
-	void setHeaders( std::map<std::string, std::string>& headers );
+	void setHeaders( std::vector<std::pair<std::string, std::string> >& headers );
+	//void setHeaders( std::map<std::string, std::string>& headers );
 	void addHeader( const std::pair<std::string, std::string>& header );
 	void addHeader( const std::string& key, const std::string& value );
 	void removeHeader( const std::string& key );

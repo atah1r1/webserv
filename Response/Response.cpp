@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/26 03:00:15 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/20 18:44:31 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/24 21:54:30 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,23 +81,26 @@ void Response::setBody( const std::string& body )  {
 	this->_body = body;
 }
 
-std::map<std::string, std::string> Response::getHeaders( void ) const  {
+std::vector<std::pair<std::string, std::string> > Response::getHeaders( void ) const  {
 	return this->_headers;
 }
 
 std::string Response::getHeader( const std::string& key ) const {
-	std::map<std::string, std::string>::const_iterator it = this->_headers.find(key);
-	if (it != this->_headers.end())
-		return it->second;
+	std::vector<std::pair<std::string, std::string> >::const_iterator it = this->_headers.begin();
+	for (; it != this->_headers.end(); it++)
+	{
+		if (it->first == key)
+			return it->second;
+	}
 	return "";
 }
 
-void Response::setHeaders( std::map<std::string, std::string>& headers )  {
+void Response::setHeaders( std::vector<std::pair<std::string, std::string> >& headers )  {
 	this->_headers = headers;
 }
 
 void Response::addHeader( const std::pair<std::string, std::string>& header )  {
-	this->_headers[header.first] = header.second;
+	_headers.push_back(header);
 }
 
 void Response::addHeader( const std::string& key, const std::string& value ) {
@@ -106,7 +109,13 @@ void Response::addHeader( const std::string& key, const std::string& value ) {
 
 void Response::removeHeader( const std::string& key )  {
 	if (this->_headers.empty()) return;
-	this->_headers.erase(key);
+	std::vector<std::pair<std::string, std::string> >::iterator it = this->_headers.begin();
+	for (; it != this->_headers.end(); it++) {
+		if (it->first == key) {
+			this->_headers.erase(it);
+			return;
+		}
+	}
 }
 
 bool Response::isBuffered( void ) const {
@@ -199,7 +208,7 @@ std::string Response::toStr( void ) {
 	results << this->_version << " " << this->_status_code << " " << this->_status << CRLF;
 
 	// append headers
-	std::map<std::string, std::string>::iterator it = this->_headers.begin();
+	std::vector<std::pair<std::string, std::string> >::iterator it = this->_headers.begin();
 	while (it != this->_headers.end()) {
 		results << it->first << ": " << it->second << CRLF;
 		++it;

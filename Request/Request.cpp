@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/23 15:57:03 by aes-salm          #+#    #+#             */
-/*   Updated: 2022/08/23 00:42:26 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/24 21:46:20 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -157,7 +157,7 @@ void Request::setState(Request::state state)
 }
 void Request::setHeader(const std::string& key, const std::string& value)
 {
-	if (key == H_SET_COOKIE || key == H_HTTP_COOKIE)
+	if (key == H_SET_COOKIE || key == H_COOKIE)
 	{
 		_headers.push_back(std::make_pair(key, value));
 		return;

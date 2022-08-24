@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/26 01:32:29 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/23 00:25:17 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/24 21:45:19 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,8 +36,7 @@
 #define H_CONTENT_LANGUAGE "Content-Language"
 #define H_CONTENT_LOCATION "Content-Location"
 #define H_CONTENT_RANGE "Content-Range"
-#define H_ETAG "ETag"
-#define H_HTTP_COOKIE "Http-Cookie"
+#define H_HTTP_COOKIE "Cookie"
 #define H_EXPIRES "Expires"
 #define H_LAST_MODIFIED "Last-Modified"
 #define H_ACCEPT_RANGES "Accept-Ranges"
