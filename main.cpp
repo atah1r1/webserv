@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 17:17:03 by atahiri           #+#    #+#             */
-/*   Updated: 2022/08/26 10:52:49 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/08/26 10:53:34 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@ int main(int argc, char *argv[])
     }
     signal(SIGPIPE, SIG_IGN);
     try {
+        std::cout << C_BLUE "✅ Webserv Server Started ..." C_RESET << std::endl;
         server.start();
     } catch (std::exception &e) {
         server.cleanup();

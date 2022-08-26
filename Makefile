@@ -21,7 +21,7 @@ SRCS	= 	main.cpp\
 
 
 $(NAME) : 	$(SRCS)
-			@$(CC) $(FLAGS) $(SRCS) -o $(NAME) -D ALLOW_DEBUG -O2
+			@$(CC) $(FLAGS) $(SRCS) -o $(NAME) -D ALLOW_DEBUG
 
 all		: 	$(NAME)
 
