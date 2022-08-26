@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ResponseHandler.cpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
+/*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/01 22:24:39 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/23 01:31:04 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/26 18:54:22 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -216,7 +216,12 @@ Response ResponseHandler::_createFileCGIResponse(const Request &req, ServerConfi
 	v.push_back(strdup((std::string("HOSTNAME=") + buff).c_str()));
 	getlogin_r(buff, 1023);
 	v.push_back(strdup((std::string("USER=") + buff).c_str()));
-	v.push_back(strdup((std::string("CONTENT_LENGTH=") + req.getHeader(H_CONTENT_LENGTH)).c_str()));
+	if (!req.getHeader(H_CONTENT_LENGTH).empty())
+		v.push_back(strdup((std::string("CONTENT_LENGTH=") + req.getHeader(H_CONTENT_LENGTH)).c_str()));
+	else {
+		size_t _bodySize = !req.getBodyFileName().empty() ? FileHandler::getFileSize(req.getBodyFileName()) : 0;
+		v.push_back(strdup((std::string("CONTENT_LENGTH=") + toString<size_t>(_bodySize)).c_str()));
+	}
 	v.push_back(strdup((std::string("CONTENT_TYPE=") + req.getHeader(H_CONTENT_TYPE)).c_str()));
 	v.push_back(strdup((std::string("HTTP_COOKIE=") + req.getHeader(H_COOKIE)).c_str()));
 	v.push_back(strdup(std::string("GATEWAY_INTERFACE=CGI/1.1").c_str()));
