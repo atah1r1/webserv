@@ -8,34 +8,7 @@ server {
         root                    /Users/atahiri/Desktop/webserv;
         allow_methods           GET POST;
         index                   /index.html;
-        autoindex               on;
-    }
-    location /upload {
-        root                    /Users/atahiri/Desktop/webserv/www;
-        allow_methods           GET POST;
-        index                   /index.html index.php;
-        upload_store            /;
-        autoindex               on;
-    }
-}
-
-server {
-    listen                  0.0.0.0:80;
-    server_names            hellos.ma;
-    error_page              500 /error_pages/500.html;
-    error_page              600 /error_pages/600.html;
-
-    location / {
-        root                    /Users/atahiri/Desktop/webserv;
-        allow_methods           GET POST;
-        index                   /index.html;
-        autoindex               on;
-    }
-    location /upload {
-        root                    /Users/atahiri/Desktop/webserv/www;
-        allow_methods           GET POST;
-        index                   /index.html index.php;
-        upload_store            /;
+        upload_store            /www/upload;
         autoindex               on;
     }
 }

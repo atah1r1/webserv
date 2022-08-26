@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aes-salm <aes-salm@student.42.fr>          +#+  +:+       +#+        */
+/*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/23 15:57:03 by aes-salm          #+#    #+#             */
-/*   Updated: 2022/08/26 15:07:08 by aes-salm         ###   ########.fr       */
+/*   Updated: 2022/08/26 19:25:39 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,7 +109,7 @@ std::string Request::getBodyFileName() const
 {
 	return _bodyFileName;
 }
-std::string Request::getBodyTmp() const
+const std::string& Request::getBodyTmp() const
 {
 	return _bodyTmp;
 }
@@ -153,7 +153,20 @@ void Request::setState(Request::state state)
 }
 void Request::setHeader(const std::string &key, const std::string &value)
 {
+	if (key == H_COOKIE) {
 	_headers.push_back(std::make_pair(key, value));
+	} else {
+		std::vector<std::pair<std::string, std::string> >::iterator it = _headers.begin();
+		for (; it != _headers.end(); it++)
+		{
+			if (it->first == key)
+			{
+				it->second = value;
+				return;
+			}
+		}
+		_headers.push_back(std::make_pair(key, value));
+	}
 }
 void Request::setStatusCode(int statusCode)
 {

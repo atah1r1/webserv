@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
+/*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/26 03:00:15 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/24 21:54:30 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/26 18:50:48 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,7 +100,20 @@ void Response::setHeaders( std::vector<std::pair<std::string, std::string> >& he
 }
 
 void Response::addHeader( const std::pair<std::string, std::string>& header )  {
+	if (header.first == H_SET_COOKIE) {
 	_headers.push_back(header);
+	} else {
+		std::vector<std::pair<std::string, std::string> >::iterator it = _headers.begin();
+		for (; it != _headers.end(); it++)
+		{
+			if (it->first == header.first)
+			{
+				it->second = header.second;
+				return ;
+			}
+		}
+		_headers.push_back(header);
+	}
 }
 
 void Response::addHeader( const std::string& key, const std::string& value ) {

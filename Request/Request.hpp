@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aes-salm <aes-salm@student.42.fr>          +#+  +:+       +#+        */
+/*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/23 15:55:34 by aes-salm          #+#    #+#             */
-/*   Updated: 2022/08/26 11:55:55 by aes-salm         ###   ########.fr       */
+/*   Updated: 2022/08/26 19:19:38 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,7 @@ public:
 	std::string getQueries() const;
 	std::fstream &getBodyFile();
 	std::string getBodyFileName() const;
-	std::string getBodyTmp() const;
+	const std::string& getBodyTmp() const;
 	int getBodyLength() const;
 	bool isChunkSize() const;
 	int getChunkSize() const;

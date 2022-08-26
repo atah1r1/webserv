@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aes-salm <aes-salm@student.42.fr>          +#+  +:+       +#+        */
+/*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/15 15:17:10 by atahiri           #+#    #+#             */
-/*   Updated: 2022/08/26 15:35:38 by aes-salm         ###   ########.fr       */
+/*   Updated: 2022/08/26 19:57:19 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,9 +96,8 @@ void Server::acceptClients(void)
 
 void Server::readRequest(int &fd, size_t &index)
 {
-	char buffer[REQ_BUFFER_SIZE] = {0};
-
-	//bzero(buffer, REQ_BUFFER_SIZE);
+	char *buffer = new char[REQ_BUFFER_SIZE];
+	bzero(buffer, REQ_BUFFER_SIZE);
 	ssize_t xrecv = recv(fd, buffer, REQ_BUFFER_SIZE, 0);
 	if (xrecv < 0)
 	{
@@ -117,6 +116,7 @@ void Server::readRequest(int &fd, size_t &index)
 			_states[index] = READ_REQUEST;
 		}
 	}
+	delete[] buffer;
 }
 
 void Server::writeResponseHeaders(int &fd, size_t &index)
