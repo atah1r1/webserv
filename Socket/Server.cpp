@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
+/*   By: aes-salm <aes-salm@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/15 15:17:10 by atahiri           #+#    #+#             */
-/*   Updated: 2022/08/24 22:23:58 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/26 15:35:38 by aes-salm         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,7 +98,7 @@ void Server::readRequest(int &fd, size_t &index)
 {
 	char buffer[REQ_BUFFER_SIZE] = {0};
 
-	bzero(buffer, REQ_BUFFER_SIZE);
+	//bzero(buffer, REQ_BUFFER_SIZE);
 	ssize_t xrecv = recv(fd, buffer, REQ_BUFFER_SIZE, 0);
 	if (xrecv < 0)
 	{
@@ -107,8 +107,7 @@ void Server::readRequest(int &fd, size_t &index)
 	}
 	else if (xrecv >= 0)
 	{
-		if (xrecv > 0)
-			parseRequest(_requests[fd], buffer, xrecv);
+		parseRequest(_requests[fd], buffer, xrecv);
 		if (_requests[fd].getState() == Request::COMPLETED)
 		{
 			std::cout << "REQUEST COMPLETED" << std::endl;
