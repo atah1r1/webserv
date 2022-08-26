@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
+/*   By: aes-salm <aes-salm@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/23 15:57:03 by aes-salm          #+#    #+#             */
-/*   Updated: 2022/08/23 18:04:41 by aes-salm         ###   ########.fr       */
+/*   Updated: 2022/08/26 00:43:27 by aes-salm         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,8 +25,8 @@ Request::Request(/* args */)
 	//_headers = std::map<std::string, std::string>();
 	_bodyTmp = "";
 	_bodyLength = 0;
-	this->setHeader("Transfer-Encoding", "");
-	this->setHeader("Content-Length", "");
+	// this->setHeader("Transfer-Encoding", "");
+	// this->setHeader("Content-Length", "");
 }
 
 Request::~Request()
@@ -118,7 +118,8 @@ int Request::getBodyLength() const
 {
 	return _bodyLength;
 }
-bool Request::isChunkSize() const {
+bool Request::isChunkSize() const
+{
 	return _isChunkSize;
 }
 
@@ -147,7 +148,7 @@ void Request::setState(Request::state state)
 {
 	_state = state;
 }
-void Request::setHeader(const std::string& key, const std::string& value)
+void Request::setHeader(const std::string &key, const std::string &value)
 {
 	_headers.push_back(std::make_pair(key, value));
 }
@@ -171,7 +172,8 @@ void Request::setBodyLength(int length)
 {
 	_bodyLength = length;
 }
-void Request::setIsChunkSize(bool isChunkSize) {
+void Request::setIsChunkSize(bool isChunkSize)
+{
 	this->_isChunkSize = isChunkSize;
 }
 
@@ -198,12 +200,10 @@ void Request::printRequest(void)
 	std::cout << "BodyFileName: " << this->getBodyFileName() << std::endl;
 	std::cout << "BodyLength: " << this->getBodyLength() << std::endl;
 	std::cout << "Headers: " << std::endl;
-	// std::map<std::string, std::string> headers = this->getHeaders();
-	// std::map<std::string, std::string>::iterator it = headers.begin();
-	// while (it != headers.end())
-	// {
-	// 	std::cout << it->first << ":" << it->second << std::endl;
-	// 	it++;
-	// }
+	std::vector<std::pair<std::string, std::string> >::const_iterator it = this->_headers.begin();
+	for (; it != this->_headers.end(); it++)
+	{
+		std::cout << it->first << ":" << it->second << std::endl;
+	}
 	std::cout << "---------------------- End -----------------------" << std::endl;
 }
