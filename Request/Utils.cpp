@@ -6,7 +6,7 @@
 /*   By: aes-salm <aes-salm@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/24 12:22:25 by aes-salm          #+#    #+#             */
-/*   Updated: 2022/08/26 00:55:00 by aes-salm         ###   ########.fr       */
+/*   Updated: 2022/08/26 12:38:08 by aes-salm         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,25 +90,38 @@ int parseUnchunkedBody(Request *request)
 	return 0;
 }
 
-// int parseChunkedBody(Request *request)
-// {
-// 	std::fstream &body = request->getBodyFile();
-// 	std::istringstream iss(request->getBodyTmp());
-// 	std::string line;
-// 	std::string token;
-// 	int chunkSize;
-// 	int i = 0;
+int parseChunkedBody(Request *request)
+{
+	std::fstream &body = request->getBodyFile();
+	std::string chunkData = request->getBodyTmp();
+	request->setBodyTmp("");
+	size_t endLine;
 
-// 	if (!body.is_open())
-// 		return request->parseRequestError("Body file is not open!!", 500);
-
-// 	while (std::getline(iss, line))
-// 	{
-
-// 	}
-// 	request->setBodyTmp("");
-// 	return 0;
-// }
+	while ((endLine = chunkData.find("\r\n")) != std::string::npos)
+	{
+		if (request->isChunkSize()) {
+			std::string chunkSizeHexa = chunkData.substr(0, endLine); // get chunk size ex: 5\r\n
+			request->setChunkSize(hexToDecimal(chunkSizeHexa));
+			std::cout << "Chunk size: " << request->getChunkSize() << std::endl;
+			chunkData.erase(0, endLine + 2); // remove chunk size and \r\n
+			request->setIsChunkSize(false);
+		} else {
+			if (request->getChunkSize() == 0) {
+				body.close();
+				request->setState(Request::COMPLETED);
+				return 0;
+			}
+			if (!body.is_open())
+				return request->parseRequestError("Body file is not open!!", 500);
+			request->setBodyLength(request->getBodyLength() + request->getChunkSize());
+			body << chunkData.substr(0, endLine); // write chunk data
+			chunkData.erase(0, endLine + 2); // remove chunk data and \r\n
+			request->setIsChunkSize(true);
+			request->setChunkSize(0);
+		}
+	}
+	return 0;
+}
 
 int parseRequest(Request &request, char *buffer, size_t size)
 {
@@ -116,6 +129,7 @@ int parseRequest(Request &request, char *buffer, size_t size)
 	std::string tmp(buffer, size);
 	std::string line;
 	int i = 0;
+
 
 	if (request.getState() == Request::CHUNKED_BODY || request.getState() == Request::UNCHUNKED_BODY)
 		request.setBodyTmp(tmp);
@@ -154,8 +168,15 @@ int parseRequest(Request &request, char *buffer, size_t size)
 				// remove the headers part
 				request.setBodyTmp(tmp.substr(tmp.find("\r\n\r\n") + 4, tmp.size()));
 
+				std::cout << "---------- Chunked Body ----------" << std::endl;
+				std::cout<< request.getBodyTmp() << std::endl;
+				std::cout << "---------- Chunked Body ----------" << std::endl;
+
 				if (request.getHeader(H_TRANSFER_ENCODING) == "chunked")
+				{
+					request.setIsChunkSize(true);
 					request.setState(Request::CHUNKED_BODY);
+				}
 				else
 					request.setState(Request::UNCHUNKED_BODY);
 				break;
@@ -164,12 +185,12 @@ int parseRequest(Request &request, char *buffer, size_t size)
 		}
 	}
 
-	request.printRequest();
+	// request.printRequest();
 	
 	if (request.getState() == Request::UNCHUNKED_BODY)
 		return parseUnchunkedBody(&request);
 	else if (request.getState() == Request::CHUNKED_BODY)
-		throw std::runtime_error("Not implemented yet");
+		return parseChunkedBody(&request);
 
 	return 0;
 }

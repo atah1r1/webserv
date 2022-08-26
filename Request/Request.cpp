@@ -6,7 +6,7 @@
 /*   By: aes-salm <aes-salm@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/23 15:57:03 by aes-salm          #+#    #+#             */
-/*   Updated: 2022/08/26 00:43:27 by aes-salm         ###   ########.fr       */
+/*   Updated: 2022/08/26 11:56:14 by aes-salm         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,11 +22,10 @@ Request::Request(/* args */)
 	_version = "";
 	_host = "";
 	_port = 0;
-	//_headers = std::map<std::string, std::string>();
 	_bodyTmp = "";
 	_bodyLength = 0;
-	// this->setHeader("Transfer-Encoding", "");
-	// this->setHeader("Content-Length", "");
+	_isChunkSize = false;
+	_chunkSize = 0;
 }
 
 Request::~Request()
@@ -122,6 +121,10 @@ bool Request::isChunkSize() const
 {
 	return _isChunkSize;
 }
+int Request::getChunkSize() const
+{
+	return _chunkSize;
+}
 
 // SETTERS
 void Request::setMethod(std::string method)
@@ -175,6 +178,10 @@ void Request::setBodyLength(int length)
 void Request::setIsChunkSize(bool isChunkSize)
 {
 	this->_isChunkSize = isChunkSize;
+}
+void Request::setChunkSize(int chunkSize)
+{
+	this->_chunkSize = chunkSize;
 }
 
 // METHODS

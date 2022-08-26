@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
+/*   By: aes-salm <aes-salm@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/23 15:55:34 by aes-salm          #+#    #+#             */
-/*   Updated: 2022/08/24 23:11:00 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/26 11:55:55 by aes-salm         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,6 +54,7 @@ public:
 	std::string getBodyTmp() const;
 	int getBodyLength() const;
 	bool isChunkSize() const;
+	int getChunkSize() const;
 
 	// SETTERS
 	void setMethod(std::string method);
@@ -69,6 +70,7 @@ public:
 	void setBodyTmp(const std::string &tmp);
 	void setBodyLength(int length);
 	void setIsChunkSize(bool isChunkSize);
+	void setChunkSize(int chunkSize);
 
 	// METHODS
 	void printRequest(void);
@@ -82,13 +84,14 @@ private:
 	std::string _queries;
 	std::string _version;
 	std::string _host;
-	bool _isChunkSize;
 	int _port;
 	std::vector<std::pair<std::string, std::string> > _headers;
 	std::fstream _body;
 	std::string _bodyFileName;
 	std::string _bodyTmp;
 	int _bodyLength;
+	bool _isChunkSize;
+	int _chunkSize;
 };
 
 #endif
