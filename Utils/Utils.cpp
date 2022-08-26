@@ -193,6 +193,7 @@ void _fillMimes(void)
 		return;
 
 	mimes.insert(std::make_pair("*3gpp", "audio/3gpp"));
+	mimes.insert(std::make_pair("php", "application/x-httpd-php"));
 	mimes.insert(std::make_pair("*jpm", "video/jpm"));
 	mimes.insert(std::make_pair("*mp3", "audio/mp3"));
 	mimes.insert(std::make_pair("*rtf", "text/rtf"));
@@ -305,7 +306,6 @@ void _fillMimes(void)
 	mimes.insert(std::make_pair("jar", "application/java-archive"));
 	mimes.insert(std::make_pair("jls", "image/jls"));
 	mimes.insert(std::make_pair("jp2", "image/jp2"));
-	mimes.insert(std::make_pair("jpe", "image/jpeg"));
 	mimes.insert(std::make_pair("jpeg", "image/jpeg"));
 	mimes.insert(std::make_pair("jpf", "image/jpx"));
 	mimes.insert(std::make_pair("jpg", "image/jpeg"));
