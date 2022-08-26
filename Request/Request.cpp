@@ -6,7 +6,7 @@
 /*   By: aes-salm <aes-salm@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/23 15:57:03 by aes-salm          #+#    #+#             */
-/*   Updated: 2022/08/26 11:56:14 by aes-salm         ###   ########.fr       */
+/*   Updated: 2022/08/26 15:07:08 by aes-salm         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ Request::Request(/* args */)
 	_port = 0;
 	_bodyTmp = "";
 	_bodyLength = 0;
-	_isChunkSize = false;
+	_isChunkSize = true;
 	_chunkSize = 0;
 }
 
@@ -177,11 +177,11 @@ void Request::setBodyLength(int length)
 }
 void Request::setIsChunkSize(bool isChunkSize)
 {
-	this->_isChunkSize = isChunkSize;
+	_isChunkSize = isChunkSize;
 }
 void Request::setChunkSize(int chunkSize)
 {
-	this->_chunkSize = chunkSize;
+	_chunkSize = chunkSize;
 }
 
 // METHODS
