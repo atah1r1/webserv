@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Utils.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
+/*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/24 12:22:25 by aes-salm          #+#    #+#             */
-/*   Updated: 2022/08/26 22:15:27 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/27 12:23:55 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,8 +77,6 @@ int parseUnchunkedBody(Request *request)
 		return request->parseRequestError("Body file is not open!!", 500);
 	request->setBodyLength(request->getBodyLength() + request->getBodyTmp().size());
 	body << request->getBodyTmp();
-	// std::cerr << "Body length: " << request->getBodyLength() << std::endl;
-	// std::cerr << "content-length: " << request->getHeader("Content-Length") << std::endl;
 	if (request->getBodyLength() == toNumber<int>(request->getHeader("Content-Length")))
 	{
 		body.close();
@@ -180,7 +178,7 @@ int parseRequest(Request &request, char *buffer, size_t size)
 				std::fstream &bodyFile = request.getBodyFile();
 				bodyFile.open(request.getBodyFileName(), std::fstream::binary | std::fstream::in | std::fstream::out | std::fstream::trunc);
 
-				request.setBodyTmp(std::string(tmp.begin() + headers_size, tmp.end()));
+				request.setBodyTmp(std::string(tmp.begin() + headers_size, tmp.end())); // remove headers part from request
 
 				if (request.getHeader(H_TRANSFER_ENCODING) == "chunked")
 					request.setState(Request::CHUNKED_BODY);

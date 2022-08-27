@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/11 12:21:06 by atahiri           #+#    #+#             */
-/*   Updated: 2022/08/15 15:20:46 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/08/27 11:16:23 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@
 #include <cerrno>
 #include <cstring>
 
-#define QUEUE_SIZE 1024
+#define QUEUE_SIZE 128
 
 class Socket
 {
