@@ -6,7 +6,7 @@
 /*   By: aes-salm <aes-salm@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 16:04:34 by atahiri           #+#    #+#             */
-/*   Updated: 2022/08/21 16:30:32 by aes-salm         ###   ########.fr       */
+/*   Updated: 2022/08/27 17:46:04 by aes-salm         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -144,6 +144,12 @@ std::vector<ServerConfig> Config::getServers(std::string file_name)
 {
 	std::ifstream inFile;
 	inFile.open(file_name); // open the input file
+
+	if (!inFile)
+	{
+		std::cerr << "Unable to open file " << file_name << std::endl;
+		exit(1); // call system to stop
+	}
 
 	std::stringstream strStream;
 	strStream << inFile.rdbuf();	   // read the file

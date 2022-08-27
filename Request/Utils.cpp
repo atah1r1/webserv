@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Utils.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
+/*   By: aes-salm <aes-salm@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/24 12:22:25 by aes-salm          #+#    #+#             */
-/*   Updated: 2022/08/27 12:23:55 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/08/27 18:51:19 by aes-salm         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,10 +101,11 @@ int unChunkFile(Request *request) {
 		request->setChunkSize(hexToDecimal(trim(line)));
 		if (request->getChunkSize() == 0)
 			break;
-		std::vector<char> buffer(request->getChunkSize());
-		body.read(buffer.data(), request->getChunkSize());
-		newBody.write(buffer.data(), request->getChunkSize());
-		body.ignore(2); // ignore \r
+		char buffer[request->getChunkSize()];
+		memset(buffer, 0, request->getChunkSize());
+		body.read(buffer, request->getChunkSize());
+		newBody.write(buffer, request->getChunkSize());
+		body.ignore(2); // ignore \r\n
 	}
 	body.close();
 	newBody.close();
