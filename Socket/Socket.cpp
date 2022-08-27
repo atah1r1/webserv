@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/11 12:21:13 by atahiri           #+#    #+#             */
-/*   Updated: 2022/08/15 15:21:16 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/08/27 11:16:38 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,12 +65,15 @@ void Socket::launchSock()
         this->_serv_addr.sin_addr.s_addr = inet_addr(this->_host.c_str());
 
         // set socket to non-blocking
+        // meaning of F_SETFL is to set the flags of the file descriptor to non blocking
 		if (fcntl(this->_sockfd, F_SETFL, O_NONBLOCK) < 0)
 		{
 			std::cerr << "non_blocking error" << strerror(errno) << std::endl;
 			exit(EXIT_FAILURE);
 		}
 		// set default socket options (reuse address)
+        // SOL_SOCKET is the level at which the option is defined, and SO_REUSEADDR is the name of the option.
+        // SO_REUSEADDR tells the kernel to reuse the socket even if it's in the TIME_WAIT state.
 		if (setsockopt(this->_sockfd, SOL_SOCKET, SO_REUSEADDR, &this->opt, sizeof(int)))
 		{
 			std::cout << "setsockopt error" << std::endl;
@@ -84,6 +87,7 @@ void Socket::launchSock()
             exit(EXIT_FAILURE);
         }
         // prepare the server for incoming clients requests
+        // 128 is the max number of clients that can be connected to the server at the same time
         if (listen(this->_sockfd, QUEUE_SIZE) == -1)
         {
             std::cout << "listen failed: " << strerror(errno) << std::endl;
