@@ -6,7 +6,7 @@
 /*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/15 15:17:10 by atahiri           #+#    #+#             */
-/*   Updated: 2022/08/26 19:57:19 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/08/27 15:13:33 by atahiri          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,7 +89,7 @@ void Server::acceptClients(void)
 			_requests[new_sock_fd] = Request();
 			_clients.push_back(_client);
 			_states.push_back(ACCEPTED);
-			std::cerr << C_BLUE "[" << _clients.size() - 1 << "] NEW CLIENT CONNECTED. " << C_RESET << std::endl;
+			std::cout << C_BLUE "[ " << getCurrentDate() << " ] NEW CLIENT CONNECTED. " << C_RESET << std::endl;
 		}
 	}
 }
@@ -101,7 +101,7 @@ void Server::readRequest(int &fd, size_t &index)
 	ssize_t xrecv = recv(fd, buffer, REQ_BUFFER_SIZE, 0);
 	if (xrecv < 0)
 	{
-		std::cerr << C_RED "[" << index << "] RECV_ERROR: STOPPING: CLIENT DISCONNECTED: " << strerror(errno) << C_RESET << std::endl;
+		std::cerr << C_RED "[ " << getCurrentDate() << " ] " << _requests[fd].getMethod() << " " "CLIENT DISCONNECTED." << C_RESET << std::endl;
 		_states[index] = ERROR;
 	}
 	else if (xrecv >= 0)
@@ -109,7 +109,7 @@ void Server::readRequest(int &fd, size_t &index)
 		parseRequest(_requests[fd], buffer, xrecv);
 		if (_requests[fd].getState() == Request::COMPLETED)
 		{
-			std::cout << "REQUEST COMPLETED" << std::endl;
+			std::cout << C_BLUE "[ " << getCurrentDate() << " ] " << _requests[fd].getMethod() << " " << _requests[fd].getPath() << " " << _requests[fd].getVersion() << C_RESET << std::endl;
 			FD_CLR(fd, &_readSet);
 			FD_CLR(fd, &_tmpReadSet);
 			FD_SET(fd, &_writeSet);
@@ -138,7 +138,7 @@ void Server::writeResponseHeaders(int &fd, size_t &index)
 		if (xsend < 0)
 		{
 			_states[index] = ERROR;
-			std::cerr << C_RED "[" << index << "] SEND_HEADER_ERROR: CLIENT DISCONNECTED: " << strerror(errno) << C_RESET << std::endl;
+			std::cerr << C_RED "[ " << getCurrentDate() << " ] " << _requests[fd].getMethod() << " " "CLIENT DISCONNECTED." << C_RESET << std::endl;
 		}
 		else if (res.isBuffered())
 		{
@@ -158,7 +158,6 @@ void Server::writeResponseBody(int &fd, size_t &index)
 	if (!findResponse(fd))
 	{
 		_states[index] = ERROR;
-		std::cerr << C_RED "[" << index << "] CACHED_RESPONSE_NOT_FOUND: (this shouldn't happen): " << strerror(errno) << C_RESET << std::endl;
 	}
 	char buffer[BUFFER_SIZE] = {0};
 	Response &res = _responses[fd];
@@ -170,7 +169,7 @@ void Server::writeResponseBody(int &fd, size_t &index)
 		if (xsend < 0)
 		{
 			_states[index] = ERROR;
-			std::cerr << C_RED "[" << index << "] SEND_BODY_FAILED: CLIENT DISCONNECTED: " << strerror(errno) << C_RESET << std::endl;
+			std::cerr << C_RED "[ " << getCurrentDate() << " ] " << _requests[fd].getMethod() << " " "CLIENT DISCONNECTED." << C_RESET << std::endl;
 		}
 	}
 	else
@@ -181,6 +180,10 @@ void Server::writeResponseBody(int &fd, size_t &index)
 
 void Server::terminateClient(int &fd, size_t &index)
 {
+	if (_responses[fd].getStatusCode() == OK)
+		std::cout << C_GREEN "[ " << getCurrentDate() << " ] " << _requests[fd].getMethod() << " " << _requests[fd].getPath() << " " << _responses[fd].getStatusCode() << " " << _responses[fd].getStatus() << C_RESET << std::endl;
+	else
+		std::cout << C_RED   "[ " << getCurrentDate() << " ] " << _requests[fd].getMethod() << " " << _requests[fd].getPath() << " " << _responses[fd].getStatusCode() << " " << _responses[fd].getStatus() << C_RESET << std::endl;
 	FD_CLR(fd, &_readSet);
 	FD_CLR(fd, &_tmpReadSet);
 	FD_CLR(fd, &_writeSet);
@@ -197,6 +200,10 @@ void Server::terminateClient(int &fd, size_t &index)
 
 void Server::keepAlive(int &fd, size_t &index)
 {
+	if (_responses[fd].getStatusCode() == OK)
+		std::cout << C_GREEN "[ " << getCurrentDate() << " ] " << _requests[fd].getMethod() << " " << _requests[fd].getPath() << " " << _responses[fd].getStatusCode() << " " << _responses[fd].getStatus() << C_RESET << std::endl;
+	else
+		std::cout << C_RED   "[ " << getCurrentDate() << " ] " << _requests[fd].getMethod() << " " << _requests[fd].getPath() << " " << _responses[fd].getStatusCode() << " " << _responses[fd].getStatus() << C_RESET << std::endl;
 	FD_CLR(fd, &_writeSet);
 	FD_CLR(fd, &_tmpWriteSet);
 	FD_SET(fd, &_readSet);
@@ -267,12 +274,10 @@ void Server::listen(void)
 
 			if (_requests[fd].getHeader(H_CONNECTION) != "close")
 			{
-				std::cerr << C_GREEN "[" << i << "] COMPLETED: KEEP-ALIVE" C_RESET << std::endl;
 				keepAlive(fd, i);
 			}
 			else
 			{
-				std::cerr << C_GREEN "[" << i << "] COMPLETED: CLOSE" C_RESET << std::endl;
 				try
 				{
 					terminateClient(fd, i);
