@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ResponseHandler.cpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
+/*   By: aes-salm <aes-salm@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/01 22:24:39 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/26 18:54:22 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/08/27 17:32:00 by aes-salm         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -202,7 +202,7 @@ Response ResponseHandler::_createFileResponse(const Request &req, const std::str
 
 Response ResponseHandler::_createFileCGIResponse(const Request &req, ServerConfig *conf, Location *loc, const std::string &filePath)
 {
-	std::cerr << "HANDING CGI..." << std::endl;
+	// std::cerr << "HANDING CGI..." << std::endl;
 	char buff[1024] = {0};
 	std::string _root = !loc->_root.empty() ? loc->_root : conf->getRoot();
 
