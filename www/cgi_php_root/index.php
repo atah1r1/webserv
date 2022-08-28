@@ -1,6 +1,6 @@
 <?php
 // open the file in a binary mode
-$name = './video2.mp4';
+$name = '../video2.mp4';
 $fp = fopen($name, 'rb');
 
 // send the right headers
