@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aes-salm <aes-salm@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/15 15:17:10 by atahiri           #+#    #+#             */
-/*   Updated: 2022/08/27 17:36:14 by aes-salm         ###   ########.fr       */
+/*   Updated: 2022/08/28 23:25:58 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -179,7 +179,7 @@ void Server::terminateClient(int &fd, size_t &index)
 {
 	if (_states[index] == ERROR)
 		std::cerr << C_RED "[ " << getCurrentDate() << " ] " << "CLIENT DISCONNECTED." << C_RESET << std::endl;
-	else if (_responses[fd].getStatusCode() == OK)
+	else if (_responses[fd].getStatusCode() < 300)
 		std::cout << C_GREEN "[ " << getCurrentDate() << " ] " << _requests[fd].getMethod() << " " << _requests[fd].getPath() << " " << _responses[fd].getStatusCode() << " " << _responses[fd].getStatus() << C_RESET << std::endl;
 	else
 		std::cout << C_RED   "[ " << getCurrentDate() << " ] " << _requests[fd].getMethod() << " " << _requests[fd].getPath() << " " << _responses[fd].getStatusCode() << " " << _responses[fd].getStatus() << C_RESET << std::endl;
@@ -199,7 +199,7 @@ void Server::terminateClient(int &fd, size_t &index)
 
 void Server::keepAlive(int &fd, size_t &index)
 {
-	if (_responses[fd].getStatusCode() == OK)
+	if (_responses[fd].getStatusCode() < 300)
 		std::cout << C_GREEN "[ " << getCurrentDate() << " ] " << _requests[fd].getMethod() << " " << _requests[fd].getPath() << " " << _responses[fd].getStatusCode() << " " << _responses[fd].getStatus() << C_RESET << std::endl;
 	else
 		std::cout << C_RED   "[ " << getCurrentDate() << " ] " << _requests[fd].getMethod() << " " << _requests[fd].getPath() << " " << _responses[fd].getStatusCode() << " " << _responses[fd].getStatus() << C_RESET << std::endl;
