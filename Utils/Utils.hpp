@@ -13,7 +13,6 @@
 #include <map>
 #include "../Config/ServerConfig.hpp"
 #include "../Includes/Webserv.hpp"
-#include "Debug.hpp"
 
 const std::string day_names[7] = {
 	"Sun",

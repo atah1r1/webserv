@@ -13,7 +13,6 @@ SRCS	= 	main.cpp\
       		Request/Utils.cpp\
 			Utils/FileHandler.cpp\
 			Utils/Utils.cpp\
-			Utils/Debug.cpp\
 			Response/ResponseHandler.cpp\
 			Response/Response.cpp\
 			CGI/CGI.cpp

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: atahiri <atahiri@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/26 03:00:15 by ehakam            #+#    #+#             */
-/*   Updated: 2022/08/26 18:50:48 by atahiri          ###   ########.fr       */
+/*   Updated: 2022/08/28 22:28:47 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -163,13 +163,13 @@ bool Response::setupFile( void ) {
 	if (this->_file == NULL)
 		this->_file = new std::fstream();
 	if (this->_file_path.empty()) {
-		debugPrint(_ERROR, __FILE__, __LINE__, "Response: setupFile failure: _filePath is empty");
+		std::cerr << "setupFile() File path is empty." << std::endl;
 		return false;
 	}
 
 	this->_file->open( this->_file_path, std::fstream::in | std::fstream::binary );
 	if (!this->_file->is_open()) {
-		debugPrint(_ERROR, __FILE__, __LINE__, "Response: open failure: ");
+		std::cerr << "setupFile() failed to open file." << std::endl;
 		return false;
 	}
 	return true;
@@ -297,4 +297,3 @@ std::pair<bool, Response> Response::parseFrom( const std::string& filePath ) {
 	r.setFromCGI(true);
 	return std::make_pair(true, r);
 }
-
