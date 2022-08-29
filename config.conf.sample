@@ -5,7 +5,7 @@ server {
     error_page              600 /error_pages/600.html;
 
     location / {
-        root                    /Users/atahiri/Desktop/webserv;
+        root                    ./www/sample_test;
         allow_methods           GET POST;
         index                   /index.html;
         autoindex               on;
