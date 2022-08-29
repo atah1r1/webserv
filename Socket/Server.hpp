@@ -33,7 +33,7 @@ private:
     std::vector<Socket> _clients;
     std::vector<State> _states;
     std::map<int, Response> _responses;
-    std::map<size_t, std::string> _ports;
+    std::multimap<size_t, std::string> _ports;
 	std::vector<ServerConfig> _servConf;
 
 	fd_set _readSet;
@@ -47,7 +47,7 @@ public:
     void setServConf(std::vector<ServerConfig> &servConf);
     void setPorts( void );
     void initSets( void );
-    std::map<size_t, std::string> getPorts() const;
+    std::multimap<size_t, std::string> getPorts() const;
     std::vector<ServerConfig> getServConf() const;
     bool findResponse(int sockFd);
     void setupServerSockets( void );

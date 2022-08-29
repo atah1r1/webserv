@@ -6,7 +6,7 @@
 /*   By: ehakam <ehakam@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/15 15:17:10 by atahiri           #+#    #+#             */
-/*   Updated: 2022/08/28 23:25:58 by ehakam           ###   ########.fr       */
+/*   Updated: 2022/08/29 15:48:04 by ehakam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ void Server::setPorts(void)
 	}
 }
 
-std::map<size_t, std::string> Server::getPorts() const
+std::multimap<size_t, std::string> Server::getPorts() const
 {
 	return _ports;
 }
